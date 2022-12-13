@@ -1,4 +1,4 @@
-package com.gmail.vishchak.denis.Model;
+package com.gmail.vishchak.denis.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;

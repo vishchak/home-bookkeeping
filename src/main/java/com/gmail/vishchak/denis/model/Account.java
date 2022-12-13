@@ -1,4 +1,4 @@
-package com.gmail.vishchak.denis.Model;
+package com.gmail.vishchak.denis.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -15,20 +15,23 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "categoryId")
-public class Subcategory {
+        property = "accountId")
+public class Account {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Long categoryId;
+    private Long accountId;
 
     @Column(name = "name")
-    private String subcategoryName;
+    private String accountName;
+
+    @Column(name = "amount", nullable = false)
+    private Double accountAmount;
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
-    private Category category;
+    @JoinColumn(name = "user_id")
+    private CurrentUser user;
 
-    @OneToMany(mappedBy = "subcategory")
+    @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<Transaction> transactions;
 }

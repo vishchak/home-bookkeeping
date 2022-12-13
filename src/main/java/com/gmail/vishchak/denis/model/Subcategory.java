@@ -1,4 +1,4 @@
-package com.gmail.vishchak.denis.Model;
+package com.gmail.vishchak.denis.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -7,7 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table
@@ -15,30 +15,20 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "transactionId")
-public class Transaction {
+        property = "categoryId")
+public class Subcategory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Long transactionId;
+    private Long categoryId;
 
-    @Column(name = "amount", nullable = false)
-    private Double transactionAmount;
-
-    private String note;
-
-    @Column(name = "date")
-    private Date transactionDate;
-
-    @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false)
-    private Account account;
+    @Column(name = "name")
+    private String subcategoryName;
 
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
-    @ManyToOne
-    @JoinColumn(name = "subcategory_id")
-    private Subcategory subcategory;
+    @OneToMany(mappedBy = "subcategory")
+    private List<Transaction> transactions;
 }
