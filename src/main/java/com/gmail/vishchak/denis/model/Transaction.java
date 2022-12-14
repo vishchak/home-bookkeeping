@@ -27,6 +27,7 @@ public class Transaction {
 
     private String note;
 
+    @Temporal(TemporalType.DATE)
     @Column(name = "date")
     private Date transactionDate;
 
