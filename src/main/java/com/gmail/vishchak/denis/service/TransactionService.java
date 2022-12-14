@@ -37,6 +37,7 @@ public class TransactionService {
         }
 
         Transaction transaction = new Transaction(amount, note, date, account, category, subcategory);
+        transactionRepository.save(transaction);
         return true;
     }
 
