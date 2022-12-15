@@ -9,6 +9,8 @@ import org.springframework.stereotype.Repository;
 public interface CurrentUserRepository extends JpaRepository<CurrentUser, Long> {
     boolean existsByEmail(String email);
 
-    @Query("select c from CurrentUser c where c.email = ?1 or c.login = ?2")
-    CurrentUser findByEmailOrLogin(String email, String login);
+    boolean existsByLogin(String login);
+
+    @Query("select c from CurrentUser c where c.email = ?1 or c.login = ?1")
+    CurrentUser findByEmailOrLogin(String logMail);
 }

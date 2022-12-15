@@ -8,24 +8,26 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "User")
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "userId")
 public class CurrentUser {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long userId;
 
     @Column(unique = true)
     private String login;
 
-    private String password;
+    @Column(name = "password")
+    private String passwordHash;
 
     private String email;
 
@@ -34,5 +36,12 @@ public class CurrentUser {
     private Image image;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Account> accounts;
+    private List<Account> accounts = new ArrayList<>();
+
+    public CurrentUser(String login, String passwordHash, String email, Image image) {
+        this.login = login;
+        this.passwordHash = passwordHash;
+        this.email = email;
+        this.image = image;
+    }
 }

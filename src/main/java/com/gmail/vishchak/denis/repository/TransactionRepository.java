@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Date;
 import java.util.List;
+
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> findByAccount(Account account);
@@ -37,4 +38,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findByTransactionAmountLessThan(Double amount);
 
     List<Transaction> findByTransactionAmountGreaterThan(Double amount);
+
+    Long countTransactionByAccount(Account account);
 }
