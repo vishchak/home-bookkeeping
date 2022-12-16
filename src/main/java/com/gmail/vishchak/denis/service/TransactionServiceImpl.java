@@ -22,11 +22,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
-    public void deleteTransactions(List<Long> ids) {
-        ids.forEach(id -> {
+    public void deleteTransaction(Long id) {
             Optional<Transaction> transaction = transactionRepository.findById(id);
             transaction.ifPresent(t -> transactionRepository.deleteById(t.getTransactionId()));
-        });
     }
 
     @Override

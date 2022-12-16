@@ -9,7 +9,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface TransactionService {
-    void deleteTransactions(List<Long> ids);
+    void deleteTransaction(Long id);
 
     boolean addTransaction(Transaction transaction);
 
