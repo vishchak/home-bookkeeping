@@ -9,7 +9,7 @@ public interface AccountService {
 
     Account findByAccountName(String name, CurrentUser currentUser);
 
-//    void deleteAccount(Account account);
+    void deleteAccount(Long id);
 
-//    void updateAccount(Account account);
+    void updateAccount(Long id, String accountName, Double amount);
 }

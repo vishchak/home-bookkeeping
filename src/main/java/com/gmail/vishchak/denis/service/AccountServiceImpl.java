@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -36,5 +37,26 @@ public class AccountServiceImpl implements AccountService {
                 return a;
         }
         throw new RuntimeException();
+    }
+
+    @Override
+    @Transactional
+    public void deleteAccount(Long id) {
+        Optional<Account> account = accountRepository.findById(id);
+        account.ifPresent(a -> accountRepository.deleteById(a.getAccountId()));
+    }
+
+    @Override
+    public void updateAccount(Long id, String accountName, Double amount) {
+        Optional<Account> account = accountRepository.findById(id);
+        account.ifPresent(c -> {
+            c.setAccountAmount(amount);
+            if (accountName == null || accountName.isEmpty()){
+                accountRepository.save(c);
+                return;
+            }
+                c.setAccountName(accountName);
+            accountRepository.save(c);
+        });
     }
 }
