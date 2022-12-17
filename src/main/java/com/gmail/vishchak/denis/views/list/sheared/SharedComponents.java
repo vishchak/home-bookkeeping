@@ -3,6 +3,7 @@ package com.gmail.vishchak.denis.views.list.sheared;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.textfield.NumberField;
+import com.vaadin.flow.component.textfield.TextField;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -31,5 +32,13 @@ public class SharedComponents {
         dollarField.setClearButtonVisible(true);
 
         return dollarField;
+    }
+
+    public static TextField textFiled(String label) {
+        TextField textField = new TextField();
+        textField.setLabel(label);
+        textField.setClearButtonVisible(true);
+
+        return textField;
     }
 }

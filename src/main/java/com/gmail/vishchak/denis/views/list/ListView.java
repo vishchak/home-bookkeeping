@@ -37,11 +37,11 @@ public class ListView extends VerticalLayout {
         grid.addClassNames("transaction-grid");
         grid.setSizeFull();
         grid.setColumns();
-        grid.addColumn(transaction -> transaction.getTransactionAmount().toString()).setHeader("Amount");
-        grid.addColumn("note");
         grid.addColumn(transaction -> transaction.getTransactionDate().toString()).setHeader("Date");
+        grid.addColumn(transaction -> transaction.getTransactionAmount().toString()).setHeader("Amount");
         grid.addColumn(transaction -> transaction.getCategory().getCategoryName()).setHeader("Category");
         grid.addColumn(transaction -> transaction.getSubcategory().getSubcategoryName()).setHeader("Subcategory");
+        grid.addColumn("note");
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
     }
 
