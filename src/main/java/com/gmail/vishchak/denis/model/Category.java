@@ -13,7 +13,6 @@ import java.util.List;
 @Table
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "categoryId")
 public class Category {
@@ -29,4 +28,8 @@ public class Category {
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
     private List<Subcategory>subcategories;
+
+    public Category(String categoryName) {
+        this.categoryName = categoryName;
+    }
 }

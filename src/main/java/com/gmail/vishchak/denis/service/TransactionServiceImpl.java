@@ -22,23 +22,18 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional
-    public void deleteTransactions(List<Long> ids) {
-        ids.forEach(id -> {
+    public void deleteTransaction(Long id) {
             Optional<Transaction> transaction = transactionRepository.findById(id);
             transaction.ifPresent(t -> transactionRepository.deleteById(t.getTransactionId()));
-        });
     }
 
     @Override
     @Transactional
-    public boolean addTransaction(Account account,
-                                  Double amount, String note, Date date,
-                                  Category category, Subcategory subcategory) {
-        if (account == null || amount <= 0) {
+    public boolean addTransaction(Transaction transaction) {
+        if (transaction.getAccount() == null || transaction.getTransactionAmount() <= 0) {
             return false;
         }
 
-        Transaction transaction = new Transaction(amount, note, date, account, category, subcategory);
         transactionRepository.save(transaction);
         return true;
     }
@@ -60,20 +55,22 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Transaction> findAccountTransactions(Account account) {
-        return transactionRepository.findByAccount(account);
+    public List<Transaction> findAccountTransactions(Account account, String note) {
+        if (note == null || note.isEmpty()) {
+            return transactionRepository.findByAccount(account);
+        } else {
+            return transactionRepository.findByNoteLike(note);
+        }
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Transaction> findTransactionsByNotes(String note) {
-        return transactionRepository.findByNoteLike(note);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Transaction> findTransactionsByDate(Date date) {
-        return transactionRepository.findByTransactionDate(date);
+    public List<Transaction> findTransactionsByDate(Date from, Date to) {
+        if (to == null) {
+            return transactionRepository.findByTransactionDate(from);
+        } else {
+            return transactionRepository.findByTransactionDateBetween(from, to);
+        }
     }
 
     @Override
@@ -102,8 +99,12 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Transaction> findTransactionsByAmount(Double amount) {
-        return transactionRepository.findByTransactionAmount(amount);
+    public List<Transaction> findTransactionsByAmount(Double from, Double to) {
+        if (to == null || to < from) {
+            return transactionRepository.findByTransactionAmount(from);
+        } else {
+            return transactionRepository.findByTransactionAmountBetween(from, to);
+        }
     }
 
     @Override
@@ -114,14 +115,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Transaction> findTransactionsByAmountLEssThan(Double amount) {
+    public List<Transaction> findTransactionsByAmountLessThan(Double amount) {
         return transactionRepository.findByTransactionAmountLessThan(amount);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Transaction> findTransactionsByAmountBetween(Double from, Double to) {
-        return transactionRepository.findByTransactionAmountBetween(from, to);
     }
 
     @Override

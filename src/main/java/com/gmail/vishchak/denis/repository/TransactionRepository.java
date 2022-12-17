@@ -6,6 +6,7 @@ import com.gmail.vishchak.denis.model.Subcategory;
 import com.gmail.vishchak.denis.model.Transaction;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -15,12 +16,15 @@ import java.util.List;
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
     List<Transaction> findByAccount(Account account);
 
-    List<Transaction> findByNoteLike(String note);
+    @Query("select t from Transaction t " +
+            "where lower(t.note) like lower(concat('%', :note, '%'))")
+    List<Transaction> findByNoteLike(@Param("note") String note);
 
-    List<Transaction> findByTransactionDate(Date date);
+    List<Transaction> findByTransactionDate(@Param("date") Date date);
 
     @Query("select t from Transaction t where t.transactionDate between ?1 and ?2")
-    List<Transaction> findByTransactionDateBetween(Date from, Date to);
+    List<Transaction> findByTransactionDateBetween(@Param("from") Date from,
+                                                   @Param("to") Date to);
 
     List<Transaction> findByTransactionDateBefore(Date date);
 
@@ -39,5 +43,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     List<Transaction> findByTransactionAmountGreaterThan(Double amount);
 
-    Long countTransactionByAccount(Account account);
+    @Query("select count(t) from Transaction t where t.account = :account")
+    Long countTransactionByAccount(@Param("account") Account account);
 }

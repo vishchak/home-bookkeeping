@@ -13,7 +13,6 @@ import java.util.List;
 @Table
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "accountId")
 public class Account {
@@ -34,4 +33,10 @@ public class Account {
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<Transaction> transactions;
+
+    public Account(String accountName, Double accountAmount, CurrentUser user) {
+        this.accountName = accountName;
+        this.accountAmount = accountAmount;
+        this.user = user;
+    }
 }
