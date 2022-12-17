@@ -3,10 +3,12 @@ package com.gmail.vishchak.denis.service;
 import com.gmail.vishchak.denis.model.Category;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CategoryService {
-    Category findById(Long id);
-    List<Category> findAll();
+    Optional<Category> findCategoryById(Long id);
+
+    List<Category> findAllCategories();
 
     boolean addCategories(Category... categories);
 

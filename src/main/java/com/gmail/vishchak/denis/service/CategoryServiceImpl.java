@@ -19,7 +19,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Category> findAll() {
+    public List<Category> findAllCategories() {
         return categoryRepository.findAll();
     }
 
@@ -42,10 +42,7 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public Category findById(Long id) {
-        if (id == null || id < 1) {
-            throw new RuntimeException();
-        }
-      return categoryRepository.findById(id).get();
+    public Optional<Category> findCategoryById(Long id) {
+        return categoryRepository.findById(id);
     }
 }
