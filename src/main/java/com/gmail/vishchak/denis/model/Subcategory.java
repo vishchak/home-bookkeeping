@@ -2,7 +2,6 @@ package com.gmail.vishchak.denis.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -13,7 +12,6 @@ import java.util.List;
 @Table
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "categoryId")
 public class Subcategory {
@@ -31,4 +29,9 @@ public class Subcategory {
 
     @OneToMany(mappedBy = "subcategory")
     private List<Transaction> transactions;
+
+    public Subcategory(String subcategoryName, Category category) {
+        this.subcategoryName = subcategoryName;
+        this.category = category;
+    }
 }
