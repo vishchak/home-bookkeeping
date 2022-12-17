@@ -9,15 +9,15 @@ import java.util.Date;
 import java.util.List;
 
 public interface TransactionService {
-    void deleteTransactions(List<Long> ids);
+    void deleteTransaction(Long id);
 
-    boolean addTransaction(Account account, Double amount, String note, Date date, Category category, Subcategory subcategory);
+    boolean addTransaction(Transaction transaction);
 
     void updateTransaction(Long id, Double amount, String note, Category category, Subcategory subcategory);
 
     List<Transaction> findAccountTransactions(Account account, String note);
 
-    List<Transaction> findTransactionsByDate(Date date);
+    List<Transaction> findTransactionsByDate(Date from, Date to);
 
     List<Transaction> findTransactionsByDateBefore(Date date);
 
@@ -27,13 +27,11 @@ public interface TransactionService {
 
     List<Transaction> findTransactionsBySubcategory(Subcategory subcategory);
 
-    List<Transaction> findTransactionsByAmount(Double amount);
+    List<Transaction> findTransactionsByAmount(Double from, Double to);
 
     List<Transaction> findTransactionsByAmountGreaterThan(Double amount);
 
-    List<Transaction> findTransactionsByAmountLEssThan(Double amount);
-
-    List<Transaction> findTransactionsByAmountBetween(Double from, Double to);
+    List<Transaction> findTransactionsByAmountLessThan(Double amount);
 
     Long countTransactions(Account account);
 
