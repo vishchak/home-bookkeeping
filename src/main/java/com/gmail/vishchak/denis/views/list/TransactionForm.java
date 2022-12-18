@@ -20,7 +20,7 @@ import static com.gmail.vishchak.denis.views.list.sheared.SharedComponents.*;
 @NoArgsConstructor
 public class TransactionForm extends FormLayout {
     NumberField transactionAmount = amountField("Amount");
-    TextField note = textFiled("Note");
+    TextField note = textFiled("Note", "");
     ComboBox<Category> category = new ComboBox<>("Category");
     ComboBox<Subcategory> subcategory = new ComboBox<>("Subcategory");
 

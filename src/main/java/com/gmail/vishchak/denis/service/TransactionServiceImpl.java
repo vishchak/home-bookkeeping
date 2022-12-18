@@ -56,7 +56,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional(readOnly = true)
     public List<Transaction> findAccountTransactions(Account account, String note) {
-        if (note == null || note.isEmpty()) {
+        if (note == null || note.isEmpty() || note.equals("Filter by note")) {
             return transactionRepository.findByAccount(account);
         } else {
             return transactionRepository.findByNoteLike(note);

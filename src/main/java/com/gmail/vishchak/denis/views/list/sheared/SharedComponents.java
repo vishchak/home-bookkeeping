@@ -34,9 +34,10 @@ public class SharedComponents {
         return dollarField;
     }
 
-    public static TextField textFiled(String label) {
+    public static TextField textFiled(String label, String value) {
         TextField textField = new TextField();
         textField.setLabel(label);
+        textField.setValue(value);
         textField.setClearButtonVisible(true);
 
         return textField;
