@@ -17,8 +17,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     List<Transaction> findByAccount(Account account);
 
     @Query("select t from Transaction t " +
-            "where lower(t.note) like lower(concat('%', :note, '%'))")
-    List<Transaction> findByNoteLike(@Param("note") String note);
+            "where t.account.accountId =:accountId and " +
+            "lower(t.note) like lower(concat('%', :note, '%'))")
+    List<Transaction> findByAccountAndNoteLike(@Param("accountId") Long accountId,
+                                               @Param("note") String note);
 
     List<Transaction> findByTransactionDate(@Param("date") Date date);
 

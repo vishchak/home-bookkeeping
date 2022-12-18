@@ -59,13 +59,13 @@ public class TransactionServiceImpl implements TransactionService {
         if (note == null || note.isEmpty() || note.equals("Filter by note")) {
             return transactionRepository.findByAccount(account);
         } else {
-            return transactionRepository.findByNoteLike(note);
+            return transactionRepository.findByAccountAndNoteLike(account.getAccountId(), note);
         }
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Transaction> findTransactionsByDate(Date from, Date to) {
+    public List<Transaction> findTransactionsByDate(Account account, Date from, Date to) {
         if (to == null) {
             return transactionRepository.findByTransactionDate(from);
         } else {

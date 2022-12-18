@@ -17,7 +17,7 @@ public interface TransactionService {
 
     List<Transaction> findAccountTransactions(Account account, String note);
 
-    List<Transaction> findTransactionsByDate(Date from, Date to);
+    List<Transaction> findTransactionsByDate(Account account, Date from, Date to);
 
     List<Transaction> findTransactionsByDateBefore(Date date);
 
