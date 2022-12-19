@@ -15,11 +15,13 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     @Query("select t from Transaction t " +
             "where t.account.accountId = :accountId " +
             "and (:note is null or (lower(t.note) like lower(concat('%', :note, '%')))) " +
-            "and ((:from is null or :to is null) or (t.transactionDate between :from and :to))")
+            "and ((:from is null or :to is null) or (t.transactionDate between :from and :to)) " +
+            "and (:amount is null or (t.transactionAmount =:amount))")
     List<Transaction> findTransactionsByAccountIdAndNoteLikeAndTransactionDate(@Param("accountId") Long accountId,
                                                                                @Param("note") String note,
                                                                                @Param("from") Date from,
-                                                                               @Param("to") Date to);
+                                                                               @Param("to") Date to,
+                                                                               @Param("amount") Double amount);
 
     @Query("select count(t) from Transaction t where t.account = :account")
     Long countTransactionByAccount(@Param("account") Account account);

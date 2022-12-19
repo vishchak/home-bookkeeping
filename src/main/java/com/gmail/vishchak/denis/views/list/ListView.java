@@ -72,14 +72,17 @@ public class ListView extends VerticalLayout {
             grid.setItems(transactionService.findAccountTransactions(currentAccount,
                     textField.getValue(),
                     null,
-                    null));
+                    null,
+                    amountField.getValue())
+            );
             return;
         }
 
         grid.setItems(transactionService.findAccountTransactions(currentAccount,
                 textField.getValue(),
                 Date.from(fromDateField.getValue().atStartOfDay(defaultZoneId).toInstant()),
-                Date.from(toDateField.getValue().atStartOfDay(defaultZoneId).toInstant())));
+                Date.from(toDateField.getValue().atStartOfDay(defaultZoneId).toInstant()),
+                amountField.getValue()));
     }
 
     private void configureGrid() {
@@ -112,6 +115,8 @@ public class ListView extends VerticalLayout {
 
         fromDateField.addValueChangeListener(e -> updateList());
         toDateField.addValueChangeListener(e -> updateList());
+
+        amountField.addValueChangeListener(e -> updateList());
 
         HorizontalLayout toolbar = new HorizontalLayout(addTransactionButton,
                 amountField,

@@ -24,9 +24,9 @@ public class SharedComponents {
         return date;
     }
 
-    public static NumberField amountField(String placeholder) {
+    public static NumberField amountField(String label) {
         NumberField dollarField = new NumberField();
-        dollarField.setPlaceholder(placeholder);
+        dollarField.setLabel(label);
         Div dollarPrefix = new Div();
         dollarPrefix.setText("$");
         dollarField.setSizeFull();
