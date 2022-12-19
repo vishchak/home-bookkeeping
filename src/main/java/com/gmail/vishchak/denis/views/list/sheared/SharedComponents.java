@@ -9,12 +9,13 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 
 public class SharedComponents {
-    public static DatePicker dateField(String format, String placeholder) {
+    public static DatePicker dateField(String format, String label, LocalDate value) {
         DatePicker.DatePickerI18n singleFormatI18n = new DatePicker.DatePickerI18n();
         singleFormatI18n.setDateFormat(format);
 
         DatePicker date = new DatePicker();
-        date.setPlaceholder(placeholder);
+        date.setLabel(label);
+        date.setValue(value);
         date.setI18n(singleFormatI18n);
 
         LocalDate now = LocalDate.now(ZoneId.systemDefault());
@@ -34,10 +35,9 @@ public class SharedComponents {
         return dollarField;
     }
 
-    public static TextField textFiled(String label, String value) {
+    public static TextField textFiled(String value) {
         TextField textField = new TextField();
-        textField.setLabel(label);
-        textField.setValue(value);
+        textField.setLabel(value);
         textField.setClearButtonVisible(true);
 
         return textField;

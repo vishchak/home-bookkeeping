@@ -15,22 +15,7 @@ public interface TransactionService {
 
     void updateTransaction(Long id, Double amount, String note, Category category, Subcategory subcategory);
 
-    List<Transaction> findAccountTransactions(Account account, String note, Date date);
-
-    List<Transaction> findAccountTransactionsByDateBefore(Account account, Date date);
-
-    List<Transaction> findTransactionsByDateAfter(Date date);
-
-    List<Transaction> findTransactionsByCategory(Category category);
-
-    List<Transaction> findTransactionsBySubcategory(Subcategory subcategory);
-
-    List<Transaction> findTransactionsByAmount(Double from, Double to);
-
-    List<Transaction> findTransactionsByAmountGreaterThan(Double amount);
-
-    List<Transaction> findTransactionsByAmountLessThan(Double amount);
+    List<Transaction> findAccountTransactions(Account account, String note, Date from, Date to);
 
     Long countTransactions(Account account);
-
 }

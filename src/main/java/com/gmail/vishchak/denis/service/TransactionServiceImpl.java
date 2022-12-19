@@ -55,67 +55,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Transaction> findAccountTransactions(Account account, String note, Date date) {
-        boolean filterByNote = !(note == null || note.isEmpty() || note.equals("Filter by note"));
-        boolean filterByDate = date != null;
-
-        if (filterByNote && filterByDate) {
-            return transactionRepository.findTransactionsByAccountIdAndNoteLikeAndTransactionDate(account.getAccountId(), note, date);
-        }
-
-        if (filterByNote) {
-            return transactionRepository.findByAccountIdAndNoteLike(account.getAccountId(), note);
-        }
-        if (filterByDate) {
-            return transactionRepository.findByAccountIdAndTransactionDate(account.getAccountId(), date);
-        }
-        return transactionRepository.findByAccount(account.getAccountId());
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Transaction> findAccountTransactionsByDateBefore(Account account, Date date) {
-        return transactionRepository.findByAccountIdAndTransactionDateBefore(account.getAccountId(), date);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Transaction> findTransactionsByDateAfter(Date date) {
-        return transactionRepository.findByTransactionDateAfter(date);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Transaction> findTransactionsByCategory(Category category) {
-        return transactionRepository.findByCategory(category);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Transaction> findTransactionsBySubcategory(Subcategory subcategory) {
-        return transactionRepository.findBySubcategory(subcategory);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Transaction> findTransactionsByAmount(Double from, Double to) {
-        if (to == null || to < from) {
-            return transactionRepository.findByTransactionAmount(from);
-        } else {
-            return transactionRepository.findByTransactionAmountBetween(from, to);
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Transaction> findTransactionsByAmountGreaterThan(Double amount) {
-        return transactionRepository.findByTransactionAmountGreaterThan(amount);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Transaction> findTransactionsByAmountLessThan(Double amount) {
-        return transactionRepository.findByTransactionAmountLessThan(amount);
+    public List<Transaction> findAccountTransactions(Account account, String note, Date from, Date to) {
+        return transactionRepository.findTransactionsByAccountIdAndNoteLikeAndTransactionDate(account.getAccountId(), note, from, to);
     }
 
     @Override
