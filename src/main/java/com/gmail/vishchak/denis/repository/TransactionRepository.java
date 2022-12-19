@@ -14,21 +14,32 @@ import java.util.List;
 
 @Repository
 public interface TransactionRepository extends JpaRepository<Transaction, Long> {
-    List<Transaction> findByAccount(Account account);
+    @Query("select t from Transaction t where t.account.accountId =:accountId")
+    List<Transaction> findByAccount(@Param("accountId") Long accountId);
 
     @Query("select t from Transaction t " +
             "where t.account.accountId =:accountId and " +
             "lower(t.note) like lower(concat('%', :note, '%'))")
-    List<Transaction> findByAccountAndNoteLike(@Param("accountId") Long accountId,
-                                               @Param("note") String note);
+    List<Transaction> findByAccountIdAndNoteLike(@Param("accountId") Long accountId,
+                                                 @Param("note") String note);
 
-    List<Transaction> findByTransactionDate(@Param("date") Date date);
+    @Query("select t from Transaction t " +
+            "where t.account.accountId = :accountId and " +
+            "t.transactionDate =:date")
+    List<Transaction> findByAccountIdAndTransactionDate(@Param("accountId") Long accountId,
+                                                        @Param("date") Date date);
 
-    @Query("select t from Transaction t where t.transactionDate between ?1 and ?2")
-    List<Transaction> findByTransactionDateBetween(@Param("from") Date from,
-                                                   @Param("to") Date to);
+    @Query("select t from Transaction t " +
+            "where t.account.accountId = :accountId " +
+            "and lower(t.note) like lower(concat('%', :note, '%')) " +
+            "and t.transactionDate = :date")
+    List<Transaction> findTransactionsByAccountIdAndNoteLikeAndTransactionDate(@Param("accountId") Long accountId,
+                                                                               @Param("note") String note,
+                                                                               @Param("date") Date date);
 
-    List<Transaction> findByTransactionDateBefore(Date date);
+    @Query("select t from Transaction t where t.account.accountId = :accountId and t.transactionDate <= :date")
+    List<Transaction> findByAccountIdAndTransactionDateBefore(@Param("accountId") Long accountId,
+                                                              @Param("date") Date date);
 
     List<Transaction> findByTransactionDateAfter(Date date);
 

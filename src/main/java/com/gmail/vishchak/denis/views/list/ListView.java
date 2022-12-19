@@ -1,10 +1,11 @@
 package com.gmail.vishchak.denis.views.list;
 
+import com.gmail.vishchak.denis.model.Account;
 import com.gmail.vishchak.denis.model.Transaction;
 import com.gmail.vishchak.denis.service.*;
-import com.gmail.vishchak.denis.views.list.sheared.SharedComponents;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -14,6 +15,9 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import java.time.ZoneId;
+import java.util.Date;
+
 import static com.gmail.vishchak.denis.views.list.sheared.SharedComponents.*;
 
 @Route(value = "")
@@ -22,8 +26,9 @@ public class ListView extends VerticalLayout {
     Grid<Transaction> grid = new Grid<>(Transaction.class);
     TransactionForm form;
     NumberField amountField;
-
     TextField textField;
+
+    DatePicker dateField = dateField("dd-MM-yyyy", "Filter by date:");
     private final AccountServiceImpl accountService;
     private final CategoryServiceImpl categoryService;
     private final CurrentUserServiceImpl currentUserService;
@@ -55,13 +60,19 @@ public class ListView extends VerticalLayout {
     }
 
     private void updateList() {
-        grid.setItems(transactionService.findAccountTransactions(
+        Account currentAccount = accountService.findByAccountName(
+                "test account", currentUserService.findUserByEmailOrLogin(
+                        "test user"));
+        ZoneId defaultZoneId = ZoneId.systemDefault();
 
-                accountService.findByAccountName(
-                        "test account", currentUserService.findUserByEmailOrLogin(
-                                "test user")
-                ),
-                textField.getValue()));
+        if (dateField.isEmpty()) {
+            grid.setItems(transactionService.findAccountTransactionsByDateBefore(currentAccount, new Date()));
+            return;
+        }
+
+        grid.setItems(transactionService.findAccountTransactions(currentAccount,
+                textField.getValue(),
+                Date.from(dateField.getValue().atStartOfDay(defaultZoneId).toInstant())));
     }
 
     private void configureGrid() {
@@ -92,9 +103,11 @@ public class ListView extends VerticalLayout {
         textField.setValueChangeMode(ValueChangeMode.LAZY);
         textField.addValueChangeListener(e -> updateList());
 
+        dateField.addValueChangeListener(e -> updateList());
+
         HorizontalLayout toolbar = new HorizontalLayout(addTransactionButton,
                 amountField,
-                SharedComponents.dateField("dd-MM-yyyy", "Filter by date:"),
+                dateField,
                 textField);
 
         toolbar.addClassName("toolbar");

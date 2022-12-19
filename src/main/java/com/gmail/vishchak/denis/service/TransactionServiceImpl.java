@@ -23,8 +23,8 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public void deleteTransaction(Long id) {
-            Optional<Transaction> transaction = transactionRepository.findById(id);
-            transaction.ifPresent(t -> transactionRepository.deleteById(t.getTransactionId()));
+        Optional<Transaction> transaction = transactionRepository.findById(id);
+        transaction.ifPresent(t -> transactionRepository.deleteById(t.getTransactionId()));
     }
 
     @Override
@@ -55,28 +55,27 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Transaction> findAccountTransactions(Account account, String note) {
-        if (note == null || note.isEmpty() || note.equals("Filter by note")) {
-            return transactionRepository.findByAccount(account);
-        } else {
-            return transactionRepository.findByAccountAndNoteLike(account.getAccountId(), note);
+    public List<Transaction> findAccountTransactions(Account account, String note, Date date) {
+        boolean filterByNote = !(note == null || note.isEmpty() || note.equals("Filter by note"));
+        boolean filterByDate = date != null;
+
+        if (filterByNote && filterByDate) {
+            return transactionRepository.findTransactionsByAccountIdAndNoteLikeAndTransactionDate(account.getAccountId(), note, date);
         }
+
+        if (filterByNote) {
+            return transactionRepository.findByAccountIdAndNoteLike(account.getAccountId(), note);
+        }
+        if (filterByDate) {
+            return transactionRepository.findByAccountIdAndTransactionDate(account.getAccountId(), date);
+        }
+        return transactionRepository.findByAccount(account.getAccountId());
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Transaction> findTransactionsByDate(Account account, Date from, Date to) {
-        if (to == null) {
-            return transactionRepository.findByTransactionDate(from);
-        } else {
-            return transactionRepository.findByTransactionDateBetween(from, to);
-        }
-    }
-
-    @Override
-    @Transactional(readOnly = true)
-    public List<Transaction> findTransactionsByDateBefore(Date date) {
-        return transactionRepository.findByTransactionDateBefore(date);
+    public List<Transaction> findAccountTransactionsByDateBefore(Account account, Date date) {
+        return transactionRepository.findByAccountIdAndTransactionDateBefore(account.getAccountId(), date);
     }
 
     @Override
