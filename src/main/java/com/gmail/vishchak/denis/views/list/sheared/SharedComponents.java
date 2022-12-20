@@ -9,13 +9,12 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 
 public class SharedComponents {
-    public static DatePicker dateField(String format, String label, LocalDate value) {
+    public static DatePicker dateField(String format, String label) {
         DatePicker.DatePickerI18n singleFormatI18n = new DatePicker.DatePickerI18n();
         singleFormatI18n.setDateFormat(format);
 
         DatePicker date = new DatePicker();
         date.setLabel(label);
-        date.setValue(value);
         date.setI18n(singleFormatI18n);
 
         LocalDate now = LocalDate.now(ZoneId.systemDefault());

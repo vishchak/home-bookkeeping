@@ -31,8 +31,8 @@ public class TransactionForm extends FormLayout {
 
     private final ZoneId defaultZoneId = ZoneId.systemDefault();
     private final LocalDate localDate = LocalDate.now();
-    private final DatePicker fromDateField = dateField(format, "Start date", LocalDate.of(1970, 1, 1));
-    private final DatePicker toDateField = dateField(format, "Finish date", localDate);
+    private final DatePicker fromDateField = dateField(format, "Start date");
+    private final DatePicker toDateField = dateField(format, "Finish date");
     private final Button cancel = new Button("cancel");
 
     public TransactionForm(List<Category> categories, List<Subcategory> subcategories) {
