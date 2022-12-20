@@ -55,8 +55,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Transaction> findAccountTransactions(Account account, String note, Date from, Date to, Double amount) {
-        return transactionRepository.findTransactionsByAccountIdAndNoteLikeAndTransactionDate(account.getAccountId(), note, from, to, amount);
+    public List<Transaction> findAccountTransactions(Account account, String note, Date from, Date to, Double amount, String category, String subcategory) {
+        return transactionRepository.findTransactionsByAccount(account.getAccountId(), note, from, to, amount, category, subcategory);
     }
 
     @Override

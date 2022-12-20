@@ -15,7 +15,7 @@ public interface TransactionService {
 
     void updateTransaction(Long id, Double amount, String note, Category category, Subcategory subcategory);
 
-    List<Transaction> findAccountTransactions(Account account, String note, Date from, Date to, Double amount);
+    List<Transaction> findAccountTransactions(Account account, String note, Date from, Date to, Double amount, String category, String subcategory);
 
     Long countTransactions(Account account);
 }

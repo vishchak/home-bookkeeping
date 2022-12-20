@@ -56,21 +56,15 @@ public class ListView extends VerticalLayout {
                 "test account", currentUserService.findUserByEmailOrLogin(
                         "test user"));
 
-        if (form.getToDateField().isEmpty() || form.getToDateField().isEmpty()) {
-            grid.setItems(transactionService.findAccountTransactions(currentAccount,
-                    form.getNoteField().getValue(),
-                    null,
-                    null,
-                    form.getAmountField().getValue())
-            );
-            return;
-        }
-
-        grid.setItems(transactionService.findAccountTransactions(currentAccount,
-                form.getNoteField().getValue(),
-                Date.from(form.getFromDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
-                Date.from(form.getToDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
-                form.getAmountField().getValue()));
+        grid.setItems(
+                transactionService.findAccountTransactions(currentAccount,
+                        form.getNoteField().getValue(),
+                        form.getFromDateField().isEmpty() ? null : Date.from(form.getFromDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
+                        form.getToDateField().isEmpty() ? null : Date.from(form.getToDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
+                        form.getAmountField().getValue(),
+                        form.getCategory().isEmpty() ? null : form.getCategory().getValue().getCategoryName(),
+                        form.getSubcategory().isEmpty() ? null : form.getSubcategory().getValue().getSubcategoryName())
+        );
     }
 
     private void configureGrid() {
@@ -94,6 +88,8 @@ public class ListView extends VerticalLayout {
         form.getFromDateField().addValueChangeListener(e -> updateList());
         form.getToDateField().addValueChangeListener(e -> updateList());
         form.getNoteField().addValueChangeListener(e -> updateList());
+        form.getCategory().addValueChangeListener(e -> updateList());
+        form.getSubcategory().addValueChangeListener(e -> updateList());
     }
 
     private HorizontalLayout getToolbar() {
