@@ -65,4 +65,13 @@ public class TransactionForm extends FormLayout {
 
         return new HorizontalLayout(cancel);
     }
+
+    protected void clearForm() {
+        amountField.setValue(amountField.getEmptyValue());
+        fromDateField.setValue(fromDateField.getEmptyValue());
+        toDateField.setValue(toDateField.getEmptyValue());
+        noteField.setValue(noteField.getEmptyValue());
+        category.setValue(category.getEmptyValue());
+        subcategory.setValue(subcategory.getEmptyValue());
+    }
 }

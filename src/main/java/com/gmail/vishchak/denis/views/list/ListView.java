@@ -90,6 +90,8 @@ public class ListView extends VerticalLayout {
         form.getNoteField().addValueChangeListener(e -> updateList());
         form.getCategory().addValueChangeListener(e -> updateList());
         form.getSubcategory().addValueChangeListener(e -> updateList());
+
+        form.getCancel().addClickListener(e -> form.clearForm());
     }
 
     private HorizontalLayout getToolbar() {
