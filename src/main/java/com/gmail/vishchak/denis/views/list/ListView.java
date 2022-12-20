@@ -5,21 +5,15 @@ import com.gmail.vishchak.denis.model.Transaction;
 import com.gmail.vishchak.denis.service.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.NumberField;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 
-import static com.gmail.vishchak.denis.views.list.sheared.SharedComponents.*;
 
 @Route(value = "")
 @PageTitle("Transactions list")
@@ -31,13 +25,6 @@ public class ListView extends VerticalLayout {
     private final TransactionServiceImpl transactionService;
     Grid<Transaction> grid = new Grid<>(Transaction.class);
     TransactionForm form;
-    NumberField amountField;
-    TextField textField;
-    String format = "dd-MM-yyyy";
-    ZoneId defaultZoneId = ZoneId.systemDefault();
-    LocalDate localDate = LocalDate.now();
-    DatePicker fromDateField = dateField(format, "Start date", LocalDate.of(1970, 1, 1));
-    DatePicker toDateField = dateField(format, "Finish date", localDate);
 
     public ListView(AccountServiceImpl accountService,
                     CategoryServiceImpl categoryService,
@@ -64,25 +51,26 @@ public class ListView extends VerticalLayout {
     }
 
     private void updateList() {
+        ZoneId defaultZoneId = form.getDefaultZoneId();
         Account currentAccount = accountService.findByAccountName(
                 "test account", currentUserService.findUserByEmailOrLogin(
                         "test user"));
 
-        if (fromDateField.isEmpty() || toDateField.isEmpty()) {
+        if (form.getToDateField().isEmpty() || form.getToDateField().isEmpty()) {
             grid.setItems(transactionService.findAccountTransactions(currentAccount,
-                    textField.getValue(),
+                    form.getNoteField().getValue(),
                     null,
                     null,
-                    amountField.getValue())
+                    form.getAmountField().getValue())
             );
             return;
         }
 
         grid.setItems(transactionService.findAccountTransactions(currentAccount,
-                textField.getValue(),
-                Date.from(fromDateField.getValue().atStartOfDay(defaultZoneId).toInstant()),
-                Date.from(toDateField.getValue().atStartOfDay(defaultZoneId).toInstant()),
-                amountField.getValue()));
+                form.getNoteField().getValue(),
+                Date.from(form.getFromDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
+                Date.from(form.getToDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
+                form.getAmountField().getValue()));
     }
 
     private void configureGrid() {
@@ -98,31 +86,23 @@ public class ListView extends VerticalLayout {
     }
 
     private void configureForm() {
-        form = new TransactionForm(categoryService.findAllCategories(), subcategoryService.findAllCategories());
+        form = new TransactionForm(
+                categoryService.findAllCategories(), subcategoryService.findAllCategories());
         form.setWidth("25 em");
+
+        form.getAmountField().addValueChangeListener(e -> updateList());
+        form.getFromDateField().addValueChangeListener(e -> updateList());
+        form.getToDateField().addValueChangeListener(e -> updateList());
+        form.getNoteField().addValueChangeListener(e -> updateList());
     }
 
-
     private HorizontalLayout getToolbar() {
-        Button addTransactionButton = new Button("Add transaction");
+        Button addTransactionButton = new Button("Add");
 
-        amountField = amountField("Filter by amount");
-        amountField.setValueChangeMode(ValueChangeMode.LAZY);
+        addTransactionButton.addClickListener(e -> addTransactionButton.getUI().ifPresent(ui ->
+                ui.navigate("add-transaction")));
 
-        textField = textFiled("Filter by note");
-        textField.setValueChangeMode(ValueChangeMode.LAZY);
-        textField.addValueChangeListener(e -> updateList());
-
-        fromDateField.addValueChangeListener(e -> updateList());
-        toDateField.addValueChangeListener(e -> updateList());
-
-        amountField.addValueChangeListener(e -> updateList());
-
-        HorizontalLayout toolbar = new HorizontalLayout(addTransactionButton,
-                amountField,
-                fromDateField,
-                toDateField,
-                textField);
+        HorizontalLayout toolbar = new HorizontalLayout(addTransactionButton);
 
         toolbar.addClassName("toolbar");
         toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
