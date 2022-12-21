@@ -110,7 +110,7 @@ public class ListView extends VerticalLayout {
     }
 
     private Component addContent() {
-        HorizontalLayout content = new HorizontalLayout(grid, form);
+        HorizontalLayout content = new HorizontalLayout(form,grid);
         content.setFlexGrow(2, grid);
         content.setFlexGrow(1, form);
         content.addClassName("content");

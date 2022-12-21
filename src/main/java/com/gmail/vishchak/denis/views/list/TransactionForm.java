@@ -9,7 +9,9 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -47,13 +49,16 @@ public class TransactionForm extends FormLayout {
         amountField.setValueChangeMode(ValueChangeMode.LAZY);
         noteField.setValueChangeMode(ValueChangeMode.LAZY);
 
-        add(
+        VerticalLayout verticalLayout = new VerticalLayout(
                 amountField,
-                new HorizontalLayout(fromDateField,
-                        toDateField),
+                new HorizontalLayout(fromDateField, toDateField),
                 category,
                 subcategory,
-                noteField,
+                noteField);
+        verticalLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+
+        add(
+                verticalLayout,
                 createButtonsLayout()
         );
     }
@@ -63,7 +68,9 @@ public class TransactionForm extends FormLayout {
 
         cancel.addClickShortcut(Key.ESCAPE);
 
-        return new HorizontalLayout(cancel);
+        HorizontalLayout horizontalLayout = new HorizontalLayout(cancel);
+        horizontalLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
+        return horizontalLayout;
     }
 
     protected void clearForm() {
