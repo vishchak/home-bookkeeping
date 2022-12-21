@@ -34,6 +34,10 @@ public class TransactionServiceImpl implements TransactionService {
             return false;
         }
 
+        if (transaction.getNote().isEmpty() || transaction.getNote() == null) {
+        transaction.setNote("-");
+        }
+
         transactionRepository.save(transaction);
         return true;
     }

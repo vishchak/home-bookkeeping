@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -20,7 +21,8 @@ public class Transaction {
     @Column(name = "id", nullable = false)
     private Long transactionId;
 
-    @Column(name = "amount", nullable = false)
+    @NotNull
+    @Column(name = "amount")
     private Double transactionAmount;
 
     private String note;
@@ -33,10 +35,12 @@ public class Transaction {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "category_id")
     private Category category;
 
+    @NotNull
     @ManyToOne
     @JoinColumn(name = "subcategory_id")
     private Subcategory subcategory;
