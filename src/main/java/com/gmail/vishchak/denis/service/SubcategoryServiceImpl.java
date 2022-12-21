@@ -33,7 +33,7 @@ public class SubcategoryServiceImpl implements SubcategoryService {
     @Transactional
     public void deleteSubcategory(Long id) {
         Optional<Subcategory> subcategory = subcategoryRepository.findById(id);
-        subcategory.ifPresent(c -> subcategoryRepository.deleteById(c.getCategoryId()));
+        subcategory.ifPresent(c -> subcategoryRepository.deleteById(c.getSubcategoryId()));
     }
 
     @Override
