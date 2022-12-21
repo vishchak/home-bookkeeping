@@ -5,6 +5,7 @@ import com.gmail.vishchak.denis.model.Transaction;
 import com.gmail.vishchak.denis.service.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -95,7 +96,8 @@ public class ListView extends VerticalLayout {
     }
 
     private HorizontalLayout getToolbar() {
-        Button addTransactionButton = new Button("Add");
+        Button addTransactionButton = new Button("Add transaction");
+        addTransactionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         addTransactionButton.addClickListener(e -> addTransactionButton.getUI().ifPresent(ui ->
                 ui.navigate("add-transaction")));
