@@ -6,11 +6,15 @@ import com.gmail.vishchak.denis.service.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
 
 import java.time.ZoneId;
 import java.util.Date;
@@ -71,14 +75,49 @@ public class ListView extends VerticalLayout {
     private void configureGrid() {
         grid.addClassNames("transaction-grid");
         grid.setSizeFull();
+        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+
         grid.setColumns();
-        grid.addColumn(transaction -> transaction.getTransactionDate().toString()).setHeader("Date");
-        grid.addColumn(transaction -> transaction.getTransactionAmount().toString()).setHeader("Amount");
-        grid.addColumn(transaction -> transaction.getCategory().getCategoryName()).setHeader("Category");
-        grid.addColumn(transaction -> transaction.getSubcategory().getSubcategoryName()).setHeader("Subcategory");
+        grid.addColumn(transaction -> transaction.getTransactionDate().toString()).setHeader("Date").setSortable(true);
+        grid.addColumn(transaction -> transaction.getTransactionAmount().toString()).setHeader("Amount").setSortable(true);
+        grid.addColumn(transaction -> transaction.getCategory().getCategoryName()).setHeader("Category").setSortable(true);
+        grid.addColumn(transaction -> transaction.getSubcategory().getSubcategoryName()).setHeader("Subcategory").setSortable(true);
         grid.addColumn("note");
+        grid.addComponentColumn(transaction -> {
+            Button editButton = new Button("Edit");
+            editButton.setIcon(new Icon("lumo", "edit"));
+            editButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("add-transaction/" + transaction.getTransactionId())));
+            Button deleteButton = new Button("Delete");
+            deleteButton.addClickListener(e -> deleteTransaction(transaction));
+            return new HorizontalLayout(editButton, deleteButton);
+        });
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
+
     }
+
+    private void deleteTransaction(Transaction transaction) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Are you sure you want to delete this transaction permanently?");
+
+        Button deleteButton = new Button("Delete");
+        deleteButton.addClickListener((e) -> {
+            transactionService.deleteTransaction(transaction.getTransactionId());
+            updateList();
+            dialog.close();
+        });
+
+        deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
+                ButtonVariant.LUMO_ERROR);
+        deleteButton.getStyle().set("margin-right", "auto");
+        dialog.getFooter().add(deleteButton);
+
+        Button cancelButton = new Button("Cancel", (e) -> dialog.close());
+        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        dialog.getFooter().add(cancelButton);
+
+        dialog.open();
+    }
+
 
     private void configureForm() {
         form = new TransactionForm(
@@ -110,7 +149,7 @@ public class ListView extends VerticalLayout {
     }
 
     private Component addContent() {
-        HorizontalLayout content = new HorizontalLayout(form,grid);
+        HorizontalLayout content = new HorizontalLayout(form, grid);
         content.setFlexGrow(2, grid);
         content.setFlexGrow(1, form);
         content.addClassName("content");
