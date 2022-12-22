@@ -7,6 +7,7 @@ import com.gmail.vishchak.denis.model.Transaction;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface TransactionService {
     void deleteTransaction(Long id);
@@ -18,4 +19,6 @@ public interface TransactionService {
     List<Transaction> findAccountTransactions(Account account, String note, Date from, Date to, Double amount, String category, String subcategory);
 
     Long countTransactions(Account account);
+
+    Optional<Transaction> findById(Long id);
 }

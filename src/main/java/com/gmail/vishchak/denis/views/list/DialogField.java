@@ -21,10 +21,14 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.router.BeforeEvent;
+import com.vaadin.flow.router.HasUrlParameter;
+import com.vaadin.flow.router.OptionalParameter;
 import com.vaadin.flow.router.Route;
 
 
 import java.util.Date;
+import java.util.Optional;
 
 import static com.gmail.vishchak.denis.views.list.sheared.SharedComponents.amountField;
 import static com.gmail.vishchak.denis.views.list.sheared.SharedComponents.textFiled;
@@ -32,7 +36,7 @@ import static com.gmail.vishchak.denis.views.list.sheared.SharedComponents.textF
 //dialog filed add transaction
 //ADD ACCOUNT REPO METHOD FIND CURRENT ACCOUNT BY USER AND NAME EVENTUALLY
 @Route("add-transaction")
-public class DialogField extends Div {
+public class DialogField extends Div implements HasUrlParameter<Long> {
     Dialog dialog = new Dialog();
     Binder<Transaction> binder = new BeanValidationBinder<>(Transaction.class);
     TextField note = textFiled("Note");
@@ -59,38 +63,69 @@ public class DialogField extends Div {
         this.categoryService = categoryService;
         this.subcategoryService = subcategoryService;
 
-        dialog.setHeaderTitle("Add transaction");
+    }
+
+    @Override
+    public void setParameter(BeforeEvent beforeEvent,
+                             @OptionalParameter Long id) {
+        if (id == null) {
+            addTransactionDialog();
+            return;
+        }
+        updateTransactionDialog(id);
+    }
+
+    private void addTransactionDialog() {
+        dialogCreate("Add transaction", null, "add");
+    }
+
+    private void updateTransactionDialog(Long id) {
+        dialogCreate("Update transaction", id, "update");
+    }
+
+    private void dialogCreate(String header, Long id, String buttonText) {
+        dialog.setHeaderTitle(header);
         dialog.setCloseOnOutsideClick(false);
 
         binder.bindInstanceFields(this);
 
+        labelGenerator();
+
+        if (id != null) {
+            Optional<Transaction> optionalTransaction = transactionService.findById(id);
+            optionalTransaction.ifPresent(transaction -> {
+                category.setValue(transaction.getCategory());
+                subcategory.setValue(transaction.getSubcategory());
+                note.setValue(transaction.getNote());
+                transactionAmount.setValue(transaction.getTransactionAmount());
+            });
+        }
+
+        VerticalLayout dialogLayout = createDialogLayout();
+        dialog.add(dialogLayout);
+
+        Button confirmButton = createConfirmButton(buttonText);
+        if (id == null) {
+            confirmButton.addClickListener(e -> validateAndAdd());
+        } else {
+            confirmButton.addClickListener(e -> validateAndUpdate(id));
+        }
+
+        Button cancelButton = new Button("Cancel", e -> getUI().ifPresent(ui -> ui.navigate("")));
+        cancelButton.addClickShortcut(Key.ESCAPE);
+
+        dialog.getFooter().add( new HorizontalLayout(cancelButton,confirmButton));
+
+        add(dialog);
+        dialog.open();
+    }
+
+    public void labelGenerator() {
         category.setItems(categoryService.findAllCategories());
         category.setItemLabelGenerator(Category::getCategoryName);
 
         subcategory.setItems(subcategoryService.findAllCategories());
         subcategory.setItemLabelGenerator(Subcategory::getSubcategoryName);
-
-        VerticalLayout dialogLayout = createDialogLayout();
-        dialog.add(dialogLayout);
-
-        Button addButton = createAddButton();
-        addButton.addClickListener(e -> validateAndAdd());
-
-        Button cancelButton = new Button("Cancel", e -> getUI().ifPresent(ui ->
-                ui.navigate("")));
-        cancelButton.addClickShortcut(Key.ESCAPE);
-
-        dialog.getFooter().add(cancelButton);
-        dialog.getFooter().add(addButton);
-
-        add(dialog);
-        dialog.open();
-
-        // Center the button within the example
-        getStyle().set("position", "fixed").set("top", "0").set("right", "0")
-                .set("bottom", "0").set("left", "0").set("display", "flex")
-                .set("align-items", "center").set("justify-content", "center");
-
     }
 
     private void validateAndAdd() {
@@ -104,6 +139,22 @@ public class DialogField extends Div {
                         category.getValue(),
                         subcategory.getValue()
                 ));
+                ui.navigate("");
+            });
+        } catch (NullPointerException | javax.validation.ConstraintViolationException e) {
+            ErrorNotification();
+        }
+    }
+
+    private void validateAndUpdate(Long id) {
+        try {
+            getUI().ifPresent(ui -> {
+                transactionService.updateTransaction(id,
+                        transactionAmount.getValue(),
+                        note.getValue(),
+                        category.getValue(),
+                        subcategory.getValue()
+                );
                 ui.navigate("");
             });
         } catch (NullPointerException | javax.validation.ConstraintViolationException e) {
@@ -132,8 +183,8 @@ public class DialogField extends Div {
         return dialogLayout;
     }
 
-    private static Button createAddButton() {
-        Button saveButton = new Button("Add");
+    private static Button createConfirmButton(String buttonText) {
+        Button saveButton = new Button(buttonText);
         saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         return saveButton;

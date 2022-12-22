@@ -68,4 +68,9 @@ public class TransactionServiceImpl implements TransactionService {
     public Long countTransactions(Account account) {
         return transactionRepository.countTransactionByAccount(account);
     }
+
+    @Override
+    public Optional<Transaction> findById(Long id) {
+        return transactionRepository.findById(id);
+    }
 }
