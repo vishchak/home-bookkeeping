@@ -48,7 +48,6 @@ public class ListView extends VerticalLayout {
         configureForm();
 
         add(
-                getToolbar(),
                 addContent()
         );
 
@@ -56,19 +55,19 @@ public class ListView extends VerticalLayout {
     }
 
     private void updateList() {
-        ZoneId defaultZoneId = form.getDefaultZoneId();
+        ZoneId defaultZoneId = form.defaultZoneId;
         Account currentAccount = accountService.findByAccountName(
                 "test account", currentUserService.findUserByEmailOrLogin(
                         "test user"));
 
         grid.setItems(
                 transactionService.findAccountTransactions(currentAccount,
-                        form.getNoteField().getValue(),
-                        form.getFromDateField().isEmpty() ? null : Date.from(form.getFromDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
-                        form.getToDateField().isEmpty() ? null : Date.from(form.getToDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
-                        form.getAmountField().getValue(),
-                        form.getCategory().isEmpty() ? null : form.getCategory().getValue().getCategoryName(),
-                        form.getSubcategory().isEmpty() ? null : form.getSubcategory().getValue().getSubcategoryName())
+                        form.noteField.getValue(),
+                        form.fromDateField.isEmpty() ? null : Date.from(form.fromDateField.getValue().atStartOfDay(defaultZoneId).toInstant()),
+                        form.toDateField.isEmpty() ? null : Date.from(form.toDateField.getValue().atStartOfDay(defaultZoneId).toInstant()),
+                        form.amountField.getValue(),
+                        form.category.isEmpty() ? null : form.category.getValue().getCategoryName(),
+                        form.subcategory.isEmpty() ? null : form.subcategory.getValue().getSubcategoryName())
         );
     }
 
@@ -124,29 +123,17 @@ public class ListView extends VerticalLayout {
                 categoryService.findAllCategories(), subcategoryService.findAllCategories());
         form.setWidth("25 em");
 
-        form.getAmountField().addValueChangeListener(e -> updateList());
-        form.getFromDateField().addValueChangeListener(e -> updateList());
-        form.getToDateField().addValueChangeListener(e -> updateList());
-        form.getNoteField().addValueChangeListener(e -> updateList());
-        form.getCategory().addValueChangeListener(e -> updateList());
-        form.getSubcategory().addValueChangeListener(e -> updateList());
+        form.amountField.addValueChangeListener(e -> updateList());
+        form.fromDateField.addValueChangeListener(e -> updateList());
+        form.toDateField.addValueChangeListener(e -> updateList());
+        form.noteField.addValueChangeListener(e -> updateList());
+        form.category.addValueChangeListener(e -> updateList());
+        form.subcategory.addValueChangeListener(e -> updateList());
 
-        form.getCancel().addClickListener(e -> form.clearForm());
+        form.clear.addClickListener(e -> form.clearForm());
     }
 
-    private HorizontalLayout getToolbar() {
-        Button addTransactionButton = new Button("Add transaction");
-        addTransactionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        addTransactionButton.addClickListener(e -> addTransactionButton.getUI().ifPresent(ui ->
-                ui.navigate("add-transaction")));
-
-        HorizontalLayout toolbar = new HorizontalLayout(addTransactionButton);
-
-        toolbar.addClassName("toolbar");
-        toolbar.setDefaultVerticalComponentAlignment(Alignment.BASELINE);
-        return toolbar;
-    }
 
     private Component addContent() {
         HorizontalLayout content = new HorizontalLayout(form, grid);

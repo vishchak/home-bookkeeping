@@ -21,10 +21,7 @@ import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.router.BeforeEvent;
-import com.vaadin.flow.router.HasUrlParameter;
-import com.vaadin.flow.router.OptionalParameter;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 
 
 import java.util.Date;
@@ -36,7 +33,13 @@ import static com.gmail.vishchak.denis.views.list.sheared.SharedComponents.textF
 //dialog filed add transaction
 //ADD ACCOUNT REPO METHOD FIND CURRENT ACCOUNT BY USER AND NAME EVENTUALLY
 @Route("add-transaction")
+@PageTitle("Transaction")
 public class DialogField extends Div implements HasUrlParameter<Long> {
+    private final CurrentUserServiceImpl currentUserService;
+    private final AccountServiceImpl accountService;
+    private final TransactionServiceImpl transactionService;
+    private final CategoryServiceImpl categoryService;
+    private final SubcategoryServiceImpl subcategoryService;
     Dialog dialog = new Dialog();
     Binder<Transaction> binder = new BeanValidationBinder<>(Transaction.class);
     TextField note = textFiled("Note");
@@ -45,12 +48,6 @@ public class DialogField extends Div implements HasUrlParameter<Long> {
     ComboBox<Category> category = new ComboBox<>("Category");
 
     ComboBox<Subcategory> subcategory = new ComboBox<>("Subcategory");
-
-    CurrentUserServiceImpl currentUserService;
-    AccountServiceImpl accountService;
-    TransactionServiceImpl transactionService;
-    CategoryServiceImpl categoryService;
-    SubcategoryServiceImpl subcategoryService;
 
     public DialogField(CurrentUserServiceImpl currentUserService,
                        AccountServiceImpl accountService,
@@ -69,17 +66,9 @@ public class DialogField extends Div implements HasUrlParameter<Long> {
     public void setParameter(BeforeEvent beforeEvent,
                              @OptionalParameter Long id) {
         if (id == null) {
-            addTransactionDialog();
+            dialogCreate("Add transaction", null, "add");
             return;
         }
-        updateTransactionDialog(id);
-    }
-
-    private void addTransactionDialog() {
-        dialogCreate("Add transaction", null, "add");
-    }
-
-    private void updateTransactionDialog(Long id) {
         dialogCreate("Update transaction", id, "update");
     }
 
@@ -114,7 +103,7 @@ public class DialogField extends Div implements HasUrlParameter<Long> {
         Button cancelButton = new Button("Cancel", e -> getUI().ifPresent(ui -> ui.navigate("")));
         cancelButton.addClickShortcut(Key.ESCAPE);
 
-        dialog.getFooter().add( new HorizontalLayout(cancelButton,confirmButton));
+        dialog.getFooter().add(new HorizontalLayout(cancelButton, confirmButton));
 
         add(dialog);
         dialog.open();

@@ -19,6 +19,7 @@ public class SharedComponents {
 
         LocalDate now = LocalDate.now(ZoneId.systemDefault());
         date.setMax(now);
+        date.setSizeFull();
 
         return date;
     }
@@ -38,6 +39,7 @@ public class SharedComponents {
         TextField textField = new TextField();
         textField.setLabel(value);
         textField.setClearButtonVisible(true);
+        textField.setSizeFull();
 
         return textField;
     }
