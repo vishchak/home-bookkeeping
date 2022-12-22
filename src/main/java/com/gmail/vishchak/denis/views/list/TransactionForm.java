@@ -49,8 +49,7 @@ public class TransactionForm extends FormLayout {
         amountField.setValueChangeMode(ValueChangeMode.LAZY);
         noteField.setValueChangeMode(ValueChangeMode.LAZY);
 
-
-        VerticalLayout verticalLayout = new VerticalLayout
+        HorizontalLayout horizontalLayout = new HorizontalLayout
                 (
                         getToolbar(),
                         filterField.add("Filter transaction", new VerticalLayout(
@@ -61,10 +60,10 @@ public class TransactionForm extends FormLayout {
                                 noteField,
                                 clearFormButton()))
                 );
-        verticalLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
+        horizontalLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
 
         add(
-                verticalLayout
+                horizontalLayout
         );
     }
 

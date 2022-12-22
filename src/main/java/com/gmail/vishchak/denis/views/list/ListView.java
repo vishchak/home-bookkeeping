@@ -82,17 +82,32 @@ public class ListView extends VerticalLayout {
         grid.addColumn(transaction -> transaction.getCategory().getCategoryName()).setHeader("Category").setSortable(true);
         grid.addColumn(transaction -> transaction.getSubcategory().getSubcategoryName()).setHeader("Subcategory").setSortable(true);
         grid.addColumn("note");
+
+        grid.getColumns().forEach(col -> col.setAutoWidth(true));
+
+        grid.asSingleSelect().addValueChangeListener(e -> {
+            if (grid.getColumns().size() > 5) {
+                grid.removeColumnByKey("buttons");
+                return;
+            }
+            showButtons();
+        });
+    }
+
+
+    private void showButtons() {
         grid.addComponentColumn(transaction -> {
             Button editButton = new Button("Edit");
             editButton.setIcon(new Icon("lumo", "edit"));
             editButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("add-transaction/" + transaction.getTransactionId())));
+
             Button deleteButton = new Button("Delete");
             deleteButton.addClickListener(e -> deleteTransaction(transaction));
-            return new HorizontalLayout(editButton, deleteButton);
-        });
-        grid.getColumns().forEach(col -> col.setAutoWidth(true));
 
+            return new HorizontalLayout(editButton, deleteButton);
+        }).setKey("buttons").setHeader("Edit");
     }
+
 
     private void deleteTransaction(Transaction transaction) {
         Dialog dialog = new Dialog();
@@ -134,11 +149,8 @@ public class ListView extends VerticalLayout {
     }
 
 
-
     private Component addContent() {
-        HorizontalLayout content = new HorizontalLayout(form, grid);
-        content.setFlexGrow(2, grid);
-        content.setFlexGrow(1, form);
+        VerticalLayout content = new VerticalLayout(form, grid);
         content.addClassName("content");
         content.setSizeFull();
 
