@@ -20,7 +20,7 @@ import java.time.ZoneId;
 import java.util.Date;
 
 
-@Route(value = "")
+@Route(value = "", layout = MainLayout.class)
 @PageTitle("Transactions list")
 public class ListView extends VerticalLayout {
     private final AccountServiceImpl accountService;
