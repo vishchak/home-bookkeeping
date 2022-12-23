@@ -29,4 +29,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     @Query("select count(t) from Transaction t where t.account = :account")
     Long countTransactionByAccount(@Param("account") Account account);
+
+    @Query("select t from Transaction t " +
+            "where t.account.accountId = :accountId " +
+            "and t.category.categoryId = :categoryId")
+    List<Transaction> findTransactionsByAccountAndCategoryId(@Param("accountId") Long accountId,
+                                                             @Param("categoryId") Long categoryId);
 }

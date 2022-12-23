@@ -21,4 +21,6 @@ public interface TransactionService {
     Long countTransactions(Account account);
 
     Optional<Transaction> findById(Long id);
+
+    List<Transaction> findByCategory(Account account, Long categoryId);
 }

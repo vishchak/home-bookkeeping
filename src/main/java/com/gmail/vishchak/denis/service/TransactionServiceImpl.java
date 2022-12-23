@@ -35,7 +35,7 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         if (transaction.getNote().isEmpty() || transaction.getNote() == null) {
-        transaction.setNote("-");
+            transaction.setNote("-");
         }
 
         transactionRepository.save(transaction);
@@ -70,7 +70,14 @@ public class TransactionServiceImpl implements TransactionService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Transaction> findById(Long id) {
         return transactionRepository.findById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Transaction> findByCategory(Account account, Long categoryId) {
+        return transactionRepository.findTransactionsByAccountAndCategoryId(account.getAccountId(), categoryId);
     }
 }
