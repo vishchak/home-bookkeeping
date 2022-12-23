@@ -33,8 +33,11 @@ public class MainLayout extends AppLayout {
         RouterLink transactionList = new RouterLink("Transaction list", ListView.class);
         transactionList.setHighlightCondition(HighlightConditions.sameLocation());
 
+        RouterLink dashboard = new RouterLink("Dashboards", DashboardView.class);
+
         addToDrawer(new VerticalLayout(
-                transactionList
+                transactionList,
+                dashboard
         ));
     }
 }
