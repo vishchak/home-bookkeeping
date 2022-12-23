@@ -110,11 +110,15 @@ public class DialogField extends Div implements HasUrlParameter<Long> {
     }
 
     public void labelGenerator() {
+        subcategory.setEnabled(false);
+
         category.setItems(categoryService.findAllCategories());
         category.setItemLabelGenerator(Category::getCategoryName);
-
-        subcategory.setItems(subcategoryService.findAllCategories());
-        subcategory.setItemLabelGenerator(Subcategory::getSubcategoryName);
+        category.addValueChangeListener(event -> {
+            subcategory.setEnabled(!category.isEmpty());
+            subcategory.setItems(subcategoryService.findByCategory(category.getValue()));
+            subcategory.setItemLabelGenerator(Subcategory::getSubcategoryName);
+        });
     }
 
     private void validateAndAdd() {

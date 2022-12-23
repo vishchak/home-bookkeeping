@@ -21,7 +21,7 @@ import java.util.Date;
 
 
 @Route(value = "", layout = MainLayout.class)
-@PageTitle("Transactions list")
+@PageTitle("Transactions | MoneyLonger")
 public class ListView extends VerticalLayout {
     private final AccountServiceImpl accountService;
     private final CategoryServiceImpl categoryService;
@@ -135,7 +135,7 @@ public class ListView extends VerticalLayout {
 
     private void configureForm() {
         form = new TransactionForm(
-                categoryService.findAllCategories(), subcategoryService.findAllCategories());
+                categoryService.findAllCategories(), subcategoryService.findAllSubcategories());
         form.setWidth("25 em");
 
         form.amountField.addValueChangeListener(e -> updateList());
