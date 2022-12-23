@@ -18,6 +18,7 @@ import com.vaadin.flow.router.Route;
 
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Optional;
 
 
 @Route(value = "", layout = MainLayout.class)
@@ -56,19 +57,17 @@ public class ListView extends VerticalLayout {
 
     private void updateList() {
         ZoneId defaultZoneId = form.defaultZoneId;
-        Account currentAccount = accountService.findByAccountName(
-                "test account", currentUserService.findUserByEmailOrLogin(
-                        "test user"));
+        Optional<Account> currentAccount = accountService.findByAccountId(1L);
 
-        grid.setItems(
-                transactionService.findAccountTransactions(currentAccount,
+        currentAccount.ifPresent(account -> grid.setItems(
+                transactionService.findAccountTransactions(account,
                         form.noteField.getValue(),
                         form.fromDateField.isEmpty() ? null : Date.from(form.fromDateField.getValue().atStartOfDay(defaultZoneId).toInstant()),
                         form.toDateField.isEmpty() ? null : Date.from(form.toDateField.getValue().atStartOfDay(defaultZoneId).toInstant()),
                         form.amountField.getValue(),
                         form.category.isEmpty() ? null : form.category.getValue().getCategoryName(),
                         form.subcategory.isEmpty() ? null : form.subcategory.getValue().getSubcategoryName())
-        );
+        ));
     }
 
     private void configureGrid() {

@@ -35,7 +35,6 @@ import static com.gmail.vishchak.denis.views.list.sheared.SharedComponents.textF
 @Route("add-transaction")
 @PageTitle("Transaction")
 public class DialogField extends Div implements HasUrlParameter<Long> {
-    private final CurrentUserServiceImpl currentUserService;
     private final AccountServiceImpl accountService;
     private final TransactionServiceImpl transactionService;
     private final CategoryServiceImpl categoryService;
@@ -49,12 +48,10 @@ public class DialogField extends Div implements HasUrlParameter<Long> {
 
     ComboBox<Subcategory> subcategory = new ComboBox<>("Subcategory");
 
-    public DialogField(CurrentUserServiceImpl currentUserService,
-                       AccountServiceImpl accountService,
+    public DialogField(AccountServiceImpl accountService,
                        TransactionServiceImpl transactionService,
                        CategoryServiceImpl categoryService,
                        SubcategoryServiceImpl subcategoryService) {
-        this.currentUserService = currentUserService;
         this.accountService = accountService;
         this.transactionService = transactionService;
         this.categoryService = categoryService;
@@ -128,7 +125,7 @@ public class DialogField extends Div implements HasUrlParameter<Long> {
                 transactionService.addTransaction(new Transaction(
                         transactionAmount.getValue(),
                         note.getValue(), new Date(),
-                        accountService.findByAccountName("test account", currentUserService.findUserByEmailOrLogin("test user")),
+                        accountService.findByAccountId(1L).get(),
                         category.getValue(),
                         subcategory.getValue()
                 ));

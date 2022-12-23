@@ -38,7 +38,7 @@ public class DataGenerator {
         Optional<Category> categoryIncome = categoryService.findCategoryById(2L);
         Optional<Category> categoryOther = categoryService.findCategoryById(3L);
 
-        if(categoryExpense.isPresent() && categoryIncome.isPresent() && categoryOther.isPresent()) {
+        if (categoryExpense.isPresent() && categoryIncome.isPresent() && categoryOther.isPresent()) {
             subcategoryService.addSubcategories(
                     new Subcategory("Food & Beverage", categoryExpense.get()),
                     new Subcategory("Transportation", categoryExpense.get()),
@@ -60,7 +60,5 @@ public class DataGenerator {
 
         currentUserService.addUser("test user", "pass", "test mail", null);
         accountService.addAccount(new Account("test account", 200D, currentUserService.findUserByEmailOrLogin("test user")));
-
-
     }
 }
