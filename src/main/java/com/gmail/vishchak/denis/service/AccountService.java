@@ -1,13 +1,14 @@
 package com.gmail.vishchak.denis.service;
 
 import com.gmail.vishchak.denis.model.Account;
-import com.gmail.vishchak.denis.model.CurrentUser;
+
+import java.util.Optional;
 
 
 public interface AccountService {
     boolean addAccount(Account account);
 
-    Account findByAccountName(String name, CurrentUser currentUser);
+    Optional<Account> findByAccountId(Long accoutnId);
 
     void deleteAccount(Long id);
 

@@ -10,4 +10,6 @@ import java.util.List;
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
     List<Account> findByUser(CurrentUser user);
+
+    boolean existsByUserAndAccountName(CurrentUser user, String name);
 }
