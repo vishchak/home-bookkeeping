@@ -13,7 +13,7 @@ public interface SubcategoryService {
 
     List<Subcategory> findByCategory(Category category);
 
-    boolean addSubcategories(Subcategory... subcategories);
+    void addSubcategories(Subcategory... subcategories);
 
     void deleteSubcategory(Long id);
 }

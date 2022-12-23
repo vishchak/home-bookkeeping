@@ -6,7 +6,6 @@ import com.gmail.vishchak.denis.repository.SubcategoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,12 +38,13 @@ public class SubcategoryServiceImpl implements SubcategoryService {
 
     @Override
     @Transactional
-    public boolean addSubcategories(Subcategory... subcategories) {
-        if (subcategories == null) {
-            return false;
+    public void addSubcategories(Subcategory... subcategories) {
+        for (Subcategory s:
+             subcategories) {
+            if(subcategoryRepository.findBySubcategoryNameLikeIgnoreCase(s.getSubcategoryName()).isEmpty()){
+                subcategoryRepository.save(s);
+            }
         }
-        subcategoryRepository.saveAll(Arrays.asList(subcategories));
-        return true;
     }
 
     @Override
