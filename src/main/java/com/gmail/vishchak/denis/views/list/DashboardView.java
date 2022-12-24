@@ -6,7 +6,12 @@ import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.model.ChartType;
 import com.vaadin.flow.component.charts.model.DataSeries;
 import com.vaadin.flow.component.charts.model.DataSeriesItem;
+import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.Tabs;
+import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -18,6 +23,10 @@ public class DashboardView extends VerticalLayout {
     private final CurrentUserServiceImpl currentUserService;
     private final SubcategoryServiceImpl subcategoryService;
     private final TransactionServiceImpl transactionService;
+    private final Tab expense = new Tab("Expense chart");
+    private final Tab income = new Tab("Income chart");
+    private final Tab other = new Tab("Other chart");
+    private final VerticalLayout content = new VerticalLayout();
 
     public DashboardView(AccountServiceImpl accountService,
                          CategoryServiceImpl categoryService,
@@ -33,7 +42,7 @@ public class DashboardView extends VerticalLayout {
         addClassName("dashboard-view");
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
 
-        add(getExpensesChart());
+        add(createTabs());
     }
 
     private Component getNetIncomeChart() {
@@ -42,19 +51,45 @@ public class DashboardView extends VerticalLayout {
         return null;
     }
 
-    private Component getExpensesChart() {
+    private Component getChart(Long categoryId) {
         Chart chart = new Chart(ChartType.PIE);
 
         DataSeries dataSeries = new DataSeries();
         dataSeries.setName("Expenses by subcategory chart");
 
-        transactionService.findByCategory(accountService.findByAccountId(1L).get(), 1L)
-                .forEach(transaction -> {
-                    dataSeries.add(new DataSeriesItem(transaction.getSubcategory().getSubcategoryName(), transaction.getTransactionAmount()));
-                });
+        transactionService.findByCategory(accountService.findByAccountId(1L).get(), categoryId)
+                .forEach(transaction -> dataSeries.add(new DataSeriesItem(
+                        transaction.getSubcategory().getSubcategoryName(),
+                        transaction.getTransactionAmount())));
 
         chart.getConfiguration().setSeries(dataSeries);
 
         return chart;
+    }
+
+    private Component createTabs() {
+        Tabs tabs = new Tabs();
+        tabs.addSelectedChangeListener(selectedChangeEvent -> setContent(selectedChangeEvent.getSelectedTab()));
+        tabs.add(income, expense, other);
+        tabs.addThemeVariants(TabsVariant.LUMO_EQUAL_WIDTH_TABS);
+        tabs.setSelectedTab(expense);
+        
+        content.setSpacing(false);
+
+        return new Div(tabs, content);
+    }
+
+    private void setContent(Tab tab) {
+        content.removeAll();
+        if (tab == null) {
+            return;
+        }
+        if (tab.equals(expense)) {
+            content.add(new Paragraph((getChart(1L))));
+        } else if (tab.equals(income)) {
+            content.add(new Paragraph((getChart(2L))));
+        } else if (tab.equals(other)) {
+            content.add(new Paragraph((getChart(3L))));
+        }
     }
 }
