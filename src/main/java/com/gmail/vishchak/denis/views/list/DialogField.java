@@ -39,14 +39,14 @@ public class DialogField extends Div implements HasUrlParameter<Long> {
     private final TransactionServiceImpl transactionService;
     private final CategoryServiceImpl categoryService;
     private final SubcategoryServiceImpl subcategoryService;
-    Dialog dialog = new Dialog();
-    Binder<Transaction> binder = new BeanValidationBinder<>(Transaction.class);
-    TextField note = textFiled("Note");
-    NumberField transactionAmount = amountField("Amount");
+    private final Dialog dialog = new Dialog();
+    private final Binder<Transaction> binder = new BeanValidationBinder<>(Transaction.class);
+    private final TextField note = textFiled("Note");
+    private final  NumberField transactionAmount = amountField("Amount");
 
-    ComboBox<Category> category = new ComboBox<>("Category");
+    private final ComboBox<Category> category = new ComboBox<>("Category");
 
-    ComboBox<Subcategory> subcategory = new ComboBox<>("Subcategory");
+    private final  ComboBox<Subcategory> subcategory = new ComboBox<>("Subcategory");
 
     public DialogField(AccountServiceImpl accountService,
                        TransactionServiceImpl transactionService,

@@ -56,17 +56,17 @@ public class ListView extends VerticalLayout {
     }
 
     private void updateList() {
-        ZoneId defaultZoneId = form.defaultZoneId;
+        ZoneId defaultZoneId = form.getDefaultZoneId();
         Optional<Account> currentAccount = accountService.findByAccountId(1L);
 
         currentAccount.ifPresent(account -> grid.setItems(
                 transactionService.findAccountTransactions(account,
-                        form.noteField.getValue(),
-                        form.fromDateField.isEmpty() ? null : Date.from(form.fromDateField.getValue().atStartOfDay(defaultZoneId).toInstant()),
-                        form.toDateField.isEmpty() ? null : Date.from(form.toDateField.getValue().atStartOfDay(defaultZoneId).toInstant()),
-                        form.amountField.getValue(),
-                        form.category.isEmpty() ? null : form.category.getValue().getCategoryName(),
-                        form.subcategory.isEmpty() ? null : form.subcategory.getValue().getSubcategoryName())
+                        form.getNoteField().getValue(),
+                        form.getFromDateField().isEmpty() ? null : Date.from(form.getFromDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
+                        form.getToDateField().isEmpty() ? null : Date.from(form.getToDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
+                        form.getAmountField().getValue(),
+                        form.getCategory().isEmpty() ? null : form.getCategory().getValue().getCategoryName(),
+                        form.getSubcategory().isEmpty() ? null : form.getSubcategory().getValue().getSubcategoryName())
         ));
     }
 
@@ -137,14 +137,14 @@ public class ListView extends VerticalLayout {
                 categoryService.findAllCategories(), subcategoryService.findAllSubcategories());
         form.setWidth("25 em");
 
-        form.amountField.addValueChangeListener(e -> updateList());
-        form.fromDateField.addValueChangeListener(e -> updateList());
-        form.toDateField.addValueChangeListener(e -> updateList());
-        form.noteField.addValueChangeListener(e -> updateList());
-        form.category.addValueChangeListener(e -> updateList());
-        form.subcategory.addValueChangeListener(e -> updateList());
+        form.getAmountField().addValueChangeListener(e -> updateList());
+        form.getFromDateField().addValueChangeListener(e -> updateList());
+        form.getToDateField().addValueChangeListener(e -> updateList());
+        form.getNoteField().addValueChangeListener(e -> updateList());
+        form.getCategory().addValueChangeListener(e -> updateList());
+        form.getSubcategory().addValueChangeListener(e -> updateList());
 
-        form.clear.addClickListener(e -> form.clearForm());
+        form.getClear().addClickListener(e -> form.clearForm());
     }
 
 

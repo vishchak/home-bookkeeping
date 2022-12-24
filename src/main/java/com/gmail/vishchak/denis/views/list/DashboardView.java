@@ -73,7 +73,7 @@ public class DashboardView extends VerticalLayout {
         tabs.add(income, expense, other);
         tabs.addThemeVariants(TabsVariant.LUMO_EQUAL_WIDTH_TABS);
         tabs.setSelectedTab(expense);
-        
+
         content.setSpacing(false);
 
         return new Div(tabs, content);

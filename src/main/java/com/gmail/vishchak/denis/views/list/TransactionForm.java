@@ -17,24 +17,25 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
+import lombok.Getter;
 
 import java.time.ZoneId;
 import java.util.List;
 
 import static com.gmail.vishchak.denis.views.list.sheared.SharedComponents.*;
 
-
+@Getter
 public class TransactionForm extends FormLayout {
-    NumberField amountField = amountField("Amount");
-    TextField noteField = textFiled("Note");
-    ComboBox<Category> category = new ComboBox<>("Category");
-    ComboBox<Subcategory> subcategory = new ComboBox<>("Subcategory");
-    String format = "dd-MM-yyyy";
-    ZoneId defaultZoneId = ZoneId.systemDefault();
-    DatePicker fromDateField = dateField(format, "Start date");
-    DatePicker toDateField = dateField(format, "Finish date");
-    Button clear = new Button("clear");
-    Accordion filterField = new Accordion();
+   private final NumberField amountField = amountField("Amount");
+    private final TextField noteField = textFiled("Note");
+    private final  ComboBox<Category> category = new ComboBox<>("Category");
+    private final ComboBox<Subcategory> subcategory = new ComboBox<>("Subcategory");
+    private final String format = "dd-MM-yyyy";
+    private final  ZoneId defaultZoneId = ZoneId.systemDefault();
+    private final DatePicker fromDateField = dateField(format, "Start date");
+    private final  DatePicker toDateField = dateField(format, "Finish date");
+    private final Button clear = new Button("clear");
+    private final  Accordion filterField = new Accordion();
 
     public TransactionForm(List<Category> categories, List<Subcategory> subcategories) {
         addClassName("transaction-form");
