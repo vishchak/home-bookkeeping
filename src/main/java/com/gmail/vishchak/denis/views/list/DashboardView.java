@@ -7,8 +7,10 @@ import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.model.ChartType;
 import com.vaadin.flow.component.charts.model.DataSeries;
 import com.vaadin.flow.component.charts.model.DataSeriesItem;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
 import com.vaadin.flow.component.tabs.Tabs;
@@ -22,6 +24,8 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 import java.util.List;
 
+import static com.gmail.vishchak.denis.views.list.sheared.SharedComponents.dateField;
+
 @Route(value = "dashboard", layout = MainLayout.class)
 @PageTitle("Dashboard | MoneyLonger")
 public class DashboardView extends VerticalLayout {
@@ -34,6 +38,10 @@ public class DashboardView extends VerticalLayout {
     private final Tab income = new Tab("Income chart");
     private final Tab other = new Tab("Other chart");
     private final VerticalLayout content = new VerticalLayout();
+    private final String format = "dd-MM-yyyy";
+    private final ZoneId defaultZoneId = ZoneId.systemDefault();
+    private final DatePicker fromDateField = dateField(format, "Start date");
+    private final DatePicker toDateField = dateField(format, "Finish date");
 
     public DashboardView(AccountServiceImpl accountService,
                          CategoryServiceImpl categoryService,
@@ -48,12 +56,38 @@ public class DashboardView extends VerticalLayout {
 
         addClassName("dashboard-view");
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+        setSizeFull();
+
+        fromDateField.setValue(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()));
+        updateConfig(fromDateField, toDateField);
+
+
+        toDateField.setValue(LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()));
+        toDateField.setMin(fromDateField.getValue());
+        updateConfig(toDateField, fromDateField);
 
         add(
+                new HorizontalLayout(fromDateField, toDateField),
                 getNetIncomeChart(),
                 createTabs()
 
         );
+    }
+
+    private void updateConfig(DatePicker datePickerFrom, DatePicker datePickerTo) {
+        datePickerFrom.addValueChangeListener(e -> {
+            if (!datePickerFrom.isEmpty() && !datePickerTo.isEmpty()) {
+                updateList();
+            }
+        });
+    }
+
+    private void updateList() {
+        removeAll();
+
+        add(new HorizontalLayout(fromDateField, toDateField),
+                getNetIncomeChart(),
+                createTabs());
     }
 
     private Component getNetIncomeChart() {
@@ -62,11 +96,10 @@ public class DashboardView extends VerticalLayout {
         DataSeries dataSeries = new DataSeries();
         dataSeries.setName("Net income chart");
 
-        ZoneId zoneId = ZoneId.systemDefault();
-        Date start = Date.from(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay(zoneId).toInstant());
-        Date finish = Date.from(LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()).atStartOfDay(zoneId).toInstant());
+        Date from = Date.from(fromDateField.getValue().atStartOfDay(defaultZoneId).toInstant());
+        Date to = Date.from(toDateField.getValue().atStartOfDay(defaultZoneId).toInstant());
 
-        dataSeries.add(new DataSeriesItem(LocalDate.now().getMonth().name(), sumByCategory(start, finish)));
+        dataSeries.add(new DataSeriesItem(LocalDate.now().getMonth().name(), sumByCategory(from, to)));
         bar.getConfiguration().setSeries(dataSeries);
 
         return bar;
@@ -92,14 +125,18 @@ public class DashboardView extends VerticalLayout {
 
         return total;
     }
-//add by date
+
+    //make same subcategories one sector
     private Component getChart(Long categoryId) {
         Chart chart = new Chart(ChartType.PIE);
 
         DataSeries dataSeries = new DataSeries();
         dataSeries.setName("Expenses by subcategory chart");
 
-        transactionService.findByCategory(accountService.findByAccountId(1L).get(), categoryId)
+        Date from = Date.from(fromDateField.getValue().atStartOfDay(defaultZoneId).toInstant());
+        Date to = Date.from(toDateField.getValue().atStartOfDay(defaultZoneId).toInstant());
+
+        transactionService.findAccountTransactions(accountService.findByAccountId(1L).get(), null, from, to, null, categoryService.findCategoryById(categoryId).get().getCategoryName(), null)
                 .forEach(transaction ->
                         dataSeries.add(
                                 new DataSeriesItem(

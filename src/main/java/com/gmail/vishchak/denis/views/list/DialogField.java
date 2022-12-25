@@ -106,7 +106,7 @@ public class DialogField extends Div implements HasUrlParameter<Long> {
         dialog.open();
     }
 
-    public void labelGenerator() {
+    private void labelGenerator() {
         subcategory.setEnabled(false);
 
         category.setItems(categoryService.findAllCategories());
