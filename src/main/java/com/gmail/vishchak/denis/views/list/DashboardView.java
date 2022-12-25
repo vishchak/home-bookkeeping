@@ -1,5 +1,6 @@
 package com.gmail.vishchak.denis.views.list;
 
+import com.gmail.vishchak.denis.model.Transaction;
 import com.gmail.vishchak.denis.service.*;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.charts.Chart;
@@ -14,6 +15,12 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.TemporalAdjusters;
+import java.util.Date;
+import java.util.List;
 
 @Route(value = "dashboard", layout = MainLayout.class)
 @PageTitle("Dashboard | MoneyLonger")
@@ -42,15 +49,50 @@ public class DashboardView extends VerticalLayout {
         addClassName("dashboard-view");
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
 
-        add(createTabs());
+        add(
+                getNetIncomeChart(),
+                createTabs()
+
+        );
     }
 
     private Component getNetIncomeChart() {
+        Chart bar = new Chart(ChartType.BAR);
 
+        DataSeries dataSeries = new DataSeries();
+        dataSeries.setName("Net income chart");
 
-        return null;
+        ZoneId zoneId = ZoneId.systemDefault();
+        Date start = Date.from(LocalDate.now().with(TemporalAdjusters.firstDayOfMonth()).atStartOfDay(zoneId).toInstant());
+        Date finish = Date.from(LocalDate.now().with(TemporalAdjusters.lastDayOfMonth()).atStartOfDay(zoneId).toInstant());
+
+        dataSeries.add(new DataSeriesItem(LocalDate.now().getMonth().name(), sumByCategory(start, finish)));
+        bar.getConfiguration().setSeries(dataSeries);
+
+        return bar;
     }
 
+    private double sumByCategory(Date from, Date to) {
+        double total = 0D;
+
+        List<Transaction> transactionList = transactionService.findAccountTransactions(accountService.findByAccountId(1L).get(), null, from, to, null, null, null);
+        for (Transaction t :
+                transactionList) {
+            if (t.getCategory().getCategoryName().equalsIgnoreCase("Expense")) {
+                total -= t.getTransactionAmount();
+            } else if (t.getCategory().getCategoryName().equalsIgnoreCase("Income")) {
+                total += t.getTransactionAmount();
+            } else if (t.getCategory().getCategoryName().equalsIgnoreCase("Other")) {
+                if (t.getSubcategory().getSubcategoryName().equalsIgnoreCase("Debt collection") ||
+                        t.getSubcategory().getSubcategoryName().equalsIgnoreCase("Loan")) {
+                    total += t.getTransactionAmount();
+                } else total -= t.getTransactionAmount();
+            }
+        }
+
+        return total;
+    }
+//add by date
     private Component getChart(Long categoryId) {
         Chart chart = new Chart(ChartType.PIE);
 
@@ -58,9 +100,11 @@ public class DashboardView extends VerticalLayout {
         dataSeries.setName("Expenses by subcategory chart");
 
         transactionService.findByCategory(accountService.findByAccountId(1L).get(), categoryId)
-                .forEach(transaction -> dataSeries.add(new DataSeriesItem(
-                        transaction.getSubcategory().getSubcategoryName(),
-                        transaction.getTransactionAmount())));
+                .forEach(transaction ->
+                        dataSeries.add(
+                                new DataSeriesItem(
+                                        transaction.getSubcategory().getSubcategoryName(),
+                                        transaction.getTransactionAmount())));
 
         chart.getConfiguration().setSeries(dataSeries);
 
