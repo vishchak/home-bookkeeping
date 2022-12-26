@@ -22,7 +22,9 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static com.gmail.vishchak.denis.views.list.sheared.SharedComponents.dateField;
 
@@ -126,7 +128,6 @@ public class DashboardView extends VerticalLayout {
         return total;
     }
 
-    //make same subcategories one sector
     private Component getChart(Long categoryId) {
         Chart chart = new Chart(ChartType.PIE);
 
@@ -136,12 +137,22 @@ public class DashboardView extends VerticalLayout {
         Date from = Date.from(fromDateField.getValue().atStartOfDay(defaultZoneId).toInstant());
         Date to = Date.from(toDateField.getValue().atStartOfDay(defaultZoneId).toInstant());
 
+        Map<String, Double> subcategoryAmount = new HashMap<>();
+
         transactionService.findAccountTransactions(accountService.findByAccountId(1L).get(), null, from, to, null, categoryService.findCategoryById(categoryId).get().getCategoryName(), null)
-                .forEach(transaction ->
-                        dataSeries.add(
-                                new DataSeriesItem(
-                                        transaction.getSubcategory().getSubcategoryName(),
-                                        transaction.getTransactionAmount())));
+                .forEach(transaction -> {
+                    String key = transaction.getSubcategory().getSubcategoryName();
+                    if (subcategoryAmount.containsKey(key)) {
+                        subcategoryAmount.replace(key, (subcategoryAmount.get(transaction.getSubcategory().getSubcategoryName()) + transaction.getTransactionAmount()));
+                    } else {
+                        subcategoryAmount.put(key,
+                                transaction.getTransactionAmount());
+                    }
+                });
+
+        for (Map.Entry<String, Double> pair : subcategoryAmount.entrySet()) {
+            dataSeries.add(new DataSeriesItem(pair.getKey(), pair.getValue()));
+        }
 
         chart.getConfiguration().setSeries(dataSeries);
 
