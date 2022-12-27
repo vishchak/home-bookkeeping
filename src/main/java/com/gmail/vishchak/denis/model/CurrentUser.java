@@ -3,7 +3,6 @@ package com.gmail.vishchak.denis.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -37,6 +36,9 @@ public class CurrentUser {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Account> accounts = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Goal> goals = new ArrayList<>();
 
     public CurrentUser(String login, String passwordHash, String email, Image image) {
         this.login = login;
