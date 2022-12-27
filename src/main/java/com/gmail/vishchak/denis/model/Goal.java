@@ -26,8 +26,9 @@ public class Goal {
     private String goalNote;
 
     @NotNull
-    @Column(name = "amount")
     private Double goalAmount;
+
+    private Double currentAmount;
 
     private Boolean ifCompleted;
     @Temporal(TemporalType.DATE)
@@ -47,6 +48,7 @@ public class Goal {
         this.startDate = startDate;
         this.finishDate = finishDate;
         this.user = user;
+        this.currentAmount = 0D;
         this.ifCompleted = false;
     }
 }
