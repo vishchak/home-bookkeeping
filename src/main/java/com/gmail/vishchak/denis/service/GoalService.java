@@ -1,6 +1,5 @@
 package com.gmail.vishchak.denis.service;
 
-import com.gmail.vishchak.denis.model.CurrentUser;
 import com.gmail.vishchak.denis.model.Goal;
 
 import java.util.Date;
@@ -10,11 +9,13 @@ import java.util.Optional;
 public interface GoalService {
     void deleteGoal(Long id);
 
-    void updateGoal(Long goalId, String goalNOte, Double amount, Double currentAmount, Date finishDate, Boolean ifCompleted);
+    void updateGoal(Long goalId, String goalNOte, Double amount, Double currentAmount, Date finishDate);
 
     List<Goal> findUserGoals(Long userId, Boolean ifCompleted);
 
-    Long countUserGoals(CurrentUser user);
+    Long countUserGoals(Long userId);
 
     Optional<Goal> findById(Long goalId);
+
+    boolean addGoal(Goal goal);
 }
