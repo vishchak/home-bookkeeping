@@ -27,8 +27,8 @@ import com.vaadin.flow.router.*;
 import java.util.Date;
 import java.util.Optional;
 
-import static com.gmail.vishchak.denis.views.list.sheared.SharedComponents.amountField;
-import static com.gmail.vishchak.denis.views.list.sheared.SharedComponents.textFiled;
+import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.amountField;
+import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.textFiled;
 
 //dialog filed add transaction
 //ADD ACCOUNT REPO METHOD FIND CURRENT ACCOUNT BY USER AND NAME EVENTUALLY

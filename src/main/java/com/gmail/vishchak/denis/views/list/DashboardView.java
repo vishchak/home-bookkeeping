@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.gmail.vishchak.denis.views.list.sheared.SharedComponents.dateField;
+import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.dateField;
 
 @Route(value = "dashboard", layout = MainLayout.class)
 @PageTitle("Dashboard | MoneyLonger")

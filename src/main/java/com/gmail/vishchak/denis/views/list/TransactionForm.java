@@ -22,7 +22,7 @@ import lombok.Getter;
 import java.time.ZoneId;
 import java.util.List;
 
-import static com.gmail.vishchak.denis.views.list.sheared.SharedComponents.*;
+import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 
 @Getter
 public class TransactionForm extends FormLayout {

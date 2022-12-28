@@ -35,9 +35,12 @@ public class MainLayout extends AppLayout {
 
         RouterLink dashboard = new RouterLink("Dashboards", DashboardView.class);
 
+        RouterLink goals = new RouterLink("Goals", GoalView.class);
+
         addToDrawer(new VerticalLayout(
                 transactionList,
-                dashboard
+                dashboard,
+                goals
         ));
     }
 }

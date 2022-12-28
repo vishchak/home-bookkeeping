@@ -1,4 +1,4 @@
-package com.gmail.vishchak.denis.views.list.sheared;
+package com.gmail.vishchak.denis.views.list.shared;
 
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Div;
