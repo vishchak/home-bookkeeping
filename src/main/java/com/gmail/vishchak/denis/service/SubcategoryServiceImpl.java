@@ -48,6 +48,7 @@ public class SubcategoryServiceImpl implements SubcategoryService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Subcategory> findByCategory(Category category) {
         return subcategoryRepository.findByCategory(category.getCategoryName());
     }

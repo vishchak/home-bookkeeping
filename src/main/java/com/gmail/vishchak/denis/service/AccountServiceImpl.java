@@ -39,6 +39,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public void updateAccount(Long id, String accountName, Double amount) {
         Optional<Account> account = accountRepository.findById(id);
         account.ifPresent(c -> {
