@@ -2,6 +2,7 @@ package com.gmail.vishchak.denis.service;
 
 import com.gmail.vishchak.denis.model.Account;
 
+import java.util.List;
 import java.util.Optional;
 
 
@@ -13,4 +14,6 @@ public interface AccountService {
     void deleteAccount(Long id);
 
     void updateAccount(Long id, String accountName, Double amount);
+
+    List<Account> findAccountsByUserId(Long userId);
 }

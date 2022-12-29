@@ -5,6 +5,7 @@ import com.gmail.vishchak.denis.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -51,5 +52,11 @@ public class AccountServiceImpl implements AccountService {
             c.setAccountName(accountName);
             accountRepository.save(c);
         });
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Account> findAccountsByUserId(Long userId) {
+        return accountRepository.findByUserId(userId);
     }
 }
