@@ -3,10 +3,15 @@ package com.gmail.vishchak.denis.views.list;
 import com.gmail.vishchak.denis.model.CurrentUser;
 import com.gmail.vishchak.denis.model.Goal;
 import com.gmail.vishchak.denis.service.*;
+import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.progressbar.ProgressBarVariant;
@@ -43,6 +48,7 @@ public class GoalView extends VerticalLayout {
     }
 
     private void updateList() {
+        //change for current user eventually
         CurrentUser user = currentUserService.findUserByEmailOrLogin("test user");
 //add if completed filter
         grid.setItems(goalService.findUserGoals(user.getUserId(), null));
@@ -68,6 +74,41 @@ public class GoalView extends VerticalLayout {
         grid.addColumn(this::daysLeft).setHeader("Days left").setSortable(true).setFlexGrow(1);
 
         progressBar.setFlexGrow(5);
+
+        grid.asSingleSelect().addValueChangeListener(e -> {
+            if (grid.getColumns().size() > 3) {
+                grid.removeColumnByKey("buttons");
+                return;
+            }
+            showButtons();
+        });
+    }
+
+    private void showButtons() {
+        grid.addComponentColumn(goal -> {
+            Button editButton = new Button("Edit");
+            editButton.setIcon(new Icon("lumo", "edit"));
+            editButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("add-goal/" + goal.getGoalId())));
+
+            Button deleteButton = new Button("Delete");
+            deleteButton.addClickListener(e -> deleteGoal(goal));
+
+            return new HorizontalLayout(editButton, deleteButton);
+        }).setKey("buttons").setHeader("Edit");
+    }
+
+    private void deleteGoal(Goal goal) {
+        Dialog dialog = new Dialog();
+        dialog.setHeaderTitle("Are you sure you want to delete this goal permanently?");
+
+        Button deleteButton = new Button("Delete");
+        deleteButton.addClickListener((e) -> {
+            goalService.deleteGoal(goal.getGoalId());
+            updateList();
+            dialog.close();
+        });
+
+       SharedComponents.configureDialog(dialog,deleteButton);
     }
 
 

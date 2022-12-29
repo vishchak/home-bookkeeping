@@ -3,9 +3,9 @@ package com.gmail.vishchak.denis.views.list;
 import com.gmail.vishchak.denis.model.Account;
 import com.gmail.vishchak.denis.model.Transaction;
 import com.gmail.vishchak.denis.service.*;
+import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -119,16 +119,7 @@ public class ListView extends VerticalLayout {
             dialog.close();
         });
 
-        deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
-                ButtonVariant.LUMO_ERROR);
-        deleteButton.getStyle().set("margin-right", "auto");
-        dialog.getFooter().add(deleteButton);
-
-        Button cancelButton = new Button("Cancel", (e) -> dialog.close());
-        cancelButton.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
-        dialog.getFooter().add(cancelButton);
-
-        dialog.open();
+        SharedComponents.configureDialog(dialog,deleteButton);
     }
 
 
