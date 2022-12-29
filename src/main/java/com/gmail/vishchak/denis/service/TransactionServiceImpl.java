@@ -15,9 +15,11 @@ import java.util.Optional;
 @Service
 public class TransactionServiceImpl implements TransactionService {
     private final TransactionRepository transactionRepository;
+    private final AccountServiceImpl accountService;
 
-    public TransactionServiceImpl(TransactionRepository transactionRepository) {
+    public TransactionServiceImpl(TransactionRepository transactionRepository, AccountServiceImpl accountService) {
         this.transactionRepository = transactionRepository;
+        this.accountService = accountService;
     }
 
     @Override
@@ -39,6 +41,13 @@ public class TransactionServiceImpl implements TransactionService {
         }
 
         transactionRepository.save(transaction);
+
+        Double sum = transaction.getTransactionAmount();
+        if (ifExpense(transaction.getCategory(), transaction.getSubcategory())) {
+            sum = sum * (-1);
+        }
+
+        accountService.updateAccount(transaction.getAccount().getAccountId(), null, transaction.getAccount().getAccountAmount() + sum);
         return true;
     }
 
@@ -49,11 +58,24 @@ public class TransactionServiceImpl implements TransactionService {
                                   Category category, Subcategory subcategory) {
         Optional<Transaction> transaction = transactionRepository.findById(id);
         transaction.ifPresent(t -> {
+
+            Double oldSum = t.getTransactionAmount();
+            if (!ifExpense(t.getCategory(), t.getSubcategory())) {
+                oldSum *= (-1);
+            }
+
+            Double newSum = amount;
+            if (ifExpense(category, subcategory)) {
+                newSum = amount * (-1);
+            }
+
             t.setTransactionAmount(amount);
             t.setNote(note);
             t.setCategory(category);
             t.setSubcategory(subcategory);
             transactionRepository.save(t);
+
+            accountService.updateAccount(t.getAccount().getAccountId(), null, t.getAccount().getAccountAmount() + oldSum + newSum);
         });
     }
 
@@ -79,5 +101,12 @@ public class TransactionServiceImpl implements TransactionService {
     @Transactional(readOnly = true)
     public List<Transaction> findByCategory(Account account, Long categoryId) {
         return transactionRepository.findTransactionsByAccountAndCategoryId(account.getAccountId(), categoryId);
+    }
+
+    private boolean ifExpense(Category category, Subcategory subcategory) {
+        return (category.getCategoryName().equalsIgnoreCase("expense") ||
+                (subcategory.getSubcategoryName().equalsIgnoreCase("Repayment") ||
+                        subcategory.getSubcategoryName().equalsIgnoreCase("Debt") ||
+                        subcategory.getSubcategoryName().equalsIgnoreCase("Goal")));
     }
 }
