@@ -9,6 +9,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 
@@ -74,5 +75,15 @@ public class SharedComponents {
         accountComboBox.setHelperText("Choose account");
 
         return accountComboBox;
+    }
+
+    public static Component getAddComponentButton(String buttonName, String url) {
+        Button addTransactionButton = new Button(buttonName);
+        addTransactionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        addTransactionButton.setIcon(new Icon("lumo", "plus"));
+
+        addTransactionButton.addClickListener(e -> addTransactionButton.getUI().ifPresent(ui ->
+                ui.navigate(url)));
+        return addTransactionButton;
     }
 }

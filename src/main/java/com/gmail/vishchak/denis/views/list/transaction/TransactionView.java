@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.List;
 
 import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.getAccountField;
+import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.getAddComponentButton;
 
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Transactions | MoneyLonger")
@@ -53,7 +54,7 @@ public class TransactionView extends VerticalLayout {
         configureForm();
 
         add(
-                new VerticalLayout(getToolbar(), addContent())
+                getToolbar(), addContent()
         );
 
         updateList();
@@ -155,6 +156,7 @@ public class TransactionView extends VerticalLayout {
         form.getClear().addClickListener(e -> form.clearForm());
         form.getClose().addClickListener(e -> form.setVisible(false));
 
+        form.setVisible(false);
     }
 
     private Component addContent() {
@@ -170,7 +172,7 @@ public class TransactionView extends VerticalLayout {
     private Component getToolbar() {
         HorizontalLayout horizontalLayout = new HorizontalLayout(
                 getAccountField(accountComboBox, accountService),
-                getAddTransactionButton(),
+                getAddComponentButton("Add transaction", "add-transaction"),
                 getFilterButton()
         );
 
@@ -180,23 +182,13 @@ public class TransactionView extends VerticalLayout {
         return horizontalLayout;
     }
 
-    private Component getAddTransactionButton() {
-        Button addTransactionButton = new Button("Add transaction");
-        addTransactionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        addTransactionButton.setIcon(new Icon("lumo", "plus"));
-
-        addTransactionButton.addClickListener(e -> addTransactionButton.getUI().ifPresent(ui ->
-                ui.navigate("add-transaction")));
-        return addTransactionButton;
-    }
-
     private Component getFilterButton() {
         Button filterButton = new Button("Filter transaction");
         filterButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         filterButton.setIcon(new Icon("lumo", "search"));
 
-        filterButton.setEnabled(false);
-        filterButton.addClickListener(e -> form.setVisible(true));
+        filterButton.addClickListener(e -> form.setVisible(!form.isVisible()));
+        
         return filterButton;
     }
 }
