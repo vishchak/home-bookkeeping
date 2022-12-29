@@ -1,8 +1,9 @@
-package com.gmail.vishchak.denis.views.list;
+package com.gmail.vishchak.denis.views.list.transaction;
 
 import com.gmail.vishchak.denis.model.Account;
 import com.gmail.vishchak.denis.model.Transaction;
 import com.gmail.vishchak.denis.service.*;
+import com.gmail.vishchak.denis.views.list.shared.MainLayout;
 import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
@@ -23,27 +24,27 @@ import java.util.Optional;
 
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Transactions | MoneyLonger")
-public class ListView extends VerticalLayout {
+public class TransactionView extends VerticalLayout {
     private final AccountServiceImpl accountService;
     private final CategoryServiceImpl categoryService;
     private final CurrentUserServiceImpl currentUserService;
     private final SubcategoryServiceImpl subcategoryService;
     private final TransactionServiceImpl transactionService;
     Grid<Transaction> grid = new Grid<>(Transaction.class);
-    TransactionForm form;
+    TransactionFilterForm form;
 
-    public ListView(AccountServiceImpl accountService,
-                    CategoryServiceImpl categoryService,
-                    CurrentUserServiceImpl currentUserService,
-                    SubcategoryServiceImpl subcategoryService,
-                    TransactionServiceImpl transactionService) {
+    public TransactionView(AccountServiceImpl accountService,
+                           CategoryServiceImpl categoryService,
+                           CurrentUserServiceImpl currentUserService,
+                           SubcategoryServiceImpl subcategoryService,
+                           TransactionServiceImpl transactionService) {
         this.accountService = accountService;
         this.categoryService = categoryService;
         this.currentUserService = currentUserService;
         this.subcategoryService = subcategoryService;
         this.transactionService = transactionService;
 
-        addClassName("list-view");
+        addClassName("transaction-view");
         setSizeFull();
         configureGrid();
         configureForm();
@@ -124,7 +125,7 @@ public class ListView extends VerticalLayout {
 
 
     private void configureForm() {
-        form = new TransactionForm(
+        form = new TransactionFilterForm(
                 categoryService.findAllCategories(), subcategoryService.findAllSubcategories());
         form.setWidth("25 em");
 

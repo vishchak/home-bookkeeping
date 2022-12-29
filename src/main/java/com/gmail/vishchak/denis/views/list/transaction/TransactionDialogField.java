@@ -1,4 +1,4 @@
-package com.gmail.vishchak.denis.views.list;
+package com.gmail.vishchak.denis.views.list.transaction;
 
 import com.gmail.vishchak.denis.model.Category;
 import com.gmail.vishchak.denis.model.Subcategory;
@@ -34,7 +34,7 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.textFi
 //ADD ACCOUNT REPO METHOD FIND CURRENT ACCOUNT BY USER AND NAME EVENTUALLY
 @Route("add-transaction")
 @PageTitle("Transaction")
-public class DialogField extends Div implements HasUrlParameter<Long> {
+public class TransactionDialogField extends Div implements HasUrlParameter<Long> {
     private final AccountServiceImpl accountService;
     private final TransactionServiceImpl transactionService;
     private final CategoryServiceImpl categoryService;
@@ -48,10 +48,10 @@ public class DialogField extends Div implements HasUrlParameter<Long> {
 
     private final  ComboBox<Subcategory> subcategory = new ComboBox<>("Subcategory");
 
-    public DialogField(AccountServiceImpl accountService,
-                       TransactionServiceImpl transactionService,
-                       CategoryServiceImpl categoryService,
-                       SubcategoryServiceImpl subcategoryService) {
+    public TransactionDialogField(AccountServiceImpl accountService,
+                                  TransactionServiceImpl transactionService,
+                                  CategoryServiceImpl categoryService,
+                                  SubcategoryServiceImpl subcategoryService) {
         this.accountService = accountService;
         this.transactionService = transactionService;
         this.categoryService = categoryService;

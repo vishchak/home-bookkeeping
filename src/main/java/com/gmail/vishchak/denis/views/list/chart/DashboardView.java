@@ -1,7 +1,8 @@
-package com.gmail.vishchak.denis.views.list;
+package com.gmail.vishchak.denis.views.list.chart;
 
 import com.gmail.vishchak.denis.model.Transaction;
 import com.gmail.vishchak.denis.service.*;
+import com.gmail.vishchak.denis.views.list.shared.MainLayout;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.charts.Chart;
 import com.vaadin.flow.component.charts.model.ChartType;

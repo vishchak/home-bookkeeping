@@ -1,5 +1,8 @@
-package com.gmail.vishchak.denis.views.list;
+package com.gmail.vishchak.denis.views.list.shared;
 
+import com.gmail.vishchak.denis.views.list.goal.GoalView;
+import com.gmail.vishchak.denis.views.list.chart.DashboardView;
+import com.gmail.vishchak.denis.views.list.transaction.TransactionView;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.html.H1;
@@ -30,13 +33,12 @@ public class MainLayout extends AppLayout {
     }
 
     private void createDrawer() {
-        RouterLink transactionList = new RouterLink("Transaction list", ListView.class);
+        RouterLink transactionList = new RouterLink("Transaction list", TransactionView.class);
         transactionList.setHighlightCondition(HighlightConditions.sameLocation());
 
         RouterLink dashboard = new RouterLink("Dashboards", DashboardView.class);
 
         RouterLink goals = new RouterLink("Goals", GoalView.class);
-
         addToDrawer(new VerticalLayout(
                 transactionList,
                 dashboard,

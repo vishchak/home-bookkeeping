@@ -1,4 +1,4 @@
-package com.gmail.vishchak.denis.views.list;
+package com.gmail.vishchak.denis.views.list.transaction;
 
 import com.gmail.vishchak.denis.model.Category;
 import com.gmail.vishchak.denis.model.Subcategory;
@@ -25,7 +25,7 @@ import java.util.List;
 import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 
 @Getter
-public class TransactionForm extends FormLayout {
+public class TransactionFilterForm extends FormLayout {
    private final NumberField amountField = amountField("Amount");
     private final TextField noteField = textFiled("Note");
     private final  ComboBox<Category> category = new ComboBox<>("Category");
@@ -37,7 +37,7 @@ public class TransactionForm extends FormLayout {
     private final Button clear = new Button("clear");
     private final  Accordion filterField = new Accordion();
 
-    public TransactionForm(List<Category> categories, List<Subcategory> subcategories) {
+    public TransactionFilterForm(List<Category> categories, List<Subcategory> subcategories) {
         addClassName("transaction-form");
         category.setItems(categories);
         category.setItemLabelGenerator(Category::getCategoryName);

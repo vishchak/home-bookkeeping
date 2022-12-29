@@ -1,8 +1,9 @@
-package com.gmail.vishchak.denis.views.list;
+package com.gmail.vishchak.denis.views.list.goal;
 
 import com.gmail.vishchak.denis.model.CurrentUser;
 import com.gmail.vishchak.denis.model.Goal;
 import com.gmail.vishchak.denis.service.*;
+import com.gmail.vishchak.denis.views.list.shared.MainLayout;
 import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
