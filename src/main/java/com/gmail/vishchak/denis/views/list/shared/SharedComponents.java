@@ -1,7 +1,11 @@
 package com.gmail.vishchak.denis.views.list.shared;
 
+import com.gmail.vishchak.denis.model.Account;
+import com.gmail.vishchak.denis.service.AccountServiceImpl;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
@@ -10,6 +14,7 @@ import com.vaadin.flow.component.textfield.TextField;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.List;
 
 public class SharedComponents {
     public static DatePicker dateField(String format, String label) {
@@ -47,7 +52,7 @@ public class SharedComponents {
         return textField;
     }
 
-    public static void configureDialog(Dialog dialog, Button deleteButton){
+    public static void configureDialog(Dialog dialog, Button deleteButton) {
         deleteButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY,
                 ButtonVariant.LUMO_ERROR);
         deleteButton.getStyle().set("margin-right", "auto");
@@ -58,5 +63,16 @@ public class SharedComponents {
         dialog.getFooter().add(cancelButton);
 
         dialog.open();
+    }
+
+    //replace with currentUser id after security
+    public static Component getAccountField(ComboBox<Account> accountComboBox, AccountServiceImpl accountService) {
+        List<Account> accounts = accountService.findAccountsByUserId(1L);
+
+        accountComboBox.setItems(accounts);
+        accountComboBox.setItemLabelGenerator(Account::getAccountName);
+        accountComboBox.setHelperText("Choose account");
+
+        return accountComboBox;
     }
 }

@@ -23,4 +23,6 @@ public interface TransactionService {
     Optional<Transaction> findById(Long id);
 
     List<Transaction> findByCategory(Account account, Long categoryId);
+
+    List<Transaction> findAllTransactionByAccount(Account account);
 }

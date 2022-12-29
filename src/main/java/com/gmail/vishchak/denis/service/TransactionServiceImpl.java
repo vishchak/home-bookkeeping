@@ -103,6 +103,12 @@ public class TransactionServiceImpl implements TransactionService {
         return transactionRepository.findTransactionsByAccountAndCategoryId(account.getAccountId(), categoryId);
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Transaction> findAllTransactionByAccount(Account account) {
+        return transactionRepository.findAllTransactionsByAccount(account);
+    }
+
     private boolean ifExpense(Category category, Subcategory subcategory) {
         return (category.getCategoryName().equalsIgnoreCase("expense") ||
                 (subcategory.getSubcategoryName().equalsIgnoreCase("Repayment") ||

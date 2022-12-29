@@ -35,4 +35,6 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
             "and t.category.categoryId = :categoryId")
     List<Transaction> findTransactionsByAccountAndCategoryId(@Param("accountId") Long accountId,
                                                              @Param("categoryId") Long categoryId);
+    @Query("select t from Transaction t where t.account = ?1")
+    List<Transaction> findAllTransactionsByAccount(Account account);
 }

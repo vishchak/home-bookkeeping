@@ -7,68 +7,82 @@ import com.gmail.vishchak.denis.views.list.shared.MainLayout;
 import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.Optional;
 
+import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.getAccountField;
 
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Transactions | MoneyLonger")
 public class TransactionView extends VerticalLayout {
     private final AccountServiceImpl accountService;
     private final CategoryServiceImpl categoryService;
-    private final CurrentUserServiceImpl currentUserService;
     private final SubcategoryServiceImpl subcategoryService;
     private final TransactionServiceImpl transactionService;
-    Grid<Transaction> grid = new Grid<>(Transaction.class);
-    TransactionFilterForm form;
+    private final Grid<Transaction> grid = new Grid<>(Transaction.class);
+    private TransactionFilterForm form;
+    private final ComboBox<Account> accountComboBox = new ComboBox<>("Account");
 
     public TransactionView(AccountServiceImpl accountService,
                            CategoryServiceImpl categoryService,
-                           CurrentUserServiceImpl currentUserService,
                            SubcategoryServiceImpl subcategoryService,
                            TransactionServiceImpl transactionService) {
         this.accountService = accountService;
         this.categoryService = categoryService;
-        this.currentUserService = currentUserService;
         this.subcategoryService = subcategoryService;
         this.transactionService = transactionService;
 
         addClassName("transaction-view");
         setSizeFull();
+
+        configureToolBar();
         configureGrid();
         configureForm();
 
         add(
-                addContent()
+                new VerticalLayout(getToolbar(), addContent())
         );
 
         updateList();
     }
 
-    private void updateList() {
-        ZoneId defaultZoneId = form.getDefaultZoneId();
-        Optional<Account> currentAccount = accountService.findByAccountId(1L);
+    private void configureToolBar() {
+        accountComboBox.addValueChangeListener(e -> updateList());
+    }
 
-        currentAccount.ifPresent(account -> grid.setItems(
-                transactionService.findAccountTransactions(account,
-                        form.getNoteField().getValue(),
-                        form.getFromDateField().isEmpty() ? null : Date.from(form.getFromDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
-                        form.getToDateField().isEmpty() ? null : Date.from(form.getToDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
-                        form.getAmountField().getValue(),
-                        form.getCategory().isEmpty() ? null : form.getCategory().getValue().getCategoryName(),
-                        form.getSubcategory().isEmpty() ? null : form.getSubcategory().getValue().getSubcategoryName())
-        ));
+    public void updateList() {
+        ZoneId defaultZoneId = form.getDefaultZoneId();
+
+        if (!accountComboBox.isEmpty()) {
+            if (form.isVisible()) {
+                grid.setItems(
+                        transactionService.findAccountTransactions(accountComboBox.getValue(),
+                                form.getNoteField().getValue(),
+                                form.getFromDateField().isEmpty() ? null : Date.from(form.getFromDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
+                                form.getToDateField().isEmpty() ? null : Date.from(form.getToDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
+                                form.getAmountField().getValue(),
+                                form.getCategory().isEmpty() ? null : form.getCategory().getValue().getCategoryName(),
+                                form.getSubcategory().isEmpty() ? null : form.getSubcategory().getValue().getSubcategoryName())
+                );
+                return;
+            }
+
+            grid.setItems(
+                    transactionService.findAllTransactionByAccount(accountComboBox.getValue())
+            );
+        }
     }
 
     private void configureGrid() {
@@ -94,7 +108,6 @@ public class TransactionView extends VerticalLayout {
         });
     }
 
-
     private void showButtons() {
         grid.addComponentColumn(transaction -> {
             Button editButton = new Button("Edit");
@@ -108,7 +121,6 @@ public class TransactionView extends VerticalLayout {
         }).setKey("buttons").setHeader("Edit");
     }
 
-
     private void deleteTransaction(Transaction transaction) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Are you sure you want to delete this transaction permanently?");
@@ -120,13 +132,12 @@ public class TransactionView extends VerticalLayout {
             dialog.close();
         });
 
-        SharedComponents.configureDialog(dialog,deleteButton);
+        SharedComponents.configureDialog(dialog, deleteButton);
     }
-
 
     private void configureForm() {
         form = new TransactionFilterForm(
-                categoryService.findAllCategories(), subcategoryService.findAllSubcategories());
+                categoryService.findAllCategories(), subcategoryService.findAllSubcategories(), accountService);
         form.setWidth("25 em");
 
         form.getAmountField().addValueChangeListener(e -> updateList());
@@ -137,14 +148,50 @@ public class TransactionView extends VerticalLayout {
         form.getSubcategory().addValueChangeListener(e -> updateList());
 
         form.getClear().addClickListener(e -> form.clearForm());
+        form.getClose().addClickListener(e -> form.setVisible(false));
+
     }
 
-
     private Component addContent() {
-        VerticalLayout content = new VerticalLayout(form, grid);
+        HorizontalLayout content = new HorizontalLayout(grid, form);
         content.addClassName("content");
+        content.setFlexGrow(2, grid);
+        content.setFlexGrow(1, form);
         content.setSizeFull();
 
         return content;
+    }
+
+    private Component getToolbar() {
+        HorizontalLayout horizontalLayout = new HorizontalLayout(
+                getAccountField(accountComboBox, accountService),
+                getAddTransactionButton(),
+                getFilterButton()
+        );
+
+        horizontalLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
+        horizontalLayout.setWidthFull();
+
+        return horizontalLayout;
+    }
+
+    private Component getAddTransactionButton() {
+        Button addTransactionButton = new Button("Add transaction");
+        addTransactionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        addTransactionButton.setIcon(new Icon("lumo", "plus"));
+
+        addTransactionButton.addClickListener(e -> addTransactionButton.getUI().ifPresent(ui ->
+                ui.navigate("add-transaction")));
+        return addTransactionButton;
+    }
+
+    private Component getFilterButton() {
+        Button filterButton = new Button("Filter transaction");
+        filterButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        filterButton.setIcon(new Icon("lumo", "search"));
+
+        filterButton.setEnabled(false);
+        filterButton.addClickListener(e -> form.setVisible(true));
+        return filterButton;
     }
 }

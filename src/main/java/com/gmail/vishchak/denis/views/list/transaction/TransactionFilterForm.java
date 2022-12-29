@@ -2,15 +2,14 @@ package com.gmail.vishchak.denis.views.list.transaction;
 
 import com.gmail.vishchak.denis.model.Category;
 import com.gmail.vishchak.denis.model.Subcategory;
+import com.gmail.vishchak.denis.service.AccountServiceImpl;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.accordion.Accordion;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -26,18 +25,22 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 
 @Getter
 public class TransactionFilterForm extends FormLayout {
-   private final NumberField amountField = amountField("Amount");
+    private final NumberField amountField = amountField("Amount");
     private final TextField noteField = textFiled("Note");
-    private final  ComboBox<Category> category = new ComboBox<>("Category");
+    private final ComboBox<Category> category = new ComboBox<>("Category");
     private final ComboBox<Subcategory> subcategory = new ComboBox<>("Subcategory");
     private final String format = "dd-MM-yyyy";
-    private final  ZoneId defaultZoneId = ZoneId.systemDefault();
-    private final DatePicker fromDateField = dateField(format, "Start date");
-    private final  DatePicker toDateField = dateField(format, "Finish date");
-    private final Button clear = new Button("clear");
-    private final  Accordion filterField = new Accordion();
 
-    public TransactionFilterForm(List<Category> categories, List<Subcategory> subcategories) {
+    private final ZoneId defaultZoneId = ZoneId.systemDefault();
+    private final DatePicker fromDateField = dateField(format, "Start date");
+    private final DatePicker toDateField = dateField(format, "Finish date");
+    private final Button clear = new Button("clear");
+    private final Button close = new Button("close");
+    private final AccountServiceImpl accountService;
+
+    public TransactionFilterForm(List<Category> categories, List<Subcategory> subcategories, AccountServiceImpl accountService) {
+        this.accountService = accountService;
+
         addClassName("transaction-form");
         category.setItems(categories);
         category.setItemLabelGenerator(Category::getCategoryName);
@@ -50,27 +53,30 @@ public class TransactionFilterForm extends FormLayout {
         amountField.setValueChangeMode(ValueChangeMode.LAZY);
         noteField.setValueChangeMode(ValueChangeMode.LAZY);
 
-        HorizontalLayout horizontalLayout = new HorizontalLayout
-                (
-                        getToolbar(),
-                        filterField.add("Filter transaction", new VerticalLayout(
-                                new HorizontalLayout(fromDateField, toDateField),
-                                amountField,
-                                category,
-                                subcategory,
-                                noteField,
-                                clearFormButton()))
-                );
-        horizontalLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
-
-        add(
-                horizontalLayout
+        VerticalLayout formLayout = new VerticalLayout(
+                new HorizontalLayout(fromDateField, toDateField),
+                amountField,
+                category,
+                subcategory,
+                noteField,
+                new HorizontalLayout(clearFormButton(), closeFormButton())
         );
+
+        formLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
+
+        add(formLayout);
+    }
+
+    private Component closeFormButton() {
+        close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+        close.addClickShortcut(Key.ESCAPE);
+
+        close.setEnabled(false);
+        return close;
     }
 
     private Component clearFormButton() {
         clear.addThemeVariants(ButtonVariant.LUMO_ERROR);
-
         clear.addClickShortcut(Key.ESCAPE);
 
         return clear;
@@ -83,16 +89,5 @@ public class TransactionFilterForm extends FormLayout {
         noteField.setValue(noteField.getEmptyValue());
         category.setValue(category.getEmptyValue());
         subcategory.setValue(subcategory.getEmptyValue());
-    }
-
-    private Component getToolbar() {
-        Button addTransactionButton = new Button("Add transaction");
-        addTransactionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        addTransactionButton.setIcon(new Icon("lumo", "plus"));
-
-        addTransactionButton.addClickListener(e -> addTransactionButton.getUI().ifPresent(ui ->
-                ui.navigate("add-transaction")));
-
-        return addTransactionButton;
     }
 }
