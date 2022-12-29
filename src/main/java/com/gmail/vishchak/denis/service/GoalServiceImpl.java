@@ -1,6 +1,6 @@
 package com.gmail.vishchak.denis.service;
 
-import com.gmail.vishchak.denis.model.Goal;
+import com.gmail.vishchak.denis.model.*;
 import com.gmail.vishchak.denis.repository.GoalRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,11 +11,16 @@ import java.util.Optional;
 
 @Service
 public class GoalServiceImpl implements GoalService {
-
     private final GoalRepository goalRepository;
+    private final TransactionService transactionService;
+    private final CategoryServiceImpl categoryService;
+    private final SubcategoryServiceImpl subcategoryService;
 
-    public GoalServiceImpl(GoalRepository goalRepository) {
+    public GoalServiceImpl(GoalRepository goalRepository, TransactionService transactionService, CategoryServiceImpl categoryService, SubcategoryServiceImpl subcategoryService, AccountServiceImpl accountService) {
         this.goalRepository = goalRepository;
+        this.transactionService = transactionService;
+        this.categoryService = categoryService;
+        this.subcategoryService = subcategoryService;
     }
 
     @Override
@@ -26,7 +31,7 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     @Transactional
-    public void updateGoal(Long goalId, String goalNOte, Double amount, Double newSum, Date finishDate) {
+    public void updateGoal(Long goalId, String goalNOte, Double amount, Date finishDate) {
         Optional<Goal> goal = goalRepository.findById(goalId);
         goal.ifPresent(g -> {
             if (goalNOte != null) {
@@ -38,9 +43,6 @@ public class GoalServiceImpl implements GoalService {
                 if (amount > 0) {
                     g.setGoalAmount(amount);
                 }
-            }
-            if (newSum != null) {
-                g.setCurrentAmount(g.getCurrentAmount() + newSum);
             }
             if (finishDate != null) {
                 if (finishDate.getTime() >= g.getStartDate().getTime())
@@ -82,5 +84,25 @@ public class GoalServiceImpl implements GoalService {
         }
         goalRepository.save(goal);
         return true;
+    }
+
+    @Override
+    @Transactional
+    public void addMoney(Long goalId, Double amount, Account currentAccount) {
+        Optional<Goal> goal = goalRepository.findById(goalId);
+        goal.ifPresent(g -> {
+            if (amount == null) {
+                return;
+            }
+            g.setCurrentAmount(g.getCurrentAmount() + amount);
+            goalRepository.save(g);
+
+            Optional<Category> category = categoryService.findCategoryById(3L);
+            Optional<Subcategory> subcategory = subcategoryService.findSubcategoryById(15L);
+
+            if (category.isPresent() && subcategory.isPresent()) {
+                transactionService.addTransaction(new Transaction(amount, "Goal " + g.getGoalNote(), new Date(), currentAccount, category.get(), subcategory.get()));
+            }
+        });
     }
 }
