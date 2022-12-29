@@ -21,6 +21,7 @@ import com.vaadin.flow.router.Route;
 
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.List;
 
 import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.getAccountField;
 
@@ -64,6 +65,8 @@ public class TransactionView extends VerticalLayout {
 
     public void updateList() {
         ZoneId defaultZoneId = form.getDefaultZoneId();
+        //swap on current user
+        List<Account> accountList = accountService.findAccountsByUserId(1L);
 
         if (!accountComboBox.isEmpty()) {
             if (form.isVisible()) {
@@ -82,6 +85,8 @@ public class TransactionView extends VerticalLayout {
             grid.setItems(
                     transactionService.findAllTransactionByAccount(accountComboBox.getValue())
             );
+        } else if (!accountList.isEmpty()) {
+            accountComboBox.setValue(accountList.get(0));
         }
     }
 
