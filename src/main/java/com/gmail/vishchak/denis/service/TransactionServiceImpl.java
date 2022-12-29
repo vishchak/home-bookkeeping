@@ -32,7 +32,7 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional
     public boolean addTransaction(Transaction transaction) {
-        if (transaction.getAccount() == null || transaction.getTransactionAmount() <= 0) {
+        if (transaction.getTransactionAmount() <= 0) {
             return false;
         }
 

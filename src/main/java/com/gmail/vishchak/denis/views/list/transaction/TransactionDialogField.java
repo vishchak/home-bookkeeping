@@ -1,5 +1,6 @@
 package com.gmail.vishchak.denis.views.list.transaction;
 
+import com.gmail.vishchak.denis.model.Account;
 import com.gmail.vishchak.denis.model.Category;
 import com.gmail.vishchak.denis.model.Subcategory;
 import com.gmail.vishchak.denis.model.Transaction;
@@ -42,11 +43,13 @@ public class TransactionDialogField extends Div implements HasUrlParameter<Long>
     private final Dialog dialog = new Dialog();
     private final Binder<Transaction> binder = new BeanValidationBinder<>(Transaction.class);
     private final TextField note = textFiled("Note");
-    private final  NumberField transactionAmount = amountField("Amount");
+    private final NumberField transactionAmount = amountField("Amount");
 
     private final ComboBox<Category> category = new ComboBox<>("Category");
 
-    private final  ComboBox<Subcategory> subcategory = new ComboBox<>("Subcategory");
+    private final ComboBox<Subcategory> subcategory = new ComboBox<>("Subcategory");
+
+    private final ComboBox<Account> accountComboBox = new ComboBox<>("Account");
 
     public TransactionDialogField(AccountServiceImpl accountService,
                                   TransactionServiceImpl transactionService,
@@ -78,6 +81,7 @@ public class TransactionDialogField extends Div implements HasUrlParameter<Long>
         labelGenerator();
 
         if (id != null) {
+            accountComboBox.setVisible(false);
             Optional<Transaction> optionalTransaction = transactionService.findById(id);
             optionalTransaction.ifPresent(transaction -> {
                 category.setValue(transaction.getCategory());
@@ -109,6 +113,11 @@ public class TransactionDialogField extends Div implements HasUrlParameter<Long>
     private void labelGenerator() {
         subcategory.setEnabled(false);
 
+        //change on current user
+        accountComboBox.setItems(accountService.findAccountsByUserId(1L));
+        accountComboBox.setItemLabelGenerator(Account::getAccountName);
+        accountComboBox.setRequired(true);
+
         category.setItems(categoryService.findAllCategories());
         category.setItemLabelGenerator(Category::getCategoryName);
         category.addValueChangeListener(event -> {
@@ -121,11 +130,10 @@ public class TransactionDialogField extends Div implements HasUrlParameter<Long>
     private void validateAndAdd() {
         try {
             getUI().ifPresent(ui -> {
-                //CHANGE ACCOUNT FIELD USING FIND CURRENT ACCOUNT METHOD
                 transactionService.addTransaction(new Transaction(
                         transactionAmount.getValue(),
                         note.getValue(), new Date(),
-                        accountService.findByAccountId(1L).get(),
+                        accountComboBox.getValue(),
                         category.getValue(),
                         subcategory.getValue()
                 ));
@@ -164,7 +172,7 @@ public class TransactionDialogField extends Div implements HasUrlParameter<Long>
     }
 
     private VerticalLayout createDialogLayout() {
-        VerticalLayout dialogLayout = new VerticalLayout(transactionAmount, note, category, subcategory);
+        VerticalLayout dialogLayout = new VerticalLayout(transactionAmount, note, accountComboBox, category, subcategory);
         dialogLayout.setPadding(false);
         dialogLayout.setSpacing(false);
         dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);

@@ -31,8 +31,9 @@ public class Transaction {
     @Column(name = "date")
     private Date transactionDate;
 
+    @NotNull
     @ManyToOne
-    @JoinColumn(name = "account_id", nullable = false)
+    @JoinColumn(name = "account_id")
     private Account account;
 
     @NotNull
