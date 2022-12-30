@@ -74,6 +74,7 @@ public class SharedComponents {
         accountComboBox.setItemLabelGenerator(Account::getAccountName);
         accountComboBox.setHelperText("Choose account");
 
+
         return accountComboBox;
     }
 

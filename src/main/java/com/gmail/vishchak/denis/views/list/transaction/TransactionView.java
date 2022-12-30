@@ -13,9 +13,11 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -23,8 +25,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
-import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.getAccountField;
-import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.getAddComponentButton;
+import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Transactions | MoneyLonger")
@@ -34,8 +35,10 @@ public class TransactionView extends VerticalLayout {
     private final SubcategoryServiceImpl subcategoryService;
     private final TransactionServiceImpl transactionService;
     private final Grid<Transaction> grid = new Grid<>(Transaction.class);
-    private TransactionFilterForm form;
     private final ComboBox<Account> accountComboBox = new ComboBox<>("Account");
+    private final TextField accountAmountFiled = textFiled("");
+    private TransactionFilterForm form;
+
 
     public TransactionView(AccountServiceImpl accountService,
                            CategoryServiceImpl categoryService,
@@ -49,6 +52,7 @@ public class TransactionView extends VerticalLayout {
         addClassName("transaction-view");
         setSizeFull();
 
+        configureAmountField();
         configureToolBar();
         configureGrid();
         configureForm();
@@ -61,7 +65,10 @@ public class TransactionView extends VerticalLayout {
     }
 
     private void configureToolBar() {
-        accountComboBox.addValueChangeListener(e -> updateList());
+        accountComboBox.addValueChangeListener(e -> {
+            updateAccountAmountField();
+            updateList();
+        });
     }
 
     public void updateList() {
@@ -170,8 +177,13 @@ public class TransactionView extends VerticalLayout {
     }
 
     private Component getToolbar() {
+
+        VerticalLayout verticalLayout = new VerticalLayout(getAccountField(accountComboBox, accountService), accountAmountFiled);
+        verticalLayout.setAlignItems(Alignment.AUTO);
+        verticalLayout.setSizeUndefined();
+
         HorizontalLayout horizontalLayout = new HorizontalLayout(
-                getAccountField(accountComboBox, accountService),
+                verticalLayout,
                 getAddComponentButton("Add transaction", "add-transaction"),
                 getFilterButton()
         );
@@ -188,7 +200,18 @@ public class TransactionView extends VerticalLayout {
         filterButton.setIcon(new Icon("lumo", "search"));
 
         filterButton.addClickListener(e -> form.setVisible(!form.isVisible()));
-        
+
         return filterButton;
+    }
+
+    private void configureAmountField() {
+        accountAmountFiled.setReadOnly(true);
+        accountAmountFiled.setSizeUndefined();
+        accountAmountFiled.setLabel("Account balance");
+        accountAmountFiled.setPrefixComponent(VaadinIcon.DOLLAR.create());
+    }
+
+    private void updateAccountAmountField() {
+        accountAmountFiled.setValue(accountComboBox.getValue().getAccountAmount().toString());
     }
 }
