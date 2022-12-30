@@ -12,7 +12,7 @@ public interface GoalService {
 
     void updateGoal(Long goalId, String goalNOte, Double amount, Date finishDate);
 
-    List<Goal> findUserGoals(Long userId, Boolean ifCompleted);
+    List<Goal> findUserGoals(Long userId, String goalName, Boolean ifCompleted);
 
     Long countUserGoals(Long userId);
 

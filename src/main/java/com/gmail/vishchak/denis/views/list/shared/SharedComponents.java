@@ -78,7 +78,7 @@ public class SharedComponents {
         return accountComboBox;
     }
 
-    public static Component getAddComponentButton(String buttonName, String url) {
+    public static Button getAddComponentButton(String buttonName, String url) {
         Button addTransactionButton = new Button(buttonName);
         addTransactionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         addTransactionButton.setIcon(new Icon("lumo", "plus"));

@@ -57,8 +57,8 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Goal> findUserGoals(Long userId, Boolean ifCompleted) {
-        return goalRepository.findGoalsByUserIdAndIfCompleted(userId, ifCompleted);
+    public List<Goal> findUserGoals(Long userId, String goalName, Boolean ifCompleted) {
+        return goalRepository.findGoalsByUserIdAndIfCompleted(userId, goalName, ifCompleted);
     }
 
     @Override

@@ -12,22 +12,27 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
 import com.vaadin.flow.component.progressbar.ProgressBarVariant;
+import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import java.util.Date;
 
+import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.textFiled;
+
 @Route(value = "goals", layout = MainLayout.class)
 @PageTitle("Goals | MoneyLonger")
 public class GoalView extends VerticalLayout {
     private final CurrentUserServiceImpl currentUserService;
-
     private final GoalServiceImpl goalService;
     private final Grid<Goal> grid = new Grid<>(Goal.class);
+    private final TextField filterField = textFiled("Note");
 
     public GoalView(
             CurrentUserServiceImpl currentUserService,
@@ -38,29 +43,31 @@ public class GoalView extends VerticalLayout {
 
         addClassName("goals-view");
         setSizeFull();
+        setAlignItems(Alignment.BASELINE);
 
+        configureNoteField();
         configureGrid();
 
         add(
-                addContent()
+                createToolBar(),
+                grid
         );
 
         updateList();
     }
 
+    private void configureNoteField() {
+        filterField.setValueChangeMode(ValueChangeMode.LAZY);
+        filterField.setClearButtonVisible(true);
+        filterField.addValueChangeListener(e -> updateList());
+    }
+
+    //add if completed checkbox filter
     private void updateList() {
         //change for current user eventually
         CurrentUser user = currentUserService.findUserByEmailOrLogin("test user");
-//add if completed filter
-        grid.setItems(goalService.findUserGoals(user.getUserId(), null));
-    }
 
-    private Component addContent() {
-        VerticalLayout content = new VerticalLayout(grid);
-        content.addClassName("content");
-        content.setSizeFull();
-
-        return content;
+        grid.setItems(goalService.findUserGoals(user.getUserId(), filterField.isEmpty() ? null : filterField.getValue(), null));
     }
 
     private void configureGrid() {
@@ -109,7 +116,7 @@ public class GoalView extends VerticalLayout {
             dialog.close();
         });
 
-       SharedComponents.configureDialog(dialog,deleteButton);
+        SharedComponents.configureDialog(dialog, deleteButton);
     }
 
 
@@ -146,4 +153,19 @@ public class GoalView extends VerticalLayout {
         return (int) (timeLeft / (1000 * 60 * 60 * 24) + 1);
     }
 
+    private Component createToolBar() {
+        Button addGoal = SharedComponents.getAddComponentButton("Add goal", "goals/add-goal");
+        addGoal.setWidthFull();
+
+        HorizontalLayout toolbar = new HorizontalLayout(
+                addGoal,
+                filterField
+        );
+
+        toolbar.addClassName("grid-toolbar");
+        toolbar.setAlignItems(FlexComponent.Alignment.BASELINE);
+        toolbar.setSizeUndefined();
+
+        return toolbar;
+    }
 }

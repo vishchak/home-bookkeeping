@@ -9,8 +9,11 @@ import java.util.List;
 public interface GoalRepository extends JpaRepository<Goal, Long> {
 
     @Query("select g from Goal g where g.user.userId = :id " +
+            "and (:goalName is null or (lower(g.goalNote) like lower(concat('%', :goalName, '%')))) " +
             "and (:ifCompleted is null or (g.ifCompleted = :ifCompleted))")
-    List<Goal> findGoalsByUserIdAndIfCompleted(Long id, Boolean ifCompleted);
+    List<Goal> findGoalsByUserIdAndIfCompleted(Long id,
+                                               String goalName,
+                                               Boolean ifCompleted);
 
     @Query("select count(g) from Goal g where g.user.userId = ?1")
     Long countGoalsByUserId(Long userId);
