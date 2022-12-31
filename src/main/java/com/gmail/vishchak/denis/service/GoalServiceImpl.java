@@ -31,12 +31,12 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     @Transactional
-    public void updateGoal(Long goalId, String goalNOte, Double amount, Date finishDate) {
+    public void updateGoal(Long goalId, String goalNote, Double amount, Date finishDate) {
         Optional<Goal> goal = goalRepository.findById(goalId);
         goal.ifPresent(g -> {
-            if (goalNOte != null) {
-                if (!(goalNOte.isEmpty() && goalNOte.isBlank())) {
-                    g.setGoalNote(goalNOte);
+            if (goalNote != null) {
+                if (!(goalNote.isEmpty() && goalNote.isBlank())) {
+                    g.setGoalNote(goalNote);
                 }
             }
             if (amount != null) {

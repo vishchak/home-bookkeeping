@@ -3,6 +3,7 @@ package com.gmail.vishchak.denis.views.list.shared;
 import com.gmail.vishchak.denis.model.Account;
 import com.gmail.vishchak.denis.service.AccountServiceImpl;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.combobox.ComboBox;
@@ -10,6 +11,9 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 
@@ -86,5 +90,23 @@ public class SharedComponents {
         addTransactionButton.addClickListener(e -> addTransactionButton.getUI().ifPresent(ui ->
                 ui.navigate(url)));
         return addTransactionButton;
+    }
+
+    public static Button createConfirmButton(String buttonText) {
+        Button saveButton = new Button(buttonText);
+        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+
+        return saveButton;
+    }
+
+    public static void ErrorNotification() {
+        Notification notification = new Notification();
+        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+
+        HorizontalLayout layout = new HorizontalLayout(new Div(new Text("Fill all the necessary fields!")));
+
+        notification.setDuration(3000);
+        notification.add(layout);
+        notification.open();
     }
 }

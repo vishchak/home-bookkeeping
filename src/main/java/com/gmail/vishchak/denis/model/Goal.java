@@ -42,10 +42,10 @@ public class Goal {
     @JoinColumn(name = "user_id")
     private CurrentUser user;
 
-    public Goal(String goalNote, Double goalAmount, Date startDate, Date finishDate, CurrentUser user) {
+    public Goal(String goalNote, Double goalAmount, Date finishDate, CurrentUser user) {
         this.goalNote = goalNote;
         this.goalAmount = goalAmount;
-        this.startDate = startDate;
+        this.startDate = new Date();
         this.finishDate = finishDate;
         this.user = user;
         this.currentAmount = 0D;

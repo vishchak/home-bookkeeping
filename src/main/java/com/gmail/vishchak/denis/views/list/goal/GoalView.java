@@ -154,7 +154,7 @@ public class GoalView extends VerticalLayout {
     }
 
     private Component createToolBar() {
-        Button addGoal = SharedComponents.getAddComponentButton("Add goal", "goals/add-goal");
+        Button addGoal = SharedComponents.getAddComponentButton("Add goal", "add-goal");
         addGoal.setWidthFull();
 
         HorizontalLayout toolbar = new HorizontalLayout(
