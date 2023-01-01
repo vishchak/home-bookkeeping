@@ -52,7 +52,10 @@ public class GoalServiceImpl implements GoalService {
             }
             if (g.getCurrentAmount() >= g.getGoalAmount()) {
                 g.setGoalProgress(GoalProgress.COMPLETED);
+            } else {
+                g.setGoalProgress(GoalProgress.CURRENT);
             }
+
             goalRepository.save(g);
         });
     }
@@ -93,17 +96,41 @@ public class GoalServiceImpl implements GoalService {
     public void addMoney(Long goalId, Double amount, Account currentAccount) {
         Optional<Goal> goal = goalRepository.findById(goalId);
         goal.ifPresent(g -> {
-            if (amount == null) {
+            if (amount == null || amount<=0) {
                 return;
             }
-            g.setCurrentAmount(g.getCurrentAmount() + amount);
-            goalRepository.save(g);
-
             Optional<Category> category = categoryService.findCategoryById(3L);
             Optional<Subcategory> subcategory = subcategoryService.findSubcategoryById(15L);
 
-            if (category.isPresent() && subcategory.isPresent()) {
-                transactionService.addTransaction(new Transaction(amount, "Goal " + g.getGoalNote(), new Date(), currentAccount, category.get(), subcategory.get()));
+            if ((g.getCurrentAmount() + amount) > g.getGoalAmount()) {
+                double maxAmount = g.getGoalAmount() - g.getCurrentAmount();
+                ifPossible(maxAmount, g, category, subcategory, currentAccount);
+            } else {
+                ifPossible(amount, g, category, subcategory, currentAccount);
+            }
+        });
+    }
+
+    private void ifPossible(Double amount, Goal g, Optional<Category> category, Optional<Subcategory> subcategory, Account currentAccount) {
+        g.setCurrentAmount(g.getCurrentAmount() + amount);
+        if (g.getCurrentAmount() >= g.getGoalAmount()) {
+            g.setGoalProgress(GoalProgress.COMPLETED);
+        }
+        goalRepository.save(g);
+
+        if (category.isPresent() && subcategory.isPresent()) {
+            transactionService.addTransaction(new Transaction(amount, "Goal " + g.getGoalNote(), new Date(), currentAccount, category.get(), subcategory.get()));
+        }
+    }
+
+    @Override
+    @Transactional
+    public void updateStatus(Long id) {
+        Optional<Goal> goal = goalRepository.findById(id);
+        goal.ifPresent(g -> {
+            if (!g.getGoalProgress().equals(GoalProgress.COMPLETED)) {
+                g.setGoalProgress(GoalProgress.FAILED);
+                goalRepository.save(g);
             }
         });
     }

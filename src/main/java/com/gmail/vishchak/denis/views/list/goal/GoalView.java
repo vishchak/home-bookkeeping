@@ -154,11 +154,20 @@ public class GoalView extends VerticalLayout {
         return new VerticalLayout(progressBarLabel, progressBar);
     }
 
-    private int daysLeft(Goal goal) {
+    private String daysLeft(Goal goal) {
         Date today = new Date();
         long timeLeft = goal.getFinishDate().getTime() - today.getTime();
 
-        return (int) (timeLeft / (1000 * 60 * 60 * 24) + 1);
+        if (goal.getGoalProgress().equals(GoalProgress.COMPLETED)) {
+            return "Success";
+        }
+
+        if (timeLeft <= 0) {
+            goalService.updateStatus(goal.getGoalId());
+            return "Failed";
+        }
+
+        return String.valueOf((timeLeft / (1000 * 60 * 60 * 24) + 1));
     }
 
     private Component createToolBar() {

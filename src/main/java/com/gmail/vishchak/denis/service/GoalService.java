@@ -23,4 +23,6 @@ public interface GoalService {
     boolean addGoal(Goal goal);
 
     void addMoney(Long goalId, Double amount, Account currentAccount);
+
+    void updateStatus(Long id);
 }
