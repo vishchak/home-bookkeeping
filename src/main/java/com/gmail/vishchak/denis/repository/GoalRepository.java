@@ -12,7 +12,7 @@ public interface GoalRepository extends JpaRepository<Goal, Long> {
 
     @Query("select g from Goal g where g.user.userId = :id " +
             "and (:goalName is null or (lower(g.goalNote) like lower(concat('%', :goalName, '%')))) " +
-            "and (:goalProgress is null or (g.goalProgress in :goalProgress))")
+            "and g.goalProgress in :goalProgress")
     List<Goal> findGoalsByUserIdAndIfCompleted(Long id,
                                                String goalName,
                                                Set<GoalProgress> goalProgress);

@@ -25,6 +25,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import java.util.Date;
+import java.util.Set;
 
 import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.textFiled;
 
@@ -67,14 +68,14 @@ public class GoalView extends VerticalLayout {
         filterField.addValueChangeListener(e -> updateList());
 
         checkboxGroup.setItems(GoalProgress.CURRENT, GoalProgress.COMPLETED, GoalProgress.FAILED);
-        checkboxGroup.addValueChangeListener(e -> updateList());
+        checkboxGroup.addSelectionListener(e -> updateList());
     }
 
     private void updateList() {
         //change for current user eventually
         CurrentUser user = currentUserService.findUserByEmailOrLogin("test user");
 
-        grid.setItems(goalService.findUserGoals(user.getUserId(), filterField.isEmpty() ? null : filterField.getValue(), checkboxGroup.isEmpty() ? null : checkboxGroup.getValue()));
+        grid.setItems(goalService.findUserGoals(user.getUserId(), filterField.isEmpty() ? null : filterField.getValue(), checkboxGroup.isEmpty() ? Set.of(GoalProgress.values()) : checkboxGroup.getSelectedItems()));
     }
 
     private void configureGrid() {
