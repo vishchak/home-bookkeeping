@@ -2,6 +2,7 @@ package com.gmail.vishchak.denis.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.gmail.vishchak.denis.model.enums.GoalProgress;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -30,7 +31,6 @@ public class Goal {
 
     private Double currentAmount;
 
-    private Boolean ifCompleted;
     @Temporal(TemporalType.DATE)
     private Date startDate;
 
@@ -42,6 +42,9 @@ public class Goal {
     @JoinColumn(name = "user_id")
     private CurrentUser user;
 
+    @Enumerated(EnumType.STRING)
+    private GoalProgress goalProgress;
+
     public Goal(String goalNote, Double goalAmount, Date finishDate, CurrentUser user) {
         this.goalNote = goalNote;
         this.goalAmount = goalAmount;
@@ -49,6 +52,6 @@ public class Goal {
         this.finishDate = finishDate;
         this.user = user;
         this.currentAmount = 0D;
-        this.ifCompleted = false;
+        this.goalProgress = GoalProgress.CURRENT;
     }
 }

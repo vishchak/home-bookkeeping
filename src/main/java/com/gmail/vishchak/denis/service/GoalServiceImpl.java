@@ -1,6 +1,7 @@
 package com.gmail.vishchak.denis.service;
 
 import com.gmail.vishchak.denis.model.*;
+import com.gmail.vishchak.denis.model.enums.GoalProgress;
 import com.gmail.vishchak.denis.repository.GoalRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class GoalServiceImpl implements GoalService {
@@ -49,7 +51,7 @@ public class GoalServiceImpl implements GoalService {
                     g.setFinishDate(finishDate);
             }
             if (g.getCurrentAmount() >= g.getGoalAmount()) {
-                g.setIfCompleted(true);
+                g.setGoalProgress(GoalProgress.COMPLETED);
             }
             goalRepository.save(g);
         });
@@ -57,8 +59,8 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Goal> findUserGoals(Long userId, String goalName, Boolean ifCompleted) {
-        return goalRepository.findGoalsByUserIdAndIfCompleted(userId, goalName, ifCompleted);
+    public List<Goal> findUserGoals(Long userId, String goalName, Set<GoalProgress> goalProgress) {
+        return goalRepository.findGoalsByUserIdAndIfCompleted(userId, goalName, goalProgress);
     }
 
     @Override

@@ -2,11 +2,13 @@ package com.gmail.vishchak.denis.views.list.goal;
 
 import com.gmail.vishchak.denis.model.CurrentUser;
 import com.gmail.vishchak.denis.model.Goal;
+import com.gmail.vishchak.denis.model.enums.GoalProgress;
 import com.gmail.vishchak.denis.service.*;
 import com.gmail.vishchak.denis.views.list.shared.MainLayout;
 import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
@@ -32,7 +34,8 @@ public class GoalView extends VerticalLayout {
     private final CurrentUserServiceImpl currentUserService;
     private final GoalServiceImpl goalService;
     private final Grid<Goal> grid = new Grid<>(Goal.class);
-    private final TextField filterField = textFiled("Note");
+    private final TextField filterField = textFiled("");
+    CheckboxGroup<GoalProgress> checkboxGroup = new CheckboxGroup<>();
 
     public GoalView(
             CurrentUserServiceImpl currentUserService,
@@ -45,7 +48,7 @@ public class GoalView extends VerticalLayout {
         setSizeFull();
         setAlignItems(Alignment.BASELINE);
 
-        configureNoteField();
+        configureFilterFields();
         configureGrid();
 
         add(
@@ -56,18 +59,22 @@ public class GoalView extends VerticalLayout {
         updateList();
     }
 
-    private void configureNoteField() {
+    private void configureFilterFields() {
+        filterField.setPlaceholder("Search");
+        filterField.setPrefixComponent(new Icon("lumo", "search"));
         filterField.setValueChangeMode(ValueChangeMode.LAZY);
         filterField.setClearButtonVisible(true);
         filterField.addValueChangeListener(e -> updateList());
+
+        checkboxGroup.setItems(GoalProgress.CURRENT, GoalProgress.COMPLETED, GoalProgress.FAILED);
+        checkboxGroup.addValueChangeListener(e -> updateList());
     }
 
-    //add if completed checkbox filter
     private void updateList() {
         //change for current user eventually
         CurrentUser user = currentUserService.findUserByEmailOrLogin("test user");
 
-        grid.setItems(goalService.findUserGoals(user.getUserId(), filterField.isEmpty() ? null : filterField.getValue(), null));
+        grid.setItems(goalService.findUserGoals(user.getUserId(), filterField.isEmpty() ? null : filterField.getValue(), checkboxGroup.isEmpty() ? null : checkboxGroup.getValue()));
     }
 
     private void configureGrid() {
@@ -100,6 +107,7 @@ public class GoalView extends VerticalLayout {
 
             Button deleteButton = new Button("Delete");
             deleteButton.addClickListener(e -> deleteGoal(goal));
+
 
             return new HorizontalLayout(editButton, deleteButton);
         }).setKey("buttons").setHeader("Edit");
@@ -135,7 +143,7 @@ public class GoalView extends VerticalLayout {
         Div progressBarLabel = new Div();
 
         progressBarLabel.setText("Current progress " + goal.getCurrentAmount() + " of " + goal.getGoalAmount());
-        if (goal.getIfCompleted()) {
+        if (goal.getGoalProgress().equals(GoalProgress.COMPLETED)) {
             progressBar.addThemeVariants(ProgressBarVariant.LUMO_SUCCESS);
         } else if (goal.getGoalAmount() / goal.getCurrentAmount() < 4) {
             progressBar.addThemeVariants(ProgressBarVariant.LUMO_CONTRAST);
@@ -157,10 +165,20 @@ public class GoalView extends VerticalLayout {
         Button addGoal = SharedComponents.getAddComponentButton("Add goal", "add-goal");
         addGoal.setWidthFull();
 
+        checkboxGroup.setVisible(false);
+
+        Button statusSearch = new Button("Status");
+        statusSearch.setIcon(new Icon("lumo", "checkmark"));
+        statusSearch.addClickListener(e -> checkboxGroup.setVisible(!checkboxGroup.isVisible()));
+        statusSearch.setWidthFull();
+
         HorizontalLayout toolbar = new HorizontalLayout(
                 addGoal,
-                filterField
+                filterField,
+                statusSearch,
+                checkboxGroup
         );
+
 
         toolbar.addClassName("grid-toolbar");
         toolbar.setAlignItems(FlexComponent.Alignment.BASELINE);
