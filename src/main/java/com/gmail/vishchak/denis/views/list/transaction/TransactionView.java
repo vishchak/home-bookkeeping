@@ -12,6 +12,7 @@ import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -30,6 +31,7 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Transactions | MoneyLonger")
 public class TransactionView extends VerticalLayout {
+    private final int ITEMS_PER_PAGE = 5;
     private final AccountServiceImpl accountService;
     private final CategoryServiceImpl categoryService;
     private final SubcategoryServiceImpl subcategoryService;
@@ -37,8 +39,9 @@ public class TransactionView extends VerticalLayout {
     private final Grid<Transaction> grid = new Grid<>(Transaction.class);
     private final ComboBox<Account> accountComboBox = new ComboBox<>("Account");
     private final TextField accountAmountFiled = textFiled("");
+    private long totalAmountOfPages;
+    private int currentPageNumber = 0;
     private TransactionFilterForm form;
-
 
     public TransactionView(AccountServiceImpl accountService,
                            CategoryServiceImpl categoryService,
@@ -58,7 +61,9 @@ public class TransactionView extends VerticalLayout {
         configureForm();
 
         add(
-                getToolbar(), addContent()
+                getToolbar(),
+                addContent(),
+                getPageButtons()
         );
 
         updateList();
@@ -77,6 +82,8 @@ public class TransactionView extends VerticalLayout {
         List<Account> accountList = accountService.findAccountsByUserId(1L);
 
         if (!accountComboBox.isEmpty()) {
+            totalAmountOfPages = transactionService.getPageCount(accountComboBox.getValue(), ITEMS_PER_PAGE);
+
             if (form.isVisible()) {
                 grid.setItems(
                         transactionService.findAccountTransactions(accountComboBox.getValue(),
@@ -84,15 +91,17 @@ public class TransactionView extends VerticalLayout {
                                 form.getFromDateField().isEmpty() ? null : Date.from(form.getFromDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
                                 form.getToDateField().isEmpty() ? null : Date.from(form.getToDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
                                 form.getAmountField().getValue(),
-                                form.getCategory().isEmpty() ? null : form.getCategory().getValue().getCategoryName(),
-                                form.getSubcategory().isEmpty() ? null : form.getSubcategory().getValue().getSubcategoryName())
+                                form.getCategory().isEmpty() ? null : form.getCategory().getValue(),
+                                form.getSubcategory().isEmpty() ? null : form.getSubcategory().getValue(),
+                                currentPageNumber, ITEMS_PER_PAGE)
                 );
                 return;
             }
-
             grid.setItems(
-                    transactionService.findAllTransactionByAccount(accountComboBox.getValue())
+                    transactionService.findAllTransactionByAccount(accountComboBox.getValue(),
+                            currentPageNumber, ITEMS_PER_PAGE)
             );
+
         } else if (!accountList.isEmpty()) {
             accountComboBox.setValue(accountList.get(0));
         }
@@ -202,6 +211,28 @@ public class TransactionView extends VerticalLayout {
         filterButton.addClickListener(e -> form.setVisible(!form.isVisible()));
 
         return filterButton;
+    }
+
+    private Component getPageButtons() {
+        setClassName("page-buttons");
+
+        Button nextButton = new Button("Next page", e -> {
+            if (currentPageNumber >= --totalAmountOfPages) {
+                return;
+            }
+            currentPageNumber++;
+            updateList();
+        });
+
+        Button previousButton = new Button("Previous page", e -> {
+            if (currentPageNumber <= 0) {
+                return;
+            }
+            currentPageNumber--;
+            updateList();
+        });
+
+        return new Div(previousButton, nextButton);
     }
 
     private void configureAmountField() {

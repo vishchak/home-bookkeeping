@@ -1,5 +1,7 @@
 package com.gmail.vishchak.denis.views.list.chart;
 
+import com.gmail.vishchak.denis.model.Account;
+import com.gmail.vishchak.denis.model.Category;
 import com.gmail.vishchak.denis.model.Transaction;
 import com.gmail.vishchak.denis.service.*;
 import com.gmail.vishchak.denis.views.list.shared.MainLayout;
@@ -22,10 +24,7 @@ import com.vaadin.flow.router.Route;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.dateField;
 
@@ -34,8 +33,6 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.dateFi
 public class DashboardView extends VerticalLayout {
     private final AccountServiceImpl accountService;
     private final CategoryServiceImpl categoryService;
-    private final CurrentUserServiceImpl currentUserService;
-    private final SubcategoryServiceImpl subcategoryService;
     private final TransactionServiceImpl transactionService;
     private final Tab expense = new Tab("Expense chart");
     private final Tab income = new Tab("Income chart");
@@ -48,13 +45,9 @@ public class DashboardView extends VerticalLayout {
 
     public DashboardView(AccountServiceImpl accountService,
                          CategoryServiceImpl categoryService,
-                         CurrentUserServiceImpl currentUserService,
-                         SubcategoryServiceImpl subcategoryService,
                          TransactionServiceImpl transactionService) {
         this.accountService = accountService;
         this.categoryService = categoryService;
-        this.currentUserService = currentUserService;
-        this.subcategoryService = subcategoryService;
         this.transactionService = transactionService;
 
         addClassName("dashboard-view");
@@ -111,18 +104,21 @@ public class DashboardView extends VerticalLayout {
     private double sumByCategory(Date from, Date to) {
         double total = 0D;
 
-        List<Transaction> transactionList = transactionService.findAccountTransactions(accountService.findByAccountId(1L).get(), null, from, to, null, null, null);
-        for (Transaction t :
-                transactionList) {
-            if (t.getCategory().getCategoryName().equalsIgnoreCase("Expense")) {
-                total -= t.getTransactionAmount();
-            } else if (t.getCategory().getCategoryName().equalsIgnoreCase("Income")) {
-                total += t.getTransactionAmount();
-            } else if (t.getCategory().getCategoryName().equalsIgnoreCase("Other")) {
-                if (t.getSubcategory().getSubcategoryName().equalsIgnoreCase("Debt collection") ||
-                        t.getSubcategory().getSubcategoryName().equalsIgnoreCase("Loan")) {
+        Optional<Account> account = accountService.findByAccountId(1L);
+        if (account.isPresent()) {
+            List<Transaction> transactionList = transactionService.findChartTransactions(account.get(), from, to, null);
+            for (Transaction t :
+                    transactionList) {
+                if (t.getCategory().getCategoryName().equalsIgnoreCase("Expense")) {
+                    total -= t.getTransactionAmount();
+                } else if (t.getCategory().getCategoryName().equalsIgnoreCase("Income")) {
                     total += t.getTransactionAmount();
-                } else total -= t.getTransactionAmount();
+                } else if (t.getCategory().getCategoryName().equalsIgnoreCase("Other")) {
+                    if (t.getSubcategory().getSubcategoryName().equalsIgnoreCase("Debt collection") ||
+                            t.getSubcategory().getSubcategoryName().equalsIgnoreCase("Loan")) {
+                        total += t.getTransactionAmount();
+                    } else total -= t.getTransactionAmount();
+                }
             }
         }
 
@@ -140,16 +136,21 @@ public class DashboardView extends VerticalLayout {
 
         Map<String, Double> subcategoryAmount = new HashMap<>();
 
-        transactionService.findAccountTransactions(accountService.findByAccountId(1L).get(), null, from, to, null, categoryService.findCategoryById(categoryId).get().getCategoryName(), null)
-                .forEach(transaction -> {
-                    String key = transaction.getSubcategory().getSubcategoryName();
-                    if (subcategoryAmount.containsKey(key)) {
-                        subcategoryAmount.replace(key, (subcategoryAmount.get(transaction.getSubcategory().getSubcategoryName()) + transaction.getTransactionAmount()));
-                    } else {
-                        subcategoryAmount.put(key,
-                                transaction.getTransactionAmount());
-                    }
-                });
+        Optional<Account> account = accountService.findByAccountId(1L);
+        Optional<Category> category = categoryService.findCategoryById(categoryId);
+
+        if (account.isPresent() && category.isPresent()) {
+            transactionService.findChartTransactions(account.get(), from, to, category.get())
+                    .forEach(transaction -> {
+                        String key = transaction.getSubcategory().getSubcategoryName();
+                        if (subcategoryAmount.containsKey(key)) {
+                            subcategoryAmount.replace(key, (subcategoryAmount.get(transaction.getSubcategory().getSubcategoryName()) + transaction.getTransactionAmount()));
+                        } else {
+                            subcategoryAmount.put(key,
+                                    transaction.getTransactionAmount());
+                        }
+                    });
+        }
 
         for (Map.Entry<String, Double> pair : subcategoryAmount.entrySet()) {
             dataSeries.add(new DataSeriesItem(pair.getKey(), pair.getValue()));

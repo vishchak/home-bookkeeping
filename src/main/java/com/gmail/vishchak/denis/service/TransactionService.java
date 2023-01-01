@@ -12,17 +12,17 @@ import java.util.Optional;
 public interface TransactionService {
     void deleteTransaction(Long id);
 
-    boolean addTransaction(Transaction transaction);
+    void addTransaction(Transaction transaction);
 
     void updateTransaction(Long id, Double amount, String note, Category category, Subcategory subcategory);
 
-    List<Transaction> findAccountTransactions(Account account, String note, Date from, Date to, Double amount, String category, String subcategory);
+    List<Transaction> findAccountTransactions(Account account, String note, Date from, Date to, Double amount, Category category, Subcategory subcategory, int currentPageNUmber, int itemsPerPage);
 
-    Long countTransactions(Account account);
+    Long getPageCount(Account account, int itemsPerPage);
 
     Optional<Transaction> findById(Long id);
 
-    List<Transaction> findByCategory(Account account, Long categoryId);
+    List<Transaction> findAllTransactionByAccount(Account account, int currentPageNUmber, int itemsPerPage);
 
-    List<Transaction> findAllTransactionByAccount(Account account);
+    List<Transaction> findChartTransactions(Account account, Date from, Date to, Category category);
 }
