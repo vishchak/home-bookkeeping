@@ -39,9 +39,9 @@ public class SubcategoryServiceImpl implements SubcategoryService {
     @Override
     @Transactional
     public void addSubcategories(Subcategory... subcategories) {
-        for (Subcategory s:
-             subcategories) {
-            if(subcategoryRepository.findBySubcategoryNameLikeIgnoreCase(s.getSubcategoryName()).isEmpty()){
+        for (Subcategory s :
+                subcategories) {
+            if (subcategoryRepository.findBySubcategoryNameLikeIgnoreCase(s.getSubcategoryName()).isEmpty()) {
                 subcategoryRepository.save(s);
             }
         }
@@ -50,6 +50,6 @@ public class SubcategoryServiceImpl implements SubcategoryService {
     @Override
     @Transactional(readOnly = true)
     public List<Subcategory> findByCategory(Category category) {
-        return subcategoryRepository.findByCategory(category.getCategoryName());
+        return subcategoryRepository.findByCategory(category);
     }
 }

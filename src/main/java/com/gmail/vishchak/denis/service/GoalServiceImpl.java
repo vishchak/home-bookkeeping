@@ -68,8 +68,8 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     @Transactional(readOnly = true)
-    public Long countUserGoals(Long userId) {
-        return goalRepository.countGoalsByUserId(userId);
+    public Long countUserGoals(CurrentUser user) {
+        return goalRepository.countGoalsByUser(user);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class GoalServiceImpl implements GoalService {
     public void addMoney(Long goalId, Double amount, Account currentAccount) {
         Optional<Goal> goal = goalRepository.findById(goalId);
         goal.ifPresent(g -> {
-            if (amount == null || amount<=0) {
+            if (amount == null || amount <= 0) {
                 return;
             }
             Optional<Category> category = categoryService.findCategoryById(3L);

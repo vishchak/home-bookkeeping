@@ -1,6 +1,7 @@
 package com.gmail.vishchak.denis.service;
 
 import com.gmail.vishchak.denis.model.Account;
+import com.gmail.vishchak.denis.model.CurrentUser;
 import com.gmail.vishchak.denis.model.Goal;
 import com.gmail.vishchak.denis.model.enums.GoalProgress;
 
@@ -16,7 +17,7 @@ public interface GoalService {
 
     List<Goal> findUserGoals(Long userId, String goalName, Set<GoalProgress> goalProgress);
 
-    Long countUserGoals(Long userId);
+    Long countUserGoals(CurrentUser user);
 
     Optional<Goal> findById(Long goalId);
 

@@ -1,5 +1,6 @@
 package com.gmail.vishchak.denis.repository;
 
+import com.gmail.vishchak.denis.model.Category;
 import com.gmail.vishchak.denis.model.Subcategory;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,10 +12,8 @@ import java.util.Optional;
 @Repository
 public interface SubcategoryRepository extends JpaRepository<Subcategory, Long> {
 
-    @Query("select s from Subcategory s where s.category.categoryName = ?1")
-    List<Subcategory> findByCategory(String category);
-
-    Optional<Subcategory> findSubcategoryBySubcategoryId(Long id);
+    @Query("select s from Subcategory s where s.category = ?1")
+    List<Subcategory> findByCategory(Category category);
 
     Optional<Subcategory> findBySubcategoryNameLikeIgnoreCase(String name);
 }

@@ -31,7 +31,7 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Transactions | MoneyLonger")
 public class TransactionView extends VerticalLayout {
-    private final int ITEMS_PER_PAGE = 5;
+    private final int ITEMS_PER_PAGE = 10;
     private final AccountServiceImpl accountService;
     private final CategoryServiceImpl categoryService;
     private final SubcategoryServiceImpl subcategoryService;
