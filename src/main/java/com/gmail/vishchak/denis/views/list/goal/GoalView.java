@@ -32,11 +32,14 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.textFi
 @Route(value = "goals", layout = MainLayout.class)
 @PageTitle("Goals | MoneyLonger")
 public class GoalView extends VerticalLayout {
+    private final int ITEMS_PER_PAGE = 5;
     private final CurrentUserServiceImpl currentUserService;
     private final GoalServiceImpl goalService;
     private final Grid<Goal> grid = new Grid<>(Goal.class);
     private final TextField filterField = textFiled("");
-    CheckboxGroup<GoalProgress> checkboxGroup = new CheckboxGroup<>();
+    private final CheckboxGroup<GoalProgress> checkboxGroup = new CheckboxGroup<>();
+    private long totalAmountOfPages;
+    private int currentPageNumber = 0;
 
     public GoalView(
             CurrentUserServiceImpl currentUserService,
@@ -54,7 +57,8 @@ public class GoalView extends VerticalLayout {
 
         add(
                 createToolBar(),
-                grid
+                grid,
+                getPageButtons()
         );
 
         updateList();
@@ -75,13 +79,17 @@ public class GoalView extends VerticalLayout {
         //change for current user eventually
         CurrentUser user = currentUserService.findUserByEmailOrLogin("test user");
 
-        grid.setItems(goalService.findUserGoals(user.getUserId(), filterField.isEmpty() ? null : filterField.getValue(), checkboxGroup.isEmpty() ? Set.of(GoalProgress.values()) : checkboxGroup.getSelectedItems()));
+        totalAmountOfPages = goalService.getPageCount(user, ITEMS_PER_PAGE);
+
+        grid.setItems(goalService.findUserGoals(user.getUserId(), filterField.isEmpty() ? null : filterField.getValue(), checkboxGroup.isEmpty() ? Set.of(GoalProgress.values()) : checkboxGroup.getSelectedItems(),
+                        currentPageNumber, ITEMS_PER_PAGE));
     }
 
     private void configureGrid() {
         grid.addClassNames("goals-grid");
         grid.setSizeFull();
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+
 
         grid.setColumns();
         grid.addColumn(Goal::getGoalNote).setHeader("Note").setSortable(true).setFlexGrow(2);
@@ -195,5 +203,27 @@ public class GoalView extends VerticalLayout {
         toolbar.setSizeUndefined();
 
         return toolbar;
+    }
+
+    private Component getPageButtons() {
+        setClassName("page-buttons-goal");
+
+        Button nextButton = new Button("Next page", e -> {
+            if (currentPageNumber >= --totalAmountOfPages) {
+                return;
+            }
+            currentPageNumber++;
+            updateList();
+        });
+
+        Button previousButton = new Button("Previous page", e -> {
+            if (currentPageNumber <= 0) {
+                return;
+            }
+            currentPageNumber--;
+            updateList();
+        });
+
+        return new Div(previousButton, nextButton);
     }
 }

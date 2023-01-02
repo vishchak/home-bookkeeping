@@ -15,13 +15,13 @@ public interface GoalService {
 
     void updateGoal(Long goalId, String goalNOte, Double amount, Date finishDate);
 
-    List<Goal> findUserGoals(Long userId, String goalName, Set<GoalProgress> goalProgress);
+    List<Goal> findUserGoals(Long userId, String goalName, Set<GoalProgress> goalProgress, int currentPageNumber, int itemsPerPage);
 
-    Long countUserGoals(CurrentUser user);
+    Long getPageCount(CurrentUser user, int itemsPerPage);
 
     Optional<Goal> findById(Long goalId);
 
-    boolean addGoal(Goal goal);
+    void addGoal(Goal goal);
 
     void addMoney(Long goalId, Double amount, Account currentAccount);
 

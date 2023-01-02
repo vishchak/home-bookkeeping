@@ -3,6 +3,7 @@ package com.gmail.vishchak.denis.service;
 import com.gmail.vishchak.denis.model.*;
 import com.gmail.vishchak.denis.model.enums.GoalProgress;
 import com.gmail.vishchak.denis.repository.GoalRepository;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,7 +19,7 @@ public class GoalServiceImpl implements GoalService {
     private final CategoryServiceImpl categoryService;
     private final SubcategoryServiceImpl subcategoryService;
 
-    public GoalServiceImpl(GoalRepository goalRepository, TransactionService transactionService, CategoryServiceImpl categoryService, SubcategoryServiceImpl subcategoryService, AccountServiceImpl accountService) {
+    public GoalServiceImpl(GoalRepository goalRepository, TransactionService transactionService, CategoryServiceImpl categoryService, SubcategoryServiceImpl subcategoryService) {
         this.goalRepository = goalRepository;
         this.transactionService = transactionService;
         this.categoryService = categoryService;
@@ -62,14 +63,17 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Goal> findUserGoals(Long userId, String goalName, Set<GoalProgress> goalProgress) {
-        return goalRepository.findGoalsByUserIdAndIfCompleted(userId, goalName, goalProgress);
+    public List<Goal> findUserGoals(Long userId, String goalName, Set<GoalProgress> goalProgress, int currentPageNumber, int itemsPerPage) {
+        return goalRepository.findGoalsByUserIdAndIfCompleted(userId, goalName, goalProgress,
+                PageRequest.of(currentPageNumber, itemsPerPage));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Long countUserGoals(CurrentUser user) {
-        return goalRepository.countGoalsByUser(user);
+    public Long getPageCount(CurrentUser user, int itemsPerPage) {
+        Long totalItems = goalRepository.countGoalsByUser(user);
+
+        return totalItems % itemsPerPage == 0 ? totalItems / itemsPerPage : totalItems / itemsPerPage + 1;
     }
 
     @Override
@@ -80,15 +84,14 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     @Transactional
-    public boolean addGoal(Goal goal) {
+    public void addGoal(Goal goal) {
         if (goal.getGoalAmount() <= 0 || goal.getUser() == null) {
-            return false;
+            return;
         }
         if (goal.getGoalNote().isEmpty() || goal.getGoalNote().isBlank() || goal.getGoalNote() == null) {
             goal.setGoalNote("-");
         }
         goalRepository.save(goal);
-        return true;
     }
 
     @Override
