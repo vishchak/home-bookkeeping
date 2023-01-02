@@ -1,0 +1,11 @@
+.completed {
+    background-color: #b1ffb7;
+}
+
+.failed {
+    background-color: #ffd9d9;
+}
+
+.current {
+    font-weight: bold;
+}

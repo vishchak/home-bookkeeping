@@ -11,7 +11,6 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
@@ -82,13 +81,21 @@ public class GoalView extends VerticalLayout {
         totalAmountOfPages = goalService.getPageCount(user, ITEMS_PER_PAGE);
 
         grid.setItems(goalService.findUserGoals(user.getUserId(), filterField.isEmpty() ? null : filterField.getValue(), checkboxGroup.isEmpty() ? Set.of(GoalProgress.values()) : checkboxGroup.getSelectedItems(),
-                        currentPageNumber, ITEMS_PER_PAGE));
+                currentPageNumber, ITEMS_PER_PAGE));
     }
 
     private void configureGrid() {
         grid.addClassNames("goals-grid");
         grid.setSizeFull();
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
+        grid.setClassNameGenerator(goal -> {
+            if (goal.getGoalProgress().equals(GoalProgress.CURRENT)) {
+                return "current";
+            }
+            if (goal.getGoalProgress().equals(GoalProgress.FAILED)) {
+                return "failed";
+            }
+            return "completed";
+        });
 
 
         grid.setColumns();
