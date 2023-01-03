@@ -29,6 +29,5 @@ webpack.generated.js
 /Dockerfile
 /vite.config.ts
 /tsconfig.json
-/README.md
 /package.json
 /.mvn/
