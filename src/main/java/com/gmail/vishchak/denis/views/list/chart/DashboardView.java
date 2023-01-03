@@ -37,6 +37,7 @@ public class DashboardView extends VerticalLayout {
     private final Tab expense = new Tab("Expense chart");
     private final Tab income = new Tab("Income chart");
     private final Tab other = new Tab("Other chart");
+    private final Tab netIncome = new Tab("Net income");
     private final VerticalLayout content = new VerticalLayout();
     private final String format = "dd-MM-yyyy";
     private final ZoneId defaultZoneId = ZoneId.systemDefault();
@@ -64,7 +65,6 @@ public class DashboardView extends VerticalLayout {
 
         add(
                 new HorizontalLayout(fromDateField, toDateField),
-                getNetIncomeChart(),
                 createTabs()
 
         );
@@ -164,7 +164,7 @@ public class DashboardView extends VerticalLayout {
     private Component createTabs() {
         Tabs tabs = new Tabs();
         tabs.addSelectedChangeListener(selectedChangeEvent -> setContent(selectedChangeEvent.getSelectedTab()));
-        tabs.add(income, expense, other);
+        tabs.add(netIncome, income, expense, other);
         tabs.addThemeVariants(TabsVariant.LUMO_EQUAL_WIDTH_TABS);
         tabs.setSelectedTab(expense);
 
@@ -184,6 +184,8 @@ public class DashboardView extends VerticalLayout {
             content.add(new Paragraph((getChart(2L))));
         } else if (tab.equals(other)) {
             content.add(new Paragraph((getChart(3L))));
+        } else if (tab.equals(netIncome)) {
+            content.add(getNetIncomeChart());
         }
     }
 }
