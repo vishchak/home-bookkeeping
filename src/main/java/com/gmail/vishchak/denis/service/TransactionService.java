@@ -1,9 +1,6 @@
 package com.gmail.vishchak.denis.service;
 
-import com.gmail.vishchak.denis.model.Account;
-import com.gmail.vishchak.denis.model.Category;
-import com.gmail.vishchak.denis.model.Subcategory;
-import com.gmail.vishchak.denis.model.Transaction;
+import com.gmail.vishchak.denis.model.*;
 
 import java.util.Date;
 import java.util.List;
@@ -24,5 +21,5 @@ public interface TransactionService {
 
     List<Transaction> findAllTransactionByAccount(Account account, int currentPageNUmber, int itemsPerPage);
 
-    List<Transaction> findChartTransactions(Account account, Date from, Date to, Category category);
+    List<Transaction> findChartTransactions(CurrentUser user, Date from, Date to, Category category);
 }

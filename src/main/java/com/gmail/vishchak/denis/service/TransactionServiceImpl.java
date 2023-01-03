@@ -1,9 +1,6 @@
 package com.gmail.vishchak.denis.service;
 
-import com.gmail.vishchak.denis.model.Account;
-import com.gmail.vishchak.denis.model.Category;
-import com.gmail.vishchak.denis.model.Subcategory;
-import com.gmail.vishchak.denis.model.Transaction;
+import com.gmail.vishchak.denis.model.*;
 import com.gmail.vishchak.denis.repository.TransactionRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -111,8 +108,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Transaction> findChartTransactions(Account account, Date from, Date to, Category category) {
-        return transactionRepository.findChartTransactions(account, from, to, category);
+    public List<Transaction> findChartTransactions(CurrentUser user, Date from, Date to, Category category) {
+        return transactionRepository.findChartTransactions(user, from, to, category);
     }
 
     private boolean ifExpense(Category category, Subcategory subcategory) {

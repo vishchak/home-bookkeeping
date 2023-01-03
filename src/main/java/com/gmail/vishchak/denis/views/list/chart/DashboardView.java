@@ -1,7 +1,7 @@
 package com.gmail.vishchak.denis.views.list.chart;
 
-import com.gmail.vishchak.denis.model.Account;
 import com.gmail.vishchak.denis.model.Category;
+import com.gmail.vishchak.denis.model.CurrentUser;
 import com.gmail.vishchak.denis.model.Transaction;
 import com.gmail.vishchak.denis.service.*;
 import com.gmail.vishchak.denis.views.list.shared.MainLayout;
@@ -31,7 +31,7 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.dateFi
 @Route(value = "dashboard", layout = MainLayout.class)
 @PageTitle("Dashboard | MoneyLonger")
 public class DashboardView extends VerticalLayout {
-    private final AccountServiceImpl accountService;
+    private final CurrentUserServiceImpl userService;
     private final CategoryServiceImpl categoryService;
     private final TransactionServiceImpl transactionService;
     private final Tab expense = new Tab("Expense chart");
@@ -43,13 +43,16 @@ public class DashboardView extends VerticalLayout {
     private final ZoneId defaultZoneId = ZoneId.systemDefault();
     private final DatePicker fromDateField = dateField(format, "Start date");
     private final DatePicker toDateField = dateField(format, "Finish date");
+    private final CurrentUser user;
 
-    public DashboardView(AccountServiceImpl accountService,
+    public DashboardView(CurrentUserServiceImpl userService, AccountServiceImpl accountService,
                          CategoryServiceImpl categoryService,
                          TransactionServiceImpl transactionService) {
-        this.accountService = accountService;
+        this.userService = userService;
         this.categoryService = categoryService;
         this.transactionService = transactionService;
+//swap for currentUser
+        this.user = userService.findUserByEmailOrLogin("test user");
 
         addClassName("dashboard-view");
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
@@ -104,21 +107,18 @@ public class DashboardView extends VerticalLayout {
     private double sumByCategory(Date from, Date to) {
         double total = 0D;
 
-        Optional<Account> account = accountService.findByAccountId(1L);
-        if (account.isPresent()) {
-            List<Transaction> transactionList = transactionService.findChartTransactions(account.get(), from, to, null);
-            for (Transaction t :
-                    transactionList) {
-                if (t.getCategory().getCategoryName().equalsIgnoreCase("Expense")) {
-                    total -= t.getTransactionAmount();
-                } else if (t.getCategory().getCategoryName().equalsIgnoreCase("Income")) {
+        List<Transaction> transactionList = transactionService.findChartTransactions(user, from, to, null);
+        for (Transaction t :
+                transactionList) {
+            if (t.getCategory().getCategoryName().equalsIgnoreCase("Expense")) {
+                total -= t.getTransactionAmount();
+            } else if (t.getCategory().getCategoryName().equalsIgnoreCase("Income")) {
+                total += t.getTransactionAmount();
+            } else if (t.getCategory().getCategoryName().equalsIgnoreCase("Other")) {
+                if (t.getSubcategory().getSubcategoryName().equalsIgnoreCase("Debt collection") ||
+                        t.getSubcategory().getSubcategoryName().equalsIgnoreCase("Loan")) {
                     total += t.getTransactionAmount();
-                } else if (t.getCategory().getCategoryName().equalsIgnoreCase("Other")) {
-                    if (t.getSubcategory().getSubcategoryName().equalsIgnoreCase("Debt collection") ||
-                            t.getSubcategory().getSubcategoryName().equalsIgnoreCase("Loan")) {
-                        total += t.getTransactionAmount();
-                    } else total -= t.getTransactionAmount();
-                }
+                } else total -= t.getTransactionAmount();
             }
         }
 
@@ -136,21 +136,18 @@ public class DashboardView extends VerticalLayout {
 
         Map<String, Double> subcategoryAmount = new HashMap<>();
 
-        Optional<Account> account = accountService.findByAccountId(1L);
         Optional<Category> category = categoryService.findCategoryById(categoryId);
 
-        if (account.isPresent() && category.isPresent()) {
-            transactionService.findChartTransactions(account.get(), from, to, category.get())
-                    .forEach(transaction -> {
-                        String key = transaction.getSubcategory().getSubcategoryName();
-                        if (subcategoryAmount.containsKey(key)) {
-                            subcategoryAmount.replace(key, (subcategoryAmount.get(transaction.getSubcategory().getSubcategoryName()) + transaction.getTransactionAmount()));
-                        } else {
-                            subcategoryAmount.put(key,
-                                    transaction.getTransactionAmount());
-                        }
-                    });
-        }
+        category.ifPresent(c -> transactionService.findChartTransactions(user, from, to, c)
+                .forEach(transaction -> {
+                    String key = transaction.getSubcategory().getSubcategoryName();
+                    if (subcategoryAmount.containsKey(key)) {
+                        subcategoryAmount.replace(key, (subcategoryAmount.get(transaction.getSubcategory().getSubcategoryName()) + transaction.getTransactionAmount()));
+                    } else {
+                        subcategoryAmount.put(key,
+                                transaction.getTransactionAmount());
+                    }
+                }));
 
         for (Map.Entry<String, Double> pair : subcategoryAmount.entrySet()) {
             dataSeries.add(new DataSeriesItem(pair.getKey(), pair.getValue()));
@@ -185,7 +182,7 @@ public class DashboardView extends VerticalLayout {
         } else if (tab.equals(other)) {
             content.add(new Paragraph((getChart(3L))));
         } else if (tab.equals(netIncome)) {
-            content.add(getNetIncomeChart());
+            content.add(new Paragraph(getNetIncomeChart()));
         }
     }
 }

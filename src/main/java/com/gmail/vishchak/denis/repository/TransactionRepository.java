@@ -1,9 +1,6 @@
 package com.gmail.vishchak.denis.repository;
 
-import com.gmail.vishchak.denis.model.Account;
-import com.gmail.vishchak.denis.model.Category;
-import com.gmail.vishchak.denis.model.Subcategory;
-import com.gmail.vishchak.denis.model.Transaction;
+import com.gmail.vishchak.denis.model.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -38,8 +35,8 @@ public interface TransactionRepository extends PagingAndSortingRepository<Transa
     List<Transaction> findAllTransactionsByAccount(Account account,
                                                    Pageable pageable);
 
-    @Query("select t from Transaction t where t.account = :account " +
+    @Query("select t from Transaction t where t.account.user = :user " +
             "and t.transactionDate between :from and :to " +
             "and (:category is null) or (t.category = :category)")
-    List<Transaction> findChartTransactions(Account account, Date from, Date to, Category category);
+    List<Transaction> findChartTransactions(CurrentUser user, Date from, Date to, Category category);
 }
