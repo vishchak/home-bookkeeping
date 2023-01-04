@@ -22,6 +22,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import javax.annotation.security.PermitAll;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
@@ -30,6 +31,7 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Transactions | MoneyLonger")
+@PermitAll
 public class TransactionView extends VerticalLayout {
     private final int ITEMS_PER_PAGE = 10;
     private final AccountServiceImpl accountService;

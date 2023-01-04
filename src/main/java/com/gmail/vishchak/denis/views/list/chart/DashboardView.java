@@ -21,6 +21,7 @@ import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import javax.annotation.security.PermitAll;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
@@ -30,6 +31,7 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.dateFi
 
 @Route(value = "dashboard", layout = MainLayout.class)
 @PageTitle("Dashboard | MoneyLonger")
+@PermitAll
 public class DashboardView extends VerticalLayout {
     private final CurrentUserServiceImpl userService;
     private final CategoryServiceImpl categoryService;
@@ -45,7 +47,7 @@ public class DashboardView extends VerticalLayout {
     private final DatePicker toDateField = dateField(format, "Finish date");
     private final CurrentUser user;
 
-    public DashboardView(CurrentUserServiceImpl userService, AccountServiceImpl accountService,
+    public DashboardView(CurrentUserServiceImpl userService,
                          CategoryServiceImpl categoryService,
                          TransactionServiceImpl transactionService) {
         this.userService = userService;

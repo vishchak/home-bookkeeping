@@ -27,6 +27,7 @@ import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import javax.annotation.security.PermitAll;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Set;
@@ -36,6 +37,7 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.textFi
 
 @Route(value = "goals", layout = MainLayout.class)
 @PageTitle("Goals | MoneyLonger")
+@PermitAll
 public class GoalView extends VerticalLayout {
     private final int ITEMS_PER_PAGE = 5;
 
