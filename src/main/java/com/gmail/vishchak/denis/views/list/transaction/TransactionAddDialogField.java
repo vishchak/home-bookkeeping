@@ -1,9 +1,7 @@
 package com.gmail.vishchak.denis.views.list.transaction;
 
-import com.gmail.vishchak.denis.model.Account;
-import com.gmail.vishchak.denis.model.Category;
-import com.gmail.vishchak.denis.model.Subcategory;
-import com.gmail.vishchak.denis.model.Transaction;
+import com.gmail.vishchak.denis.model.*;
+import com.gmail.vishchak.denis.security.SecurityService;
 import com.gmail.vishchak.denis.service.*;
 
 import com.vaadin.flow.component.Key;
@@ -19,18 +17,20 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.*;
+import org.springframework.security.core.userdetails.UserDetails;
 
 
+import javax.annotation.security.PermitAll;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 
-//dialog filed add transaction
-//ADD ACCOUNT REPO METHOD FIND CURRENT ACCOUNT BY USER AND NAME EVENTUALLY
+
 @Route("add-transaction")
 @PageTitle("Transaction")
+@PermitAll
 public class TransactionAddDialogField extends Div implements HasUrlParameter<Long> {
     private final AccountServiceImpl accountService;
     private final TransactionServiceImpl transactionService;
@@ -46,16 +46,19 @@ public class TransactionAddDialogField extends Div implements HasUrlParameter<Lo
     private final ComboBox<Subcategory> subcategory = new ComboBox<>("Subcategory");
 
     private final ComboBox<Account> accountComboBox = new ComboBox<>("Account");
+    private final CurrentUser user;
 
     public TransactionAddDialogField(AccountServiceImpl accountService,
                                      TransactionServiceImpl transactionService,
                                      CategoryServiceImpl categoryService,
-                                     SubcategoryServiceImpl subcategoryService) {
+                                     SubcategoryServiceImpl subcategoryService, CurrentUserServiceImpl userService, SecurityService securityService) {
         this.accountService = accountService;
         this.transactionService = transactionService;
         this.categoryService = categoryService;
         this.subcategoryService = subcategoryService;
 
+        UserDetails userDetails = securityService.getAuthenticatedUser();
+        this.user = userService.findUserByEmailOrLogin(userDetails.getUsername());
     }
 
     @Override
@@ -110,7 +113,7 @@ public class TransactionAddDialogField extends Div implements HasUrlParameter<Lo
         subcategory.setEnabled(false);
 
         //change on current user
-        accountComboBox.setItems(accountService.findAccountsByUserId(1L));
+        accountComboBox.setItems(accountService.findAccountsByUser(user));
         accountComboBox.setItemLabelGenerator(Account::getAccountName);
         accountComboBox.setRequired(true);
 

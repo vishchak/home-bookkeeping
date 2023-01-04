@@ -3,6 +3,7 @@ package com.gmail.vishchak.denis.views.list.chart;
 import com.gmail.vishchak.denis.model.Category;
 import com.gmail.vishchak.denis.model.CurrentUser;
 import com.gmail.vishchak.denis.model.Transaction;
+import com.gmail.vishchak.denis.security.SecurityService;
 import com.gmail.vishchak.denis.service.*;
 import com.gmail.vishchak.denis.views.list.shared.MainLayout;
 import com.vaadin.flow.component.Component;
@@ -20,6 +21,7 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.annotation.security.PermitAll;
 import java.time.LocalDate;
@@ -33,7 +35,6 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.dateFi
 @PageTitle("Dashboard | MoneyLonger")
 @PermitAll
 public class DashboardView extends VerticalLayout {
-    private final CurrentUserServiceImpl userService;
     private final CategoryServiceImpl categoryService;
     private final TransactionServiceImpl transactionService;
     private final Tab expense = new Tab("Expense chart");
@@ -49,12 +50,13 @@ public class DashboardView extends VerticalLayout {
 
     public DashboardView(CurrentUserServiceImpl userService,
                          CategoryServiceImpl categoryService,
-                         TransactionServiceImpl transactionService) {
-        this.userService = userService;
+                         TransactionServiceImpl transactionService, SecurityService securityService) {
         this.categoryService = categoryService;
         this.transactionService = transactionService;
-//swap for currentUser
-        this.user = userService.findUserByEmailOrLogin("test user");
+
+        UserDetails userDetails = securityService.getAuthenticatedUser();
+        this.user = userService.findUserByEmailOrLogin(userDetails.getUsername());
+
 
         addClassName("dashboard-view");
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);

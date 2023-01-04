@@ -1,6 +1,7 @@
 package com.gmail.vishchak.denis.views.list.goal;
 
 import com.gmail.vishchak.denis.model.*;
+import com.gmail.vishchak.denis.security.SecurityService;
 import com.gmail.vishchak.denis.service.*;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
@@ -15,7 +16,9 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.*;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.annotation.security.PermitAll;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
@@ -25,25 +28,28 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 
 @Route("add-goal")
 @PageTitle("Transaction")
+@PermitAll
 public class GoalAddDialogField extends Div implements HasUrlParameter<Long> {
     private final GoalServiceImpl goalService;
-    private final CurrentUserServiceImpl currentUserService;
     private final Dialog dialog = new Dialog();
     private final Binder<Goal> binder = new BeanValidationBinder<>(Goal.class);
     private final TextField goalNote = textFiled("Note");
     private final NumberField goalAmount = amountField("Amount");
     private final String format = "dd-MM-yyyy";
     private final DatePicker goalFinishDate = dateField(format, "Finish date");
+    private final CurrentUser user;
 
-    public GoalAddDialogField(GoalServiceImpl goalService, CurrentUserServiceImpl currentUserService) {
+    public GoalAddDialogField(GoalServiceImpl goalService, CurrentUserServiceImpl userService, SecurityService securityService) {
         this.goalService = goalService;
-        this.currentUserService = currentUserService;
 
         goalNote.setRequired(true);
 
         goalFinishDate.setRequired(true);
         goalFinishDate.setMin(LocalDate.now());
         goalFinishDate.setMax(LocalDate.MAX);
+
+        UserDetails userDetails = securityService.getAuthenticatedUser();
+        this.user = userService.findUserByEmailOrLogin(userDetails.getUsername());
     }
 
     @Override
@@ -101,8 +107,7 @@ public class GoalAddDialogField extends Div implements HasUrlParameter<Long> {
             getUI().ifPresent(ui -> {
                 goalService.addGoal(new Goal(goalNote.getValue(), goalAmount.getValue(),
                         Date.from(goalFinishDate.getValue().atStartOfDay(ZoneId.systemDefault()).toInstant()),
-                        //change to current user
-                        currentUserService.findUserByEmailOrLogin("test user")));
+                        user));
                 ui.navigate("goals");
             });
         } catch (NullPointerException | javax.validation.ConstraintViolationException e) {

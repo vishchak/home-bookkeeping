@@ -4,6 +4,7 @@ import com.gmail.vishchak.denis.model.Account;
 import com.gmail.vishchak.denis.model.CurrentUser;
 import com.gmail.vishchak.denis.model.Goal;
 import com.gmail.vishchak.denis.model.enums.GoalProgress;
+import com.gmail.vishchak.denis.security.SecurityService;
 import com.gmail.vishchak.denis.service.*;
 import com.gmail.vishchak.denis.views.list.shared.MainLayout;
 import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
@@ -26,11 +27,10 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.annotation.security.PermitAll;
-import java.util.Date;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.amountField;
 import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.textFiled;
@@ -39,9 +39,6 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.textFi
 @PageTitle("Goals | MoneyLonger")
 @PermitAll
 public class GoalView extends VerticalLayout {
-    private final int ITEMS_PER_PAGE = 5;
-
-    private final CurrentUserServiceImpl currentUserService;
 
     private final GoalServiceImpl goalService;
 
@@ -59,17 +56,21 @@ public class GoalView extends VerticalLayout {
 
     private final Dialog addFundsDialog = new Dialog();
 
+    private final CurrentUser user;
+
     private long totalAmountOfPages;
 
     private int currentPageNumber = 0;
 
     public GoalView(
             CurrentUserServiceImpl currentUserService,
-            GoalServiceImpl goalService, AccountServiceImpl accountService) {
+            GoalServiceImpl goalService, AccountServiceImpl accountService, SecurityService securityService) {
 
-        this.currentUserService = currentUserService;
         this.goalService = goalService;
         this.accountService = accountService;
+
+        UserDetails userDetails = securityService.getAuthenticatedUser();
+        this.user = currentUserService.findUserByEmailOrLogin(userDetails.getUsername());
 
         addClassName("goals-view");
         setSizeFull();
@@ -99,13 +100,12 @@ public class GoalView extends VerticalLayout {
     }
 
     private void updateList() {
-        //change for current user eventually
-        CurrentUser user = currentUserService.findUserByEmailOrLogin("test user");
-
+        int ITEMS_PER_PAGE = 5;
         totalAmountOfPages = goalService.getPageCount(user, ITEMS_PER_PAGE);
 
-        grid.setItems(goalService.findUserGoals(user.getUserId(), filterField.isEmpty() ? null : filterField.getValue(), checkboxGroup.isEmpty() ? Set.of(GoalProgress.values()) : checkboxGroup.getSelectedItems(),
-                currentPageNumber, ITEMS_PER_PAGE));
+        List<Goal> goalList = goalService.findUserGoals(user.getUserId(), filterField.isEmpty() ? null : filterField.getValue(), checkboxGroup.isEmpty() ? Set.of(GoalProgress.values()) : checkboxGroup.getSelectedItems(),
+                currentPageNumber, ITEMS_PER_PAGE);
+        grid.setItems(goalList.isEmpty() ? Collections.emptyList() : goalList);
     }
 
     private void configureGrid() {
@@ -148,12 +148,9 @@ public class GoalView extends VerticalLayout {
     }
 
     private void createAddFundsDialog(Long goalId) {
-
-
         Optional<Goal> goal = goalService.findById(goalId);
         goal.ifPresent(g -> {
-            //swap to currentUser
-            accountComboBox.setItems(accountService.findAccountsByUserId(1L));
+            accountComboBox.setItems(accountService.findAccountsByUser(user));
             accountComboBox.setItemLabelGenerator(Account::getAccountName);
             accountComboBox.setRequired(true);
 

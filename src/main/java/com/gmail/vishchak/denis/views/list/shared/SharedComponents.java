@@ -1,6 +1,7 @@
 package com.gmail.vishchak.denis.views.list.shared;
 
 import com.gmail.vishchak.denis.model.Account;
+import com.gmail.vishchak.denis.model.CurrentUser;
 import com.gmail.vishchak.denis.service.AccountServiceImpl;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
@@ -70,9 +71,8 @@ public class SharedComponents {
         dialog.open();
     }
 
-    //replace with currentUser id after security
-    public static Component getAccountField(ComboBox<Account> accountComboBox, AccountServiceImpl accountService) {
-        List<Account> accounts = accountService.findAccountsByUserId(1L);
+    public static Component getAccountField(ComboBox<Account> accountComboBox, AccountServiceImpl accountService, CurrentUser user) {
+        List<Account> accounts = accountService.findAccountsByUser(user);
 
         accountComboBox.setItems(accounts);
         accountComboBox.setItemLabelGenerator(Account::getAccountName);

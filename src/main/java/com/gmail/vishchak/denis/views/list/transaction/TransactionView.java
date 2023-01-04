@@ -1,7 +1,9 @@
 package com.gmail.vishchak.denis.views.list.transaction;
 
 import com.gmail.vishchak.denis.model.Account;
+import com.gmail.vishchak.denis.model.CurrentUser;
 import com.gmail.vishchak.denis.model.Transaction;
+import com.gmail.vishchak.denis.security.SecurityService;
 import com.gmail.vishchak.denis.service.*;
 import com.gmail.vishchak.denis.views.list.shared.MainLayout;
 import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
@@ -21,6 +23,7 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.annotation.security.PermitAll;
 import java.time.ZoneId;
@@ -33,7 +36,6 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 @PageTitle("Transactions | MoneyLonger")
 @PermitAll
 public class TransactionView extends VerticalLayout {
-    private final int ITEMS_PER_PAGE = 10;
     private final AccountServiceImpl accountService;
     private final CategoryServiceImpl categoryService;
     private final SubcategoryServiceImpl subcategoryService;
@@ -41,6 +43,7 @@ public class TransactionView extends VerticalLayout {
     private final Grid<Transaction> grid = new Grid<>(Transaction.class);
     private final ComboBox<Account> accountComboBox = new ComboBox<>("Account");
     private final TextField accountAmountFiled = textFiled("");
+    private final CurrentUser user;
     private long totalAmountOfPages;
     private int currentPageNumber = 0;
     private TransactionFilterForm form;
@@ -48,11 +51,14 @@ public class TransactionView extends VerticalLayout {
     public TransactionView(AccountServiceImpl accountService,
                            CategoryServiceImpl categoryService,
                            SubcategoryServiceImpl subcategoryService,
-                           TransactionServiceImpl transactionService) {
+                           TransactionServiceImpl transactionService, CurrentUserServiceImpl userService, SecurityService securityService) {
         this.accountService = accountService;
         this.categoryService = categoryService;
         this.subcategoryService = subcategoryService;
         this.transactionService = transactionService;
+
+        UserDetails userDetails = securityService.getAuthenticatedUser();
+        this.user = userService.findUserByEmailOrLogin(userDetails.getUsername());
 
         addClassName("transaction-view");
         setSizeFull();
@@ -81,9 +87,10 @@ public class TransactionView extends VerticalLayout {
     public void updateList() {
         ZoneId defaultZoneId = form.getDefaultZoneId();
         //swap on current user
-        List<Account> accountList = accountService.findAccountsByUserId(1L);
+        List<Account> accountList = accountService.findAccountsByUser(user);
 
         if (!accountComboBox.isEmpty()) {
+            int ITEMS_PER_PAGE = 10;
             totalAmountOfPages = transactionService.getPageCount(accountComboBox.getValue(), ITEMS_PER_PAGE);
 
             if (form.isVisible()) {
@@ -189,7 +196,7 @@ public class TransactionView extends VerticalLayout {
 
     private Component getToolbar() {
 
-        VerticalLayout verticalLayout = new VerticalLayout(getAccountField(accountComboBox, accountService), accountAmountFiled);
+        VerticalLayout verticalLayout = new VerticalLayout(getAccountField(accountComboBox, accountService, user), accountAmountFiled);
         verticalLayout.setAlignItems(Alignment.AUTO);
         verticalLayout.setSizeUndefined();
 
