@@ -1,10 +1,12 @@
 package com.gmail.vishchak.denis.views.list.shared;
 
+import com.gmail.vishchak.denis.security.SecurityService;
 import com.gmail.vishchak.denis.views.list.goal.GoalView;
 import com.gmail.vishchak.denis.views.list.chart.DashboardView;
 import com.gmail.vishchak.denis.views.list.transaction.TransactionView;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -16,7 +18,11 @@ import lombok.Getter;
 
 @Getter
 public class MainLayout extends AppLayout {
-    public MainLayout() {
+    private final SecurityService securityService;
+
+    public MainLayout(SecurityService securityService) {
+        this.securityService = securityService;
+
         createHeader();
         createDrawer();
     }
@@ -25,7 +31,8 @@ public class MainLayout extends AppLayout {
         H1 logo = new H1("MoneyLonger");
         logo.addClassNames("text-l", "m-m");
 
-        HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo);
+        Button logout = new Button("Log out", e -> securityService.logout());
+        HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo, logout);
 
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         header.expand(logo);
