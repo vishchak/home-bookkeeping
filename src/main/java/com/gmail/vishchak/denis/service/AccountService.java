@@ -1,13 +1,14 @@
 package com.gmail.vishchak.denis.service;
 
 import com.gmail.vishchak.denis.model.Account;
+import com.gmail.vishchak.denis.model.CurrentUser;
 
 import java.util.List;
 import java.util.Optional;
 
 
 public interface AccountService {
-    boolean addAccount(Account account);
+    void addAccount(Account account);
 
     Optional<Account> findByAccountId(Long accountId);
 
@@ -15,5 +16,5 @@ public interface AccountService {
 
     void updateAccount(Long id, String accountName, Double amount);
 
-    List<Account> findAccountsByUserId(Long userId);
+    List<Account> findAccountsByUser(CurrentUser user);
 }

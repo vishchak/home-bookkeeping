@@ -10,8 +10,8 @@ import java.util.List;
 
 @Repository
 public interface AccountRepository extends JpaRepository<Account, Long> {
-    @Query("select a from Account a where a.user.userId = ?1")
-    List<Account> findByUserId(Long userId);
+    @Query("select a from Account a where a.user= ?1")
+    List<Account> findByUser(CurrentUser user);
 
     boolean existsByUserAndAccountName(CurrentUser user, String name);
 }
