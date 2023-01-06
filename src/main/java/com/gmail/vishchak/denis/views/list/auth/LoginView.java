@@ -1,12 +1,9 @@
-package com.gmail.vishchak.denis.views.list.login;
+package com.gmail.vishchak.denis.views.list.auth;
 
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.login.LoginForm;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.BeforeEnterEvent;
-import com.vaadin.flow.router.BeforeEnterListener;
-import com.vaadin.flow.router.PageTitle;
-import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.*;
 
 @Route("login")
 @PageTitle("Login | MoneyLonger")
@@ -25,7 +22,8 @@ public class LoginView extends VerticalLayout implements BeforeEnterListener {
 
         add(
                 new H1("MoneyLonger"),
-                login
+                login,
+                new RouterLink("register", RegisterView.class)
         );
     }
 

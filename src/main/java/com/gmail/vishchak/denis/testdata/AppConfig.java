@@ -1,6 +1,5 @@
 package com.gmail.vishchak.denis.testdata;
 
-import com.gmail.vishchak.denis.model.enums.UserRole;
 import com.gmail.vishchak.denis.service.CurrentUserServiceImpl;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -21,8 +20,7 @@ public class AppConfig {
     @Bean
     public CommandLineRunner demo(final CurrentUserServiceImpl userService,
                                   final PasswordEncoder encoder) {
-        return strings -> userService.addUser("user",
-                encoder.encode("pass"),
-                UserRole.USER, "test@gmail.com", null);
+        return strings -> userService.registerUser("user",
+                encoder.encode("pass"));
     }
 }

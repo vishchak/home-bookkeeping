@@ -1,6 +1,6 @@
 package com.gmail.vishchak.denis.security;
 
-import com.gmail.vishchak.denis.views.list.login.LoginView;
+import com.gmail.vishchak.denis.views.list.auth.LoginView;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -38,6 +38,7 @@ public class SecurityConfig extends VaadinWebSecurity {
 
         super.configure(http);
         setLoginView(http, LoginView.class);
+
     }
 
 }
