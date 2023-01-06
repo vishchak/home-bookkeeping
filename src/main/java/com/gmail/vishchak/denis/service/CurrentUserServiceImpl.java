@@ -2,6 +2,7 @@ package com.gmail.vishchak.denis.service;
 
 import com.gmail.vishchak.denis.model.CurrentUser;
 import com.gmail.vishchak.denis.model.Image;
+import com.gmail.vishchak.denis.model.enums.UserRole;
 import com.gmail.vishchak.denis.repository.CurrentUserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,15 +36,14 @@ public class CurrentUserServiceImpl implements CurrentUserService {
 
     @Override
     @Transactional
-    public boolean addUser(String login, String passwordHash,
-                           String email, Image image) {
+    public void addUser(String login, String passwordHash,
+                           UserRole role, String email, Image image) {
         if (existsByLogin(login) || existsByEmail(email)) {
-            return false;
+            return;
         }
 
-        CurrentUser user = new CurrentUser(login, passwordHash, email, image);
+        CurrentUser user = new CurrentUser(login, passwordHash, role, email, image);
         currentUserRepository.save(user);
-        return true;
     }
 
     @Override

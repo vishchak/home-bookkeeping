@@ -3,6 +3,7 @@ package com.gmail.vishchak.denis.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.gmail.vishchak.denis.model.enums.UserRole;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -30,6 +31,8 @@ public class CurrentUser {
 
     private String email;
 
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
     @OneToOne
     @JoinColumn(name = "image_id")
     private Image image;
@@ -40,10 +43,11 @@ public class CurrentUser {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Goal> goals = new ArrayList<>();
 
-    public CurrentUser(String login, String passwordHash, String email, Image image) {
+    public CurrentUser(String login, String password, UserRole role, String email, Image image) {
         this.login = login;
-        this.passwordHash = passwordHash;
+        this.passwordHash = password;
         this.email = email;
+        this.role = role;
         this.image = image;
     }
 }
