@@ -2,14 +2,21 @@ package com.gmail.vishchak.denis.security;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletRequest;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Component;
 
 @Component
 public class SecurityService {
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     public UserDetails getAuthenticatedUser() {
         SecurityContext context = SecurityContextHolder.getContext();
@@ -20,6 +27,7 @@ public class SecurityService {
         // Anonymous or no authentication.
         return null;
     }
+
     public void logout() {
         UI.getCurrent().getPage().setLocation("/");
         SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();
