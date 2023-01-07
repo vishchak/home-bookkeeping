@@ -20,6 +20,7 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -44,6 +45,7 @@ public class TransactionView extends VerticalLayout {
     private final ComboBox<Account> accountComboBox = new ComboBox<>("Account");
     private final TextField accountAmountFiled = textFiled("");
     private final CurrentUser user;
+    private final Dialog createAccountDialog = new Dialog();
     private long totalAmountOfPages;
     private int currentPageNumber = 0;
     private TransactionFilterForm form;
@@ -73,6 +75,10 @@ public class TransactionView extends VerticalLayout {
                 addContent(),
                 getPageButtons()
         );
+
+        if (user.getAccounts().isEmpty()) {
+            createAccountDialog();
+        }
 
         updateList();
     }
@@ -253,5 +259,37 @@ public class TransactionView extends VerticalLayout {
 
     private void updateAccountAmountField() {
         accountAmountFiled.setValue(accountComboBox.getValue().getAccountAmount().toString());
+    }
+
+    private void createAccountDialog() {
+        createAccountDialog.setHeaderTitle("Create an account!");
+        createAccountDialog.setCloseOnOutsideClick(false);
+
+        TextField accountName = SharedComponents.textFiled("Enter account's name");
+        accountName.setRequired(true);
+        NumberField accountAmount = SharedComponents.amountField("Enter account's amount");
+        accountAmount.setRequiredIndicatorVisible(true);
+
+        Button confirmButton = SharedComponents.createConfirmButton("Add");
+        confirmButton.addClickListener(e -> validateAndAdd(accountName.getValue(), accountAmount.getValue()));
+
+        createAccountDialog.add(new VerticalLayout(accountName, accountAmount, confirmButton));
+        createAccountDialog.open();
+    }
+
+    private void validateAndAdd(String accountName, Double accountAmount) {
+        try {
+            if (accountName.isEmpty() || accountName.isBlank()) {
+                throw new NullPointerException();
+            }
+
+            accountService.addAccount(new Account(accountName, accountAmount, user));
+            createAccountDialog.close();
+
+            updateList();
+
+        } catch (NullPointerException | javax.validation.ConstraintViolationException e) {
+            ErrorNotification();
+        }
     }
 }

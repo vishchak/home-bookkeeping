@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
@@ -19,10 +20,11 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long accountId;
-
+    @NotNull
     @Column(name = "name")
     private String accountName;
 
+    @NotNull
     @Column(name = "amount", nullable = false)
     private Double accountAmount;
 
