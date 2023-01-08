@@ -7,17 +7,19 @@ import com.gmail.vishchak.denis.security.SecurityService;
 import com.gmail.vishchak.denis.service.*;
 import com.gmail.vishchak.denis.views.list.shared.MainLayout;
 import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -42,12 +44,13 @@ public class TransactionView extends VerticalLayout {
     private final SubcategoryServiceImpl subcategoryService;
     private final TransactionServiceImpl transactionService;
     private final Grid<Transaction> grid = new Grid<>(Transaction.class);
-    private final ComboBox<Account> accountComboBox = new ComboBox<>("Account");
     private final TextField accountAmountFiled = textFiled("");
     private final CurrentUser user;
     private final Dialog createAccountDialog = new Dialog();
+    private final MenuBar menuBar = new MenuBar();
     private long totalAmountOfPages;
     private int currentPageNumber = 0;
+    private Account currentAccount;
     private TransactionFilterForm form;
 
     public TransactionView(AccountServiceImpl accountService,
@@ -65,13 +68,16 @@ public class TransactionView extends VerticalLayout {
         addClassName("transaction-view");
         setSizeFull();
 
+        configureMenuBar();
         configureAmountField();
-        configureToolBar();
         configureGrid();
         configureForm();
 
+        HorizontalLayout toolBar = new HorizontalLayout(accountAmountFiled, menuBar);
+        toolBar.setAlignItems(Alignment.BASELINE);
+
         add(
-                getToolbar(),
+                toolBar,
                 addContent(),
                 getPageButtons()
         );
@@ -83,43 +89,66 @@ public class TransactionView extends VerticalLayout {
         updateList();
     }
 
-    private void configureToolBar() {
-        accountComboBox.addValueChangeListener(e -> {
-            updateAccountAmountField();
+    private void configureMenuBar() {
+        MenuItem accountMenu = menuBar.addItem("Account");
+        SubMenu accountSubMenu = accountMenu.getSubMenu();
+        accountSubMenu.addItem("Add account", e -> createAccountDialog());
+        MenuItem chooseAccountMenu = accountSubMenu.addItem("Choose account");
+        SubMenu accountVar = chooseAccountMenu.getSubMenu();
+
+        accountVar.addItem("All accounts", e -> {
+            currentAccount = null;
             updateList();
         });
+
+        accountService.findAccountsByUser(user).forEach(account -> accountVar.addItem(account.getAccountName(), e -> {
+            currentAccount = account;
+            updateList();
+        }));
+
+        MenuItem transactionMenu = menuBar.addItem("Transaction");
+        SubMenu transactionSubMenu = transactionMenu.getSubMenu();
+        transactionSubMenu.addItem("Add transaction", e -> getUI().ifPresent(ui -> ui.navigate("add-transaction")));
+        transactionSubMenu.addItem("Filter transactions", e -> form.setVisible(!form.isVisible()));
+
+        ComponentEventListener<ClickEvent<MenuItem>> listener = e -> {
+            if (grid.getColumns().size() > 5) {
+                grid.removeColumnByKey("buttons");
+                return;
+            }
+            showButtons();
+        };
+
+        menuBar.addItem("Edit", listener);
     }
 
     public void updateList() {
+        int itemsPerPage = 10;
         ZoneId defaultZoneId = form.getDefaultZoneId();
-        //swap on current user
-        List<Account> accountList = accountService.findAccountsByUser(user);
 
-        if (!accountComboBox.isEmpty()) {
-            int ITEMS_PER_PAGE = 10;
-            totalAmountOfPages = transactionService.getPageCount(accountComboBox.getValue(), ITEMS_PER_PAGE);
+        totalAmountOfPages = transactionService.getPageCount(user, currentAccount, itemsPerPage);
 
-            if (form.isVisible()) {
-                grid.setItems(
-                        transactionService.findAccountTransactions(accountComboBox.getValue(),
-                                form.getNoteField().getValue(),
-                                form.getFromDateField().isEmpty() ? null : Date.from(form.getFromDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
-                                form.getToDateField().isEmpty() ? null : Date.from(form.getToDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
-                                form.getAmountField().getValue(),
-                                form.getCategory().isEmpty() ? null : form.getCategory().getValue(),
-                                form.getSubcategory().isEmpty() ? null : form.getSubcategory().getValue(),
-                                currentPageNumber, ITEMS_PER_PAGE)
-                );
-                return;
-            }
+        if (form.isVisible()) {
             grid.setItems(
-                    transactionService.findAllTransactionByAccount(accountComboBox.getValue(),
-                            currentPageNumber, ITEMS_PER_PAGE)
+                    transactionService.findSpecificUserTransactions(user,
+                            currentAccount,
+                            form.getNoteField().getValue(),
+                            form.getFromDateField().isEmpty() ? null : Date.from(form.getFromDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
+                            form.getToDateField().isEmpty() ? null : Date.from(form.getToDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
+                            form.getAmountField().getValue(),
+                            form.getCategory().isEmpty() ? null : form.getCategory().getValue(),
+                            form.getSubcategory().isEmpty() ? null : form.getSubcategory().getValue(),
+                            currentPageNumber, itemsPerPage)
             );
-
-        } else if (!accountList.isEmpty()) {
-            accountComboBox.setValue(accountList.get(0));
+            return;
         }
+        if (currentAccount == null) {
+            grid.setItems(transactionService.findAllUSerTransactions(user, currentPageNumber, itemsPerPage));
+        } else {
+            grid.setItems(transactionService.findAllAccountTransactions(currentAccount, currentPageNumber, itemsPerPage));
+        }
+
+        updateAccountAmountField();
     }
 
     private void configureGrid() {
@@ -135,14 +164,6 @@ public class TransactionView extends VerticalLayout {
         grid.addColumn("note");
 
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
-
-        grid.asSingleSelect().addValueChangeListener(e -> {
-            if (grid.getColumns().size() > 5) {
-                grid.removeColumnByKey("buttons");
-                return;
-            }
-            showButtons();
-        });
     }
 
     private void showButtons() {
@@ -200,34 +221,6 @@ public class TransactionView extends VerticalLayout {
         return content;
     }
 
-    private Component getToolbar() {
-
-        VerticalLayout verticalLayout = new VerticalLayout(getAccountField(accountComboBox, accountService, user), accountAmountFiled);
-        verticalLayout.setAlignItems(Alignment.AUTO);
-        verticalLayout.setSizeUndefined();
-
-        HorizontalLayout horizontalLayout = new HorizontalLayout(
-                verticalLayout,
-                getAddComponentButton("Add transaction", "add-transaction"),
-                getFilterButton()
-        );
-
-        horizontalLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
-        horizontalLayout.setWidthFull();
-
-        return horizontalLayout;
-    }
-
-    private Component getFilterButton() {
-        Button filterButton = new Button("Filter transaction");
-        filterButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        filterButton.setIcon(new Icon("lumo", "search"));
-
-        filterButton.addClickListener(e -> form.setVisible(!form.isVisible()));
-
-        return filterButton;
-    }
-
     private Component getPageButtons() {
         setClassName("page-buttons");
 
@@ -258,10 +251,23 @@ public class TransactionView extends VerticalLayout {
     }
 
     private void updateAccountAmountField() {
-        accountAmountFiled.setValue(accountComboBox.getValue().getAccountAmount().toString());
+        if (currentAccount != null) {
+            accountAmountFiled.setValue(currentAccount.getAccountAmount().toString());
+            return;
+        }
+
+        Double total = 0D;
+        List<Account> accountList = accountService.findAccountsByUser(user);
+        for (Account a :
+                accountList) {
+            total += a.getAccountAmount();
+        }
+        accountAmountFiled.setValue(total.toString());
     }
 
     private void createAccountDialog() {
+        createAccountDialog.removeAll();
+
         createAccountDialog.setHeaderTitle("Create an account!");
         createAccountDialog.setCloseOnOutsideClick(false);
 
@@ -273,7 +279,14 @@ public class TransactionView extends VerticalLayout {
         Button confirmButton = SharedComponents.createConfirmButton("Add");
         confirmButton.addClickListener(e -> validateAndAdd(accountName.getValue(), accountAmount.getValue()));
 
-        createAccountDialog.add(new VerticalLayout(accountName, accountAmount, confirmButton));
+        Button cancelButton = new Button("Cancel", e -> createAccountDialog.close());
+
+        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, confirmButton);
+        if (accountService.findAccountsByUser(user).isEmpty()) {
+            buttonLayout.remove(cancelButton);
+        }
+
+        createAccountDialog.add(new VerticalLayout(accountName, accountAmount, buttonLayout));
         createAccountDialog.open();
     }
 
@@ -287,7 +300,6 @@ public class TransactionView extends VerticalLayout {
             createAccountDialog.close();
 
             updateList();
-
         } catch (NullPointerException | javax.validation.ConstraintViolationException e) {
             ErrorNotification();
         }
