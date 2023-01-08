@@ -167,7 +167,7 @@ public class DashboardView extends VerticalLayout {
         tabs.addSelectedChangeListener(selectedChangeEvent -> setContent(selectedChangeEvent.getSelectedTab()));
         tabs.add(netIncome, income, expense, other);
         tabs.addThemeVariants(TabsVariant.LUMO_EQUAL_WIDTH_TABS);
-        tabs.setSelectedTab(expense);
+        tabs.setSelectedTab(netIncome);
 
         content.setSpacing(false);
 
