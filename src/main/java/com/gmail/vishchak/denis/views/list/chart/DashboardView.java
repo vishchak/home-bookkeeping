@@ -154,7 +154,7 @@ public class DashboardView extends VerticalLayout {
                 }));
 
         for (Map.Entry<String, Double> pair : subcategoryAmount.entrySet()) {
-            dataSeries.add(new DataSeriesItem(pair.getKey(), pair.getValue()));
+            dataSeries.add(new DataSeriesItem(pair.getKey() + System.lineSeparator() + pair.getValue(), pair.getValue()));
         }
 
         chart.getConfiguration().setSeries(dataSeries);
