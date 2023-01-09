@@ -24,4 +24,6 @@ public interface TransactionService {
     List<Transaction> findAllUSerTransactions(CurrentUser user, int currentPageNUmber, int itemsPerPage);
 
     Long getPageCount(CurrentUser user, Account account, int itemsPerPage);
+
+    Long getTransactionCountByCategory(CurrentUser user, Category category);
 }

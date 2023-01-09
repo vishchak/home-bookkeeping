@@ -14,6 +14,7 @@ import com.vaadin.flow.component.charts.model.DataSeriesItem;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
@@ -165,6 +166,17 @@ public class DashboardView extends VerticalLayout {
     private Component createTabs() {
         Tabs tabs = new Tabs();
         tabs.addSelectedChangeListener(selectedChangeEvent -> setContent(selectedChangeEvent.getSelectedTab()));
+
+        Optional<Category> expenseC = categoryService.findCategoryById(1L);
+        Optional<Category> incomeC = categoryService.findCategoryById(2L);
+        Optional<Category> otherC = categoryService.findCategoryById(3L);
+
+        if (expenseC.isPresent() && incomeC.isPresent() && otherC.isPresent()) {
+            income.add(new Span(createBadge(transactionService.getTransactionCountByCategory(user, incomeC.get()))));
+            expense.add(new Span(createBadge(transactionService.getTransactionCountByCategory(user, expenseC.get()))));
+            other.add(new Span(createBadge(transactionService.getTransactionCountByCategory(user, otherC.get()))));
+        }
+
         tabs.add(netIncome, income, expense, other);
         tabs.addThemeVariants(TabsVariant.LUMO_EQUAL_WIDTH_TABS);
         tabs.setSelectedTab(netIncome);
@@ -172,6 +184,13 @@ public class DashboardView extends VerticalLayout {
         content.setSpacing(false);
 
         return new Div(tabs, content);
+    }
+
+    private Span createBadge(Long value) {
+        Span badge = new Span(String.valueOf(value));
+        badge.getElement().getThemeList().add("badge small contrast");
+        badge.getStyle().set("margin-inline-start", "var(--lumo-space-xs)");
+        return badge;
     }
 
     private void setContent(Tab tab) {

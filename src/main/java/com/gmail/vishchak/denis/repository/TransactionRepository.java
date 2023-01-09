@@ -32,9 +32,11 @@ public interface TransactionRepository extends PagingAndSortingRepository<Transa
                                                     Pageable pageable);
 
     @Query("select count(t) from Transaction t where t.account.user = :user " +
-            "and (:account is null or (t.account = :account))")
+            "and (:account is null or (t.account = :account)) " +
+            "and (:category is null or (t.category = :category))")
     Long countTransaction(@Param("user") CurrentUser user,
-                          @Param("account") Account account);
+                          @Param("account") Account account,
+                          @Param("category") Category category);
 
     @Query("select t from Transaction t where t.account = ?1")
     List<Transaction> findAllTransactionsByAccount(Account account,
