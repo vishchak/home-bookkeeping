@@ -2,12 +2,12 @@ package com.gmail.vishchak.denis.views.list.auth;
 
 
 import com.gmail.vishchak.denis.service.CurrentUserServiceImpl;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -15,10 +15,9 @@ import com.vaadin.flow.router.Route;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-
 @Route("register")
 @AnonymousAllowed
-public class RegisterView extends Composite {
+public class RegisterView extends Composite<VerticalLayout> {
 
     private final CurrentUserServiceImpl currentUserService;
     private final PasswordEncoder encoder;
@@ -26,25 +25,28 @@ public class RegisterView extends Composite {
     public RegisterView(CurrentUserServiceImpl currentUserService, PasswordEncoder encoder) {
         this.currentUserService = currentUserService;
         this.encoder = encoder;
-    }
-
-    @Override
-    protected Component initContent() {
         TextField username = new TextField("UserName");
         PasswordField password = new PasswordField("Password");
         PasswordField confirmation = new PasswordField("Confirm password");
-        return new VerticalLayout(
-                new H2("Register"),
+
+        VerticalLayout layout = getContent();
+        layout.add(
+                new H2("MoneyLonger"),
                 username,
                 password,
                 confirmation,
-                new Button("Send", e -> register(
+                new Button("Register", e -> register(
                         username.getValue(),
                         password.getValue(),
                         confirmation.getValue()
                 ))
         );
+
+        layout.setSizeFull();
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
     }
+
 
     private void register(String username, String password, String confirmation) {
         if (username.trim().isEmpty()) {
