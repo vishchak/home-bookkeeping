@@ -10,6 +10,7 @@ import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
@@ -22,7 +23,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
@@ -46,7 +46,6 @@ public class TransactionView extends VerticalLayout {
     private final Grid<Transaction> grid = new Grid<>(Transaction.class);
     private final TextField accountAmountFiled = textFiled("");
     private final CurrentUser user;
-    private final Dialog createAccountDialog = new Dialog();
     private final MenuBar menuBar = new MenuBar();
     private long totalAmountOfPages;
     private int currentPageNumber = 0;
@@ -82,17 +81,17 @@ public class TransactionView extends VerticalLayout {
                 getPageButtons()
         );
 
-        if (user.getAccounts().isEmpty()) {
-            createAccountDialog();
-        }
-
         updateList();
+
+        if (user.getAccounts().isEmpty()) {
+            UI.getCurrent().navigate(AccountCreateForm.class);
+        }
     }
 
     private void configureMenuBar() {
         MenuItem accountMenu = menuBar.addItem("Account");
         SubMenu accountSubMenu = accountMenu.getSubMenu();
-        accountSubMenu.addItem("Add account", e -> createAccountDialog());
+        accountSubMenu.addItem("Add account", e -> UI.getCurrent().navigate(AccountCreateForm.class));
         MenuItem chooseAccountMenu = accountSubMenu.addItem("Choose account");
         SubMenu accountVar = chooseAccountMenu.getSubMenu();
 
@@ -263,45 +262,5 @@ public class TransactionView extends VerticalLayout {
             total += a.getAccountAmount();
         }
         accountAmountFiled.setValue(total.toString());
-    }
-
-    private void createAccountDialog() {
-        createAccountDialog.removeAll();
-
-        createAccountDialog.setHeaderTitle("Create an account!");
-        createAccountDialog.setCloseOnOutsideClick(false);
-
-        TextField accountName = SharedComponents.textFiled("Enter account's name");
-        accountName.setRequired(true);
-        NumberField accountAmount = SharedComponents.amountField("Enter account's amount");
-        accountAmount.setRequiredIndicatorVisible(true);
-
-        Button confirmButton = SharedComponents.createConfirmButton("Add");
-        confirmButton.addClickListener(e -> validateAndAdd(accountName.getValue(), accountAmount.getValue()));
-
-        Button cancelButton = new Button("Cancel", e -> createAccountDialog.close());
-
-        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, confirmButton);
-        if (accountService.findAccountsByUser(user).isEmpty()) {
-            buttonLayout.remove(cancelButton);
-        }
-
-        createAccountDialog.add(new VerticalLayout(accountName, accountAmount, buttonLayout));
-        createAccountDialog.open();
-    }
-
-    private void validateAndAdd(String accountName, Double accountAmount) {
-        try {
-            if (accountName.isEmpty() || accountName.isBlank()) {
-                throw new NullPointerException();
-            }
-
-            accountService.addAccount(new Account(accountName, accountAmount, user));
-            createAccountDialog.close();
-
-            updateList();
-        } catch (NullPointerException | javax.validation.ConstraintViolationException e) {
-            ErrorNotification();
-        }
     }
 }

@@ -4,11 +4,11 @@ import com.gmail.vishchak.denis.model.*;
 import com.gmail.vishchak.denis.security.SecurityService;
 import com.gmail.vishchak.denis.service.*;
 
+import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Div;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -31,27 +31,23 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 @Route("add-transaction")
 @PageTitle("Transaction")
 @PermitAll
-public class TransactionAddDialogField extends Div implements HasUrlParameter<Long> {
+public class TransactionAddForm extends Composite<VerticalLayout> implements HasUrlParameter<Long> {
     private final AccountServiceImpl accountService;
     private final TransactionServiceImpl transactionService;
     private final CategoryServiceImpl categoryService;
     private final SubcategoryServiceImpl subcategoryService;
-    private final Dialog dialog = new Dialog();
     private final Binder<Transaction> binder = new BeanValidationBinder<>(Transaction.class);
     private final TextField note = textFiled("Note");
     private final NumberField transactionAmount = amountField("Amount");
-
     private final ComboBox<Category> category = new ComboBox<>("Category");
-
     private final ComboBox<Subcategory> subcategory = new ComboBox<>("Subcategory");
-
     private final ComboBox<Account> accountComboBox = new ComboBox<>("Account");
     private final CurrentUser user;
 
-    public TransactionAddDialogField(AccountServiceImpl accountService,
-                                     TransactionServiceImpl transactionService,
-                                     CategoryServiceImpl categoryService,
-                                     SubcategoryServiceImpl subcategoryService, CurrentUserServiceImpl userService, SecurityService securityService) {
+    public TransactionAddForm(AccountServiceImpl accountService,
+                              TransactionServiceImpl transactionService,
+                              CategoryServiceImpl categoryService,
+                              SubcategoryServiceImpl subcategoryService, CurrentUserServiceImpl userService, SecurityService securityService) {
         this.accountService = accountService;
         this.transactionService = transactionService;
         this.categoryService = categoryService;
@@ -59,25 +55,35 @@ public class TransactionAddDialogField extends Div implements HasUrlParameter<Lo
 
         UserDetails userDetails = securityService.getAuthenticatedUser();
         this.user = userService.findUserByEmailOrLogin(userDetails.getUsername());
+
+        labelGenerator();
     }
 
     @Override
     public void setParameter(BeforeEvent beforeEvent,
                              @OptionalParameter Long id) {
         if (id == null) {
-            dialogCreate("Add transaction", null, "add");
+            formCreate("Add transaction", null, "add");
             return;
         }
-        dialogCreate("Update transaction", id, "update");
+        formCreate("Update transaction", id, "update");
     }
 
-    private void dialogCreate(String header, Long id, String buttonText) {
-        dialog.setHeaderTitle(header);
-        dialog.setCloseOnOutsideClick(false);
+    private void formCreate(String header, Long id, String buttonText) {
 
         binder.bindInstanceFields(this);
 
-        labelGenerator();
+        VerticalLayout layout = getContent();
+
+        layout.add(
+                new H2(header),
+                createFormLayout(),
+                createButtons(id, buttonText)
+        );
+
+        layout.setSizeFull();
+        layout.setAlignItems(FlexComponent.Alignment.CENTER);
+        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
 
         if (id != null) {
             accountComboBox.setVisible(false);
@@ -89,10 +95,9 @@ public class TransactionAddDialogField extends Div implements HasUrlParameter<Lo
                 transactionAmount.setValue(transaction.getTransactionAmount());
             });
         }
+    }
 
-        VerticalLayout dialogLayout = createDialogLayout();
-        dialog.add(dialogLayout);
-
+    private HorizontalLayout createButtons(Long id, String buttonText) {
         Button confirmButton = createConfirmButton(buttonText);
         if (id == null) {
             confirmButton.addClickListener(e -> validateAndAdd());
@@ -102,17 +107,14 @@ public class TransactionAddDialogField extends Div implements HasUrlParameter<Lo
 
         Button cancelButton = new Button("Cancel", e -> getUI().ifPresent(ui -> ui.navigate("")));
         cancelButton.addClickShortcut(Key.ESCAPE);
+        cancelButton.getStyle().set("margin-right", "auto");
 
-        dialog.getFooter().add(new HorizontalLayout(cancelButton, confirmButton));
-
-        add(dialog);
-        dialog.open();
+        return new HorizontalLayout(cancelButton, confirmButton);
     }
 
     private void labelGenerator() {
         subcategory.setEnabled(false);
 
-        //change on current user
         accountComboBox.setItems(accountService.findAccountsByUser(user));
         accountComboBox.setItemLabelGenerator(Account::getAccountName);
         accountComboBox.setRequired(true);
@@ -131,6 +133,7 @@ public class TransactionAddDialogField extends Div implements HasUrlParameter<Lo
             subcategory.setItemLabelGenerator(Subcategory::getSubcategoryName);
         });
     }
+
 
     private void validateAndAdd() {
         try {
@@ -165,7 +168,7 @@ public class TransactionAddDialogField extends Div implements HasUrlParameter<Lo
         }
     }
 
-    private VerticalLayout createDialogLayout() {
+    private VerticalLayout createFormLayout() {
         VerticalLayout dialogLayout = new VerticalLayout(transactionAmount, note, accountComboBox, category, subcategory);
         dialogLayout.setPadding(false);
         dialogLayout.setSpacing(false);
