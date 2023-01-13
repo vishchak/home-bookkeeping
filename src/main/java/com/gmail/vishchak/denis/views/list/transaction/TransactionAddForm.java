@@ -17,7 +17,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.*;
-import org.springframework.security.core.userdetails.UserDetails;
 
 
 import javax.annotation.security.PermitAll;
@@ -44,17 +43,12 @@ public class TransactionAddForm extends Composite<VerticalLayout> implements Has
     private final ComboBox<Account> accountComboBox = new ComboBox<>("Account");
     private final CurrentUser user;
 
-    public TransactionAddForm(AccountServiceImpl accountService,
-                              TransactionServiceImpl transactionService,
-                              CategoryServiceImpl categoryService,
-                              SubcategoryServiceImpl subcategoryService, CurrentUserServiceImpl userService, SecurityService securityService) {
+    public TransactionAddForm(AccountServiceImpl accountService, TransactionServiceImpl transactionService, CategoryServiceImpl categoryService, SubcategoryServiceImpl subcategoryService, SecurityService securityService) {
         this.accountService = accountService;
         this.transactionService = transactionService;
         this.categoryService = categoryService;
         this.subcategoryService = subcategoryService;
-
-        UserDetails userDetails = securityService.getAuthenticatedUser();
-        this.user = userService.findUserByEmailOrLogin(userDetails.getUsername());
+        this.user = securityService.getAuthenticatedUser();
 
         labelGenerator();
     }

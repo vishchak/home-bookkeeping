@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.gmail.vishchak.denis.model.enums.UserRole;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import net.bytebuddy.utility.RandomString;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -44,12 +43,12 @@ public class CurrentUser {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Goal> goals = new ArrayList<>();
 
-    public CurrentUser(String login, String password) {
+    public CurrentUser(String login, String password, String email) {
         this.login = login;
         this.passwordHash = password;
+        this.email = email;
 
         //temporally
-        this.email = RandomString.hashOf(32);
         this.role = UserRole.USER;
         this.image = null;
     }

@@ -1,6 +1,7 @@
 package com.gmail.vishchak.denis.views.list.auth;
 
 
+import com.gmail.vishchak.denis.model.CurrentUser;
 import com.gmail.vishchak.denis.service.CurrentUserServiceImpl;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
@@ -25,6 +26,7 @@ public class RegisterView extends Composite<VerticalLayout> {
     public RegisterView(CurrentUserServiceImpl currentUserService, PasswordEncoder encoder) {
         this.currentUserService = currentUserService;
         this.encoder = encoder;
+
         TextField username = new TextField("UserName");
         PasswordField password = new PasswordField("Password");
         PasswordField confirmation = new PasswordField("Confirm password");
@@ -58,7 +60,7 @@ public class RegisterView extends Composite<VerticalLayout> {
         } else if (!password.equals(confirmation)) {
             Notification.show("Passwords dont match");
         } else {
-            currentUserService.registerUser(username, encoder.encode(password));
+            currentUserService.registerUser(new CurrentUser(username, encoder.encode(password), null));
             UI.getCurrent().navigate("");
             Notification.show("Successfully registered");
         }

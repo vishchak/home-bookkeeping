@@ -10,6 +10,7 @@ import com.gmail.vishchak.denis.views.list.shared.MainLayout;
 import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -27,7 +28,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.annotation.security.PermitAll;
 import java.util.*;
@@ -39,6 +39,7 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.textFi
 @PageTitle("Goals | MoneyLonger")
 @PermitAll
 public class GoalView extends VerticalLayout {
+    private final static int ITEMS_PER_PAGE = 5;
 
     private final GoalServiceImpl goalService;
 
@@ -62,15 +63,11 @@ public class GoalView extends VerticalLayout {
 
     private int currentPageNumber = 0;
 
-    public GoalView(
-            CurrentUserServiceImpl currentUserService,
-            GoalServiceImpl goalService, AccountServiceImpl accountService, SecurityService securityService) {
+    public GoalView(GoalServiceImpl goalService, AccountServiceImpl accountService, SecurityService securityService) {
 
         this.goalService = goalService;
         this.accountService = accountService;
-
-        UserDetails userDetails = securityService.getAuthenticatedUser();
-        this.user = currentUserService.findUserByEmailOrLogin(userDetails.getUsername());
+        this.user = securityService.getAuthenticatedUser();
 
         addClassName("goals-view");
         setSizeFull();
@@ -100,7 +97,6 @@ public class GoalView extends VerticalLayout {
     }
 
     private void updateList() {
-        int ITEMS_PER_PAGE = 5;
         totalAmountOfPages = goalService.getPageCount(user, ITEMS_PER_PAGE);
 
         List<Goal> goalList = goalService.findUserGoals(user.getUserId(), filterField.isEmpty() ? null : filterField.getValue(), checkboxGroup.isEmpty() ? Set.of(GoalProgress.values()) : checkboxGroup.getSelectedItems(),
@@ -254,7 +250,11 @@ public class GoalView extends VerticalLayout {
     }
 
     private Component createToolBar() {
-        Button addGoal = SharedComponents.getAddComponentButton("Add goal", "add-goal");
+        Button addGoal = new Button("Add goal", e -> getUI().ifPresent(ui ->
+                ui.navigate("add-goal")));
+
+        addGoal.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        addGoal.setIcon(new Icon("lumo", "plus"));
         addGoal.setWidthFull();
 
         checkboxGroup.setVisible(false);

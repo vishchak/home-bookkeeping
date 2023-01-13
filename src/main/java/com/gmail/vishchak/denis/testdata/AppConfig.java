@@ -1,5 +1,6 @@
 package com.gmail.vishchak.denis.testdata;
 
+import com.gmail.vishchak.denis.model.CurrentUser;
 import com.gmail.vishchak.denis.service.CurrentUserServiceImpl;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -13,7 +14,7 @@ public class AppConfig {
     @Bean
     public CommandLineRunner demo(final CurrentUserServiceImpl userService,
                                   final PasswordEncoder encoder) {
-        return strings -> userService.registerUser("user",
-                encoder.encode("pass"));
+        return strings -> userService.registerUser(new CurrentUser("user",
+                encoder.encode("pass"), null));
     }
 }

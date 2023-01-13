@@ -103,7 +103,7 @@ public class GoalServiceImpl implements GoalService {
                 return;
             }
             Optional<Category> category = categoryService.findCategoryById(3L);
-            Optional<Subcategory> subcategory = subcategoryService.findSubcategoryById(15L);
+            Optional<Subcategory> subcategory = subcategoryService.findSubcategoryById(16L);
 
             if ((g.getCurrentAmount() + amount) > g.getGoalAmount()) {
                 double maxAmount = g.getGoalAmount() - g.getCurrentAmount();
@@ -122,7 +122,7 @@ public class GoalServiceImpl implements GoalService {
         goalRepository.save(g);
 
         if (category.isPresent() && subcategory.isPresent()) {
-            transactionService.addTransaction(new Transaction(amount, "Goal " + g.getGoalNote(), new Date(), currentAccount, category.get(), subcategory.get()));
+            transactionService.addTransaction(new Transaction(amount, g.getGoalNote(), new Date(), currentAccount, category.get(), subcategory.get()));
         }
     }
 

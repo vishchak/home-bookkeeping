@@ -15,14 +15,13 @@ import java.util.List;
 public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
     private final static String USER_NOT_FOUND_MSG = "User with email %s not found";
     private final CurrentUserServiceImpl currentUserService;
-
     public UserDetailsService(CurrentUserServiceImpl currentUserService) {
         this.currentUserService = currentUserService;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        CurrentUser user = currentUserService.findUserByEmailOrLogin(username);
+        CurrentUser user = currentUserService.findUserByLoginOrEmail(username);
         if (user == null)
             throw new UsernameNotFoundException(String.format(USER_NOT_FOUND_MSG, username));
 

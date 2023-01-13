@@ -15,41 +15,47 @@ public class CurrentUserServiceImpl implements CurrentUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public boolean existsByEmail(String email) {
-        return currentUserRepository.existsByEmail(email);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public boolean existsByLogin(String login) {
         return currentUserRepository.existsByLogin(login);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public CurrentUser findUserByEmailOrLogin(String logMail) {
-        return currentUserRepository.findByEmailOrLogin(logMail);
+    public boolean existsByEmail(String email) {
+        return currentUserRepository.existsByEmail(email);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public CurrentUser findUserByLoginOrEmail(String login) {
+        return currentUserRepository.findByLoginOrEmail(login);
     }
 
 
     @Override
     @Transactional
-    public void registerUser(String login, String passwordHash) {
+    public void registerUser(CurrentUser user) {
+        if (user.getLogin() != null) {
+            if (!user.getLogin().isEmpty() && !user.getLogin().isBlank()) {
+                if (!existsByLogin(user.getLogin())) {
+                    currentUserRepository.save(user);
+                }
+            }
+
+        } else if (user.getEmail() != null) {
+            if (!user.getEmail().isEmpty() && !user.getEmail().isBlank()) {
+                if (!existsByEmail(user.getEmail())) {
+                    currentUserRepository.save(user);
+                }
+            }
+        }
+    }
+
+    @Override
+    @Transactional
+    public void deleteUser(String login) {
         if (existsByLogin(login)) {
-            return;
+            currentUserRepository.delete(findUserByLoginOrEmail(login));
         }
-
-        CurrentUser user = new CurrentUser(login, passwordHash);
-        currentUserRepository.save(user);
-    }
-
-    @Override
-    @Transactional
-    public void deleteUser(String maleLogin) {
-        CurrentUser user = findUserByEmailOrLogin(maleLogin);
-        if (user == null) {
-            return;
-        }
-        currentUserRepository.delete(user);
     }
 }

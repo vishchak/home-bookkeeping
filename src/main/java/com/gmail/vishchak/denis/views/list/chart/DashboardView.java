@@ -22,7 +22,6 @@ import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.annotation.security.PermitAll;
 import java.time.LocalDate;
@@ -49,15 +48,10 @@ public class DashboardView extends VerticalLayout {
     private final DatePicker toDateField = dateField(format, "Finish date");
     private final CurrentUser user;
 
-    public DashboardView(CurrentUserServiceImpl userService,
-                         CategoryServiceImpl categoryService,
-                         TransactionServiceImpl transactionService, SecurityService securityService) {
+    public DashboardView(CategoryServiceImpl categoryService, TransactionServiceImpl transactionService, SecurityService securityService) {
         this.categoryService = categoryService;
         this.transactionService = transactionService;
-
-        UserDetails userDetails = securityService.getAuthenticatedUser();
-        this.user = userService.findUserByEmailOrLogin(userDetails.getUsername());
-
+        this.user = securityService.getAuthenticatedUser();
 
         addClassName("dashboard-view");
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);

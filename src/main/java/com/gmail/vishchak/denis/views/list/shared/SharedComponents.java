@@ -1,17 +1,11 @@
 package com.gmail.vishchak.denis.views.list.shared;
 
-import com.gmail.vishchak.denis.model.Account;
-import com.gmail.vishchak.denis.model.CurrentUser;
-import com.gmail.vishchak.denis.service.AccountServiceImpl;
-import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -20,7 +14,6 @@ import com.vaadin.flow.component.textfield.TextField;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.List;
 
 public class SharedComponents {
     public static DatePicker dateField(String format, String label) {
@@ -69,27 +62,6 @@ public class SharedComponents {
         dialog.getFooter().add(cancelButton);
 
         dialog.open();
-    }
-
-    public static Component getAccountField(ComboBox<Account> accountComboBox, AccountServiceImpl accountService, CurrentUser user) {
-        List<Account> accounts = accountService.findAccountsByUser(user);
-
-        accountComboBox.setItems(accounts);
-        accountComboBox.setItemLabelGenerator(Account::getAccountName);
-        accountComboBox.setHelperText("Choose account");
-
-
-        return accountComboBox;
-    }
-
-    public static Button getAddComponentButton(String buttonName, String url) {
-        Button addTransactionButton = new Button(buttonName);
-        addTransactionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        addTransactionButton.setIcon(new Icon("lumo", "plus"));
-
-        addTransactionButton.addClickListener(e -> addTransactionButton.getUI().ifPresent(ui ->
-                ui.navigate(url)));
-        return addTransactionButton;
     }
 
     public static Button createConfirmButton(String buttonText) {

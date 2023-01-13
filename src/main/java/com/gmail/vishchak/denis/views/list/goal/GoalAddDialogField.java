@@ -16,7 +16,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.*;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.annotation.security.PermitAll;
 import java.time.LocalDate;
@@ -39,17 +38,15 @@ public class GoalAddDialogField extends Div implements HasUrlParameter<Long> {
     private final DatePicker goalFinishDate = dateField(format, "Finish date");
     private final CurrentUser user;
 
-    public GoalAddDialogField(GoalServiceImpl goalService, CurrentUserServiceImpl userService, SecurityService securityService) {
+    public GoalAddDialogField(GoalServiceImpl goalService, SecurityService securityService) {
         this.goalService = goalService;
+        this.user = securityService.getAuthenticatedUser();
 
         goalNote.setRequired(true);
 
         goalFinishDate.setRequired(true);
         goalFinishDate.setMin(LocalDate.now());
         goalFinishDate.setMax(LocalDate.MAX);
-
-        UserDetails userDetails = securityService.getAuthenticatedUser();
-        this.user = userService.findUserByEmailOrLogin(userDetails.getUsername());
     }
 
     @Override

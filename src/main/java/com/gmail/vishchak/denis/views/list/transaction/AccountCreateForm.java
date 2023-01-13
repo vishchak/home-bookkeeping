@@ -16,7 +16,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.*;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.annotation.security.PermitAll;
 
@@ -32,12 +31,9 @@ public class AccountCreateForm extends Composite<VerticalLayout> {
     private final NumberField accountAmount = SharedComponents.amountField("Enter account's amount");
     private final CurrentUser user;
 
-    public AccountCreateForm(AccountServiceImpl accountService, CurrentUserServiceImpl userService, SecurityService securityService) {
+    public AccountCreateForm(AccountServiceImpl accountService, SecurityService securityService) {
         this.accountService = accountService;
-
-        UserDetails userDetails = securityService.getAuthenticatedUser();
-        this.user = userService.findUserByEmailOrLogin(userDetails.getUsername());
-
+        this.user = securityService.getAuthenticatedUser();
 
         Binder<Account> binder = new BeanValidationBinder<>(Account.class);
         binder.bindInstanceFields(this);

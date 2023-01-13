@@ -26,25 +26,24 @@ import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.annotation.security.PermitAll;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
-import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Transactions | MoneyLonger")
 @PermitAll
 public class TransactionView extends VerticalLayout {
+    private final static int ITEMS_PER_PAGE = 10;
     private final AccountServiceImpl accountService;
     private final CategoryServiceImpl categoryService;
     private final SubcategoryServiceImpl subcategoryService;
     private final TransactionServiceImpl transactionService;
     private final Grid<Transaction> grid = new Grid<>(Transaction.class);
-    private final TextField accountAmountFiled = textFiled("");
+    private final TextField accountAmountFiled = new TextField();
     private final CurrentUser user;
     private final MenuBar menuBar = new MenuBar();
     private long totalAmountOfPages;
@@ -52,17 +51,13 @@ public class TransactionView extends VerticalLayout {
     private Account currentAccount;
     private TransactionFilterForm form;
 
-    public TransactionView(AccountServiceImpl accountService,
-                           CategoryServiceImpl categoryService,
-                           SubcategoryServiceImpl subcategoryService,
-                           TransactionServiceImpl transactionService, CurrentUserServiceImpl userService, SecurityService securityService) {
+
+    public TransactionView(AccountServiceImpl accountService, CategoryServiceImpl categoryService, SubcategoryServiceImpl subcategoryService, TransactionServiceImpl transactionService, SecurityService securityService) {
         this.accountService = accountService;
         this.categoryService = categoryService;
         this.subcategoryService = subcategoryService;
         this.transactionService = transactionService;
-
-        UserDetails userDetails = securityService.getAuthenticatedUser();
-        this.user = userService.findUserByEmailOrLogin(userDetails.getUsername());
+        this.user = securityService.getAuthenticatedUser();
 
         addClassName("transaction-view");
         setSizeFull();
@@ -122,10 +117,9 @@ public class TransactionView extends VerticalLayout {
     }
 
     public void updateList() {
-        int itemsPerPage = 10;
         ZoneId defaultZoneId = form.getDefaultZoneId();
 
-        totalAmountOfPages = transactionService.getPageCount(user, currentAccount, itemsPerPage);
+        totalAmountOfPages = transactionService.getPageCount(user, currentAccount, ITEMS_PER_PAGE);
 
         if (form.isVisible()) {
             grid.setItems(
@@ -137,14 +131,14 @@ public class TransactionView extends VerticalLayout {
                             form.getAmountField().getValue(),
                             form.getCategory().isEmpty() ? null : form.getCategory().getValue(),
                             form.getSubcategory().isEmpty() ? null : form.getSubcategory().getValue(),
-                            currentPageNumber, itemsPerPage)
+                            currentPageNumber, ITEMS_PER_PAGE)
             );
             return;
         }
         if (currentAccount == null) {
-            grid.setItems(transactionService.findAllUSerTransactions(user, currentPageNumber, itemsPerPage));
+            grid.setItems(transactionService.findAllUSerTransactions(user, currentPageNumber, ITEMS_PER_PAGE));
         } else {
-            grid.setItems(transactionService.findAllAccountTransactions(currentAccount, currentPageNumber, itemsPerPage));
+            grid.setItems(transactionService.findAllAccountTransactions(currentAccount, currentPageNumber, ITEMS_PER_PAGE));
         }
 
         updateAccountAmountField();

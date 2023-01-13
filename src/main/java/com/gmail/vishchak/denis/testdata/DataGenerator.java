@@ -10,22 +10,14 @@ import java.util.Optional;
 
 @SpringComponent
 public class DataGenerator {
-    private final CurrentUserServiceImpl currentUserService;
-    private final AccountServiceImpl accountService;
     private final CategoryServiceImpl categoryService;
     private final SubcategoryServiceImpl subcategoryService;
 
-
-    public DataGenerator(CurrentUserServiceImpl currentUserService,
-                         AccountServiceImpl accountService,
-                         CategoryServiceImpl categoryService,
+    public DataGenerator(CategoryServiceImpl categoryService,
                          SubcategoryServiceImpl subcategoryService) {
-        this.currentUserService = currentUserService;
-        this.accountService = accountService;
         this.categoryService = categoryService;
         this.subcategoryService = subcategoryService;
     }
-
 
     @PostConstruct
     public void loadData() {
@@ -54,11 +46,9 @@ public class DataGenerator {
                     new Subcategory("Debt collection", categoryOther.get()),
                     new Subcategory("Debt", categoryOther.get()),
                     new Subcategory("Loan", categoryOther.get()),
-                    new Subcategory("Repayment", categoryOther.get())
+                    new Subcategory("Repayment", categoryOther.get()),
+                    new Subcategory("Goal", categoryOther.get())
             );
         }
-
-        currentUserService.addUser("test user", "pass", "test mail", null);
-        accountService.addAccount(new Account("test account", 200D, currentUserService.findUserByEmailOrLogin("test user")));
     }
 }
