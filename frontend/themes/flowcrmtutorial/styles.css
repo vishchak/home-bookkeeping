@@ -1,6 +1,100 @@
 @import url('line-awesome/dist/line-awesome/css/line-awesome.min.css');
 
+body {
+    font-family: Segoe UI, serif;
+}
+
 a[highlight] {
     font-weight: bold;
     text-decoration: underline;
+    color: #85bb65;
 }
+
+a {
+    color: black;
+}
+
+.gird-color {
+    background-color: #F0F0D9;
+}
+
+.login-logo {
+    padding: 10px;
+    width: 150px;
+}
+
+.login-view {
+    background-color: #BEBC69;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-logo-layout {
+    background-color: white;
+    width: 50em;
+    justify-content: center;
+    border: 0.75em solid #F0F0D9;
+    border-radius: 0.75em;
+}
+
+.login-form {
+    display: flex;
+    justify-content: center;
+    padding-top: 1em;
+    background-color: white;
+    padding-bottom: 1em;
+    border: 0.75em solid #F0F0D9;
+    border-radius: 0.75em;
+}
+
+.login-via-services {
+    width: 23.5em;
+    display: flex;
+    justify-content: center;
+    background-color: white;
+    border: 0.75em solid #F0F0D9;
+    border-radius: 0.75em;
+}
+
+.wide-button {
+    width: 20em;
+}
+
+.login-via-facebook {
+    border: 2px solid #3b5998;
+    border-radius: 4px;
+    background-color: white;
+    color: #3b5998;
+}
+
+.login-via-google {
+    border: 2px solid #DB4437;
+    border-radius: 4px;
+    background-color: white;
+    color: #DB4437;
+}
+
+.register-view {
+    background-color: #BEBC69;
+    align-items: center;
+    justify-content: center;
+}
+
+.register-fields-layout {
+    background-color: white;
+    border: 0.75em solid #F0F0D9;
+    border-radius: 0.75em;
+    align-items: center;
+
+}
+
+.register-button-layout {
+    background-color: white;
+    border: 0.75em solid #F0F0D9;
+    border-radius: 0.75em;
+    width: 20em;
+    height: 6em;
+    justify-content: center;
+    align-items: center;
+}
+

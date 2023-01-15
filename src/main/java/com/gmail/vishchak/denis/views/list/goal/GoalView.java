@@ -105,7 +105,7 @@ public class GoalView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addClassNames("goals-grid");
+        grid.addClassNames("goals-grid", "gird-color");
         grid.setSizeFull();
         grid.setClassNameGenerator(goal -> {
             if (goal.getGoalProgress().equals(GoalProgress.CURRENT)) {

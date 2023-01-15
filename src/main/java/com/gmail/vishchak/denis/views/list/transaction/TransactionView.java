@@ -4,7 +4,10 @@ import com.gmail.vishchak.denis.model.Account;
 import com.gmail.vishchak.denis.model.CurrentUser;
 import com.gmail.vishchak.denis.model.Transaction;
 import com.gmail.vishchak.denis.security.SecurityService;
-import com.gmail.vishchak.denis.service.*;
+import com.gmail.vishchak.denis.service.AccountServiceImpl;
+import com.gmail.vishchak.denis.service.CategoryServiceImpl;
+import com.gmail.vishchak.denis.service.SubcategoryServiceImpl;
+import com.gmail.vishchak.denis.service.TransactionServiceImpl;
 import com.gmail.vishchak.denis.views.list.shared.MainLayout;
 import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
 import com.vaadin.flow.component.ClickEvent;
@@ -16,7 +19,6 @@ import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -79,7 +81,7 @@ public class TransactionView extends VerticalLayout {
         updateList();
 
         if (user.getAccounts().isEmpty()) {
-            UI.getCurrent().navigate(AccountCreateForm.class);
+            UI.getCurrent().getPage().open("add-account", "_self");
         }
     }
 
@@ -145,9 +147,8 @@ public class TransactionView extends VerticalLayout {
     }
 
     private void configureGrid() {
-        grid.addClassNames("transaction-grid");
+        grid.addClassNames("transaction-grid", "gird-color");
         grid.setSizeFull();
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 
         grid.setColumns();
         grid.addColumn(transaction -> transaction.getTransactionDate().toString()).setHeader("Date").setSortable(true);

@@ -1,34 +1,41 @@
 package com.gmail.vishchak.denis.views.list.auth;
 
-import com.vaadin.flow.component.html.Anchor;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.login.LoginForm;
+import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterListener;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 
 @Route("login")
-@PageTitle("Login | MoneyLonger")
+@PageTitle("Login | Bankroll Froggo")
 public class LoginView extends VerticalLayout implements BeforeEnterListener {
-    private static final String OAUTH_GOOGLE_URL = "/oauth2/authorization/google";
-    private static final String OAUTH_FACEBOOK_URL = "/oauth2/authorization/facebook";
+    private static final String LOGO_URL = "/images/bankroll-froggo.png";
     private final LoginForm login = new LoginForm();
+    private final LoginViaServicesForm loginViaServicesForm = new LoginViaServicesForm();
 
     public LoginView() {
-        addClassName("login-view");
         setSizeFull();
-        setAlignItems(Alignment.CENTER);
-        setJustifyContentMode(JustifyContentMode.CENTER);
+        addClassName("login-view");
 
-        Anchor loginViaGoogleLink = new Anchor(OAUTH_GOOGLE_URL, "Login with Google");
-        Anchor loginViaFacebookLink = new Anchor(OAUTH_FACEBOOK_URL, "Login with Facebook");
+        login.addClassName("login-form");
+        login.setForgotPasswordButtonVisible(false);
         login.setAction("login");
 
+        Image logo = new Image(LOGO_URL, "Bankroll Froggo logo");
+        logo.addClassName("login-logo");
+
+        HorizontalLayout logoLayout = new HorizontalLayout(new H1("Bankroll Froggo"), logo);
+        logoLayout.addClassName("login-logo-layout");
+
         add(
-                new H1("MoneyLonger"),
-                login,
-                new RouterLink("register", RegisterView.class),
-                loginViaGoogleLink,
-                loginViaFacebookLink
+                logoLayout,
+                addContent()
         );
     }
 
@@ -40,5 +47,16 @@ public class LoginView extends VerticalLayout implements BeforeEnterListener {
                 .containsKey("error")) {
             login.setError(true);
         }
+    }
+
+    private Component addContent() {
+        HorizontalLayout content = new HorizontalLayout(loginViaServicesForm, login);
+
+        content.addClassName("login-content");
+
+        content.setAlignItems(Alignment.CENTER);
+        content.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
+
+        return content;
     }
 }

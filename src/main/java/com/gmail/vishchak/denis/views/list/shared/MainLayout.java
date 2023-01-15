@@ -1,8 +1,8 @@
 package com.gmail.vishchak.denis.views.list.shared;
 
 import com.gmail.vishchak.denis.security.SecurityService;
-import com.gmail.vishchak.denis.views.list.goal.GoalView;
 import com.gmail.vishchak.denis.views.list.chart.DashboardView;
+import com.gmail.vishchak.denis.views.list.goal.GoalView;
 import com.gmail.vishchak.denis.views.list.transaction.TransactionView;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
@@ -13,16 +13,13 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HighlightConditions;
 import com.vaadin.flow.router.RouterLink;
-import lombok.Getter;
 
 
-@Getter
 public class MainLayout extends AppLayout {
     private final SecurityService securityService;
 
     public MainLayout(SecurityService securityService) {
         this.securityService = securityService;
-
         createHeader();
         createDrawer();
     }
@@ -43,6 +40,8 @@ public class MainLayout extends AppLayout {
     }
 
     private void createDrawer() {
+        addClassNames("main-layout-drawer");
+
         RouterLink transactionList = new RouterLink("Transaction list", TransactionView.class);
         transactionList.setHighlightCondition(HighlightConditions.sameLocation());
 
