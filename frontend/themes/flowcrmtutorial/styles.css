@@ -1,7 +1,80 @@
 @import url('line-awesome/dist/line-awesome/css/line-awesome.min.css');
 
+:root {
+    --colour-black: #1e1e1e;
+    --colour-white: #ffffff;
+    --font-family: Lato, Roboto, Oxygen, Ubuntu, Cantarell, Open Sans, Helvetica Neue, sans-serif;
+    --font-size: 100%;
+    --color-beige: #F0F0D9;
+}
+
 body {
-    font-family: Segoe UI, serif;
+    color: var(--colour-black);
+    font-family: var(--font-family);
+    font-size: var(--font-size);
+}
+
+vaadin-button,
+.button {
+    --button: hsl(0, 0%, 12%);
+    --button-hover: hsl(0, 0%, 20%);
+    --button-active: hsl(0, 0%, 30%);
+    --button-visited: hsl(0, 0%, 20%);
+    --button-colour: var(--colour-white);
+    --button-border: var(--colour-black);
+}
+
+.button--primary {
+    --button: hsl(346, 100%, 60%);
+    --button-hover: hsl(346, 100%, 70%);
+    --button-active: hsl(346, 100%, 80%);
+    --button-visited: hsl(346, 100%, 70%);
+    --button-colour: var(--colour-black);
+    --button-border: var(--colour-black);
+}
+
+.button--secondary {
+    --button: hsl(0, 0%, 79%);
+    --button-hover: hsl(0, 0%, 89%);
+    --button-active: hsl(0, 0%, 69%);
+    --button-visited: hsl(0, 0%, 89%);
+    --button-colour: var(--colour-black);
+    --button-border: var(--colour-black);
+}
+
+.button--tertiary {
+    --button: hsl(0, 100%, 90%);
+    --button-hover: hsl(0, 100%, 94%);
+    --button-active: hsl(0, 100%, 84%);
+    --button-visited: hsl(0, 100%, 94%);
+    --button-colour: var(--colour-black);
+    --button-border: var(--colour-black);
+}
+
+vaadin-button {
+    padding: .9rem 1.7rem;
+    color: var(--button-colour);
+    font-weight: 500;
+    font-size: 16px;
+    transition: all 0.3s ease-in-out;
+    background: var(--button);
+    border: solid 1px var(--button-border);
+    box-shadow: inset 0 0 0 2px var(--colour-white);
+    margin-right: 1em;
+}
+
+vaadin-button:hover {
+    text-decoration: underline;
+    background: var(--button-hover);
+    box-shadow: inset 0 0 0 4px var(--colour-white);
+}
+
+vaadin-button:active {
+    background: var(--button-active);
+}
+
+vaadin-button:visited {
+    background: var(--button-visited);
 }
 
 a[highlight] {
@@ -11,11 +84,11 @@ a[highlight] {
 }
 
 a {
-    color: black;
+    color: var(--colour-black);
 }
 
 .gird-color {
-    background-color: #F0F0D9;
+    background-color: var(--color-beige);
 }
 
 .login-logo {
@@ -24,77 +97,28 @@ a {
 }
 
 .login-view {
-    background-color: #BEBC69;
+    background-color: var(--colour-white);
     align-items: center;
     justify-content: center;
 }
 
 .login-logo-layout {
-    background-color: white;
-    width: 50em;
+    background-color: var(--color-beige);
     justify-content: center;
-    border: 0.75em solid #F0F0D9;
-    border-radius: 0.75em;
-}
-
-.login-form {
-    display: flex;
-    justify-content: center;
-    padding-top: 1em;
-    background-color: white;
-    padding-bottom: 1em;
-    border: 0.75em solid #F0F0D9;
-    border-radius: 0.75em;
+    width: 47em;
 }
 
 .login-via-services {
     width: 23.5em;
     display: flex;
     justify-content: center;
-    background-color: white;
-    border: 0.75em solid #F0F0D9;
-    border-radius: 0.75em;
+    background-color: var(--color-beige);
 }
 
 .wide-button {
     width: 20em;
 }
 
-.login-via-facebook {
-    border: 2px solid #3b5998;
-    border-radius: 4px;
-    background-color: white;
-    color: #3b5998;
-}
 
-.login-via-google {
-    border: 2px solid #DB4437;
-    border-radius: 4px;
-    background-color: white;
-    color: #DB4437;
-}
 
-.register-view {
-    background-color: #BEBC69;
-    align-items: center;
-    justify-content: center;
-}
-
-.register-fields-layout {
-    background-color: white;
-    border: 0.75em solid #F0F0D9;
-    border-radius: 0.75em;
-    align-items: center;
-
-}
-
-.register-button-layout {
-    background-color: white;
-    border: 0.75em solid #F0F0D9;
-    border-radius: 0.75em;
-    width: 20em;
-    height: 6em;
-    justify-content: center;
-    align-items: center;
-}
 
