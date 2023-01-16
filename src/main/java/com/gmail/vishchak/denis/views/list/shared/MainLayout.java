@@ -1,13 +1,20 @@
 package com.gmail.vishchak.denis.views.list.shared;
 
+import com.gmail.vishchak.denis.model.CurrentUser;
 import com.gmail.vishchak.denis.security.SecurityService;
 import com.gmail.vishchak.denis.views.list.chart.DashboardView;
 import com.gmail.vishchak.denis.views.list.goal.GoalView;
 import com.gmail.vishchak.denis.views.list.transaction.TransactionView;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -17,9 +24,12 @@ import com.vaadin.flow.router.RouterLink;
 
 public class MainLayout extends AppLayout {
     private final SecurityService securityService;
+    private final CurrentUser user;
 
     public MainLayout(SecurityService securityService) {
         this.securityService = securityService;
+        this.user = securityService.getAuthenticatedUser();
+
         createHeader();
         createDrawer();
     }
@@ -28,8 +38,8 @@ public class MainLayout extends AppLayout {
         H1 logo = new H1("MoneyLonger");
         logo.addClassNames("text-l", "m-m");
 
-        Button logout = new Button("Log out", e -> securityService.logout());
-        HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo, logout);
+
+        HorizontalLayout header = new HorizontalLayout(new DrawerToggle(), logo, getAvatarMenuBar());
 
         header.setDefaultVerticalComponentAlignment(FlexComponent.Alignment.CENTER);
         header.expand(logo);
@@ -53,5 +63,25 @@ public class MainLayout extends AppLayout {
                 dashboard,
                 goals
         ));
+    }
+
+    private Component getAvatarMenuBar() {
+        Avatar avatar = new Avatar(user.getLogin());
+        avatar.setImage(user.getPictureUrl());
+        avatar.addClassName("user-avatar");
+
+        MenuBar menuBar = new MenuBar();
+        menuBar.addThemeVariants(MenuBarVariant.LUMO_TERTIARY_INLINE);
+        menuBar.addClassName("user-menu-bar");
+
+        Button logout = new Button("Log out", e -> securityService.logout());
+        logout.addClassName("logout-button");
+
+        MenuItem menuItem = menuBar.addItem(avatar);
+        SubMenu subMenu = menuItem.getSubMenu();
+        subMenu.addItem(user.getLogin() == null ? user.getEmail() : user.getLogin());
+        subMenu.addItem("about//add me");
+        subMenu.addItem(logout);
+        return menuBar;
     }
 }

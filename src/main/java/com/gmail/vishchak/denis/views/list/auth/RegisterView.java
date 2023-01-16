@@ -63,7 +63,7 @@ public class RegisterView extends VerticalLayout {
         } else if (!password.equals(confirmation)) {
             Notification.show("Passwords dont match");
         } else {
-            currentUserService.registerUser(new CurrentUser(username, encoder.encode(password), null));
+            currentUserService.registerUser(new CurrentUser(username, encoder.encode(password), null, null));
             UI.getCurrent().navigate("");
             Notification.show("Successfully registered");
         }

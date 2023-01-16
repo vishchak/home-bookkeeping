@@ -15,6 +15,6 @@ public class AppConfig {
     public CommandLineRunner demo(final CurrentUserServiceImpl userService,
                                   final PasswordEncoder encoder) {
         return strings -> userService.registerUser(new CurrentUser("user",
-                encoder.encode("pass"), null));
+                encoder.encode("pass"), null, null));
     }
 }

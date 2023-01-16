@@ -31,11 +31,9 @@ public class CurrentUser {
 
     private String email;
 
+    private String pictureUrl;
     @Enumerated(EnumType.STRING)
     private UserRole role;
-    @OneToOne
-    @JoinColumn(name = "image_id")
-    private Image image;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Account> accounts = new ArrayList<>();
@@ -43,13 +41,11 @@ public class CurrentUser {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Goal> goals = new ArrayList<>();
 
-    public CurrentUser(String login, String password, String email) {
+    public CurrentUser(String login, String password, String email, String pictureUrl) {
         this.login = login;
         this.passwordHash = password;
         this.email = email;
-
-        //temporally
         this.role = UserRole.USER;
-        this.image = null;
+        this.pictureUrl = pictureUrl;
     }
 }
