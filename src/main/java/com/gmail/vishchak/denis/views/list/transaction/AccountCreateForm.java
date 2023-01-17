@@ -29,7 +29,7 @@ public class AccountCreateForm extends Composite<VerticalLayout> {
     private final AccountServiceImpl accountService;
     private final TextField accountName = SharedComponents.textFiled("Enter account's name");
     private final NumberField accountAmount = SharedComponents.amountField("Enter account's amount");
-    private final CurrentUser user;
+    private final CustomUser user;
 
     public AccountCreateForm(AccountServiceImpl accountService, SecurityService securityService) {
         this.accountService = accountService;

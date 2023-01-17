@@ -1,7 +1,7 @@
 package com.gmail.vishchak.denis.service;
 
 import com.gmail.vishchak.denis.model.Account;
-import com.gmail.vishchak.denis.model.CurrentUser;
+import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.model.Goal;
 import com.gmail.vishchak.denis.model.enums.GoalProgress;
 
@@ -17,7 +17,7 @@ public interface GoalService {
 
     List<Goal> findUserGoals(Long userId, String goalName, Set<GoalProgress> goalProgress, int currentPageNumber, int itemsPerPage);
 
-    Long getPageCount(CurrentUser user, int itemsPerPage);
+    Long getPageCount(CustomUser user, int itemsPerPage);
 
     Optional<Goal> findById(Long goalId);
 

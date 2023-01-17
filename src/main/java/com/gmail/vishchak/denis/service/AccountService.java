@@ -1,7 +1,7 @@
 package com.gmail.vishchak.denis.service;
 
 import com.gmail.vishchak.denis.model.Account;
-import com.gmail.vishchak.denis.model.CurrentUser;
+import com.gmail.vishchak.denis.model.CustomUser;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,5 +16,5 @@ public interface AccountService {
 
     void updateAccount(Long id, String accountName, Double amount);
 
-    List<Account> findAccountsByUser(CurrentUser user);
+    List<Account> findAccountsByUser(CustomUser user);
 }

@@ -1,7 +1,7 @@
 package com.gmail.vishchak.denis.views.list.chart;
 
 import com.gmail.vishchak.denis.model.Category;
-import com.gmail.vishchak.denis.model.CurrentUser;
+import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.model.Transaction;
 import com.gmail.vishchak.denis.security.SecurityService;
 import com.gmail.vishchak.denis.service.*;
@@ -46,7 +46,7 @@ public class DashboardView extends VerticalLayout {
     private final ZoneId defaultZoneId = ZoneId.systemDefault();
     private final DatePicker fromDateField = dateField(format, "Start date");
     private final DatePicker toDateField = dateField(format, "Finish date");
-    private final CurrentUser user;
+    private final CustomUser user;
 
     public DashboardView(CategoryServiceImpl categoryService, TransactionServiceImpl transactionService, SecurityService securityService) {
         this.categoryService = categoryService;

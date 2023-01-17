@@ -21,7 +21,7 @@ public interface TransactionRepository extends PagingAndSortingRepository<Transa
             "and (:amount is null or (t.transactionAmount =:amount))" +
             "and (:category is null or (t.category =:category))" +
             "and (:subcategory is null or (t.subcategory =:subcategory))")
-    List<Transaction> findTransactionsByAccountUser(@Param("user") CurrentUser user,
+    List<Transaction> findTransactionsByAccountUser(@Param("user") CustomUser user,
                                                     @Param("account") Account account,
                                                     @Param("note") String note,
                                                     @Param("from") Date from,
@@ -34,7 +34,7 @@ public interface TransactionRepository extends PagingAndSortingRepository<Transa
     @Query("select count(t) from Transaction t where t.account.user = :user " +
             "and (:account is null or (t.account = :account)) " +
             "and (:category is null or (t.category = :category))")
-    Long countTransaction(@Param("user") CurrentUser user,
+    Long countTransaction(@Param("user") CustomUser user,
                           @Param("account") Account account,
                           @Param("category") Category category);
 
@@ -45,9 +45,9 @@ public interface TransactionRepository extends PagingAndSortingRepository<Transa
     @Query("select t from Transaction t where t.account.user = :user " +
             "and t.transactionDate between :from and :to " +
             "and (:category is null) or (t.category = :category)")
-    List<Transaction> findChartTransactions(CurrentUser user, Date from, Date to, Category category);
+    List<Transaction> findChartTransactions(CustomUser user, Date from, Date to, Category category);
 
     @Query("select t from Transaction t where t.account.user = ?1")
-    List<Transaction> findTransactionsByAccountUser(CurrentUser user,
+    List<Transaction> findTransactionsByAccountUser(CustomUser user,
                                                     Pageable pageable);
 }

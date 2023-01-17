@@ -30,12 +30,12 @@ public class Account {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private CurrentUser user;
+    private CustomUser user;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<Transaction> transactions;
 
-    public Account(String accountName, Double accountAmount, CurrentUser user) {
+    public Account(String accountName, Double accountAmount, CustomUser user) {
         this.accountName = accountName;
         this.accountAmount = accountAmount;
         this.user = user;

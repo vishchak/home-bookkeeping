@@ -1,6 +1,6 @@
 package com.gmail.vishchak.denis.repository;
 
-import com.gmail.vishchak.denis.model.CurrentUser;
+import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.model.Goal;
 import com.gmail.vishchak.denis.model.enums.GoalProgress;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +23,6 @@ public interface GoalRepository extends PagingAndSortingRepository<Goal, Long> {
                                                Pageable pageable);
 
     @Query("select count(g) from Goal g where g.user = ?1")
-    Long countGoalsByUser(CurrentUser user);
+    Long countGoalsByUser(CustomUser user);
 
 }

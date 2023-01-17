@@ -1,6 +1,6 @@
 package com.gmail.vishchak.denis.views.list.auth;
 
-import com.gmail.vishchak.denis.service.CurrentUserServiceImpl;
+import com.gmail.vishchak.denis.service.CustomUserServiceImpl;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
@@ -22,7 +22,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterListener {
     private final LoginViaServicesForm loginViaServicesForm = new LoginViaServicesForm();
     private final RegisterForm registerForm;
 
-    public LoginView(CurrentUserServiceImpl currentUserService, PasswordEncoder encoder) {
+    public LoginView(CustomUserServiceImpl currentUserService, PasswordEncoder encoder) {
         this.registerForm = new RegisterForm(currentUserService, encoder, () -> loginForm.setVisible(true));
 
         setSizeFull();

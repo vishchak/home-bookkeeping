@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "userId")
-public class CurrentUser {
+public class CustomUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -41,7 +41,7 @@ public class CurrentUser {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Goal> goals = new ArrayList<>();
 
-    public CurrentUser(String login, String password, String email, String pictureUrl) {
+    public CustomUser(String login, String password, String email, String pictureUrl) {
         this.login = login;
         this.passwordHash = password;
         this.email = email;

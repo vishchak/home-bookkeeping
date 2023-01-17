@@ -1,7 +1,7 @@
 package com.gmail.vishchak.denis.security.oath2;
 
-import com.gmail.vishchak.denis.model.CurrentUser;
-import com.gmail.vishchak.denis.service.CurrentUserServiceImpl;
+import com.gmail.vishchak.denis.model.CustomUser;
+import com.gmail.vishchak.denis.service.CustomUserServiceImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -16,10 +16,10 @@ import java.util.Map;
 
 @Component
 public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
-    private final CurrentUserServiceImpl currentUserService;
+    private final CustomUserServiceImpl userService;
 
-    public OAuth2LoginSuccessHandler(CurrentUserServiceImpl currentUserService) {
-        this.currentUserService = currentUserService;
+    public OAuth2LoginSuccessHandler(CustomUserServiceImpl userService) {
+        this.userService = userService;
     }
 
     @Override
@@ -30,8 +30,8 @@ public class OAuth2LoginSuccessHandler extends SavedRequestAwareAuthenticationSu
 
         Map<String, Object> attributes = user.getAttributes();
 
-        if (!currentUserService.existsByEmail( (String) attributes.get("email"))) {
-            currentUserService.registerUser(new CurrentUser(null, null,  (String) attributes.get("email"),  (String) attributes.get("picture")));
+        if (!userService.existsByEmail( (String) attributes.get("email"))) {
+            userService.registerUser(new CustomUser(null, null,  (String) attributes.get("email"),  (String) attributes.get("picture")));
         }
 
         super.onAuthenticationSuccess(request, response, authentication);

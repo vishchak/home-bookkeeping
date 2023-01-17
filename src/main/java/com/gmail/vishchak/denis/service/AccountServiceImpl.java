@@ -1,7 +1,7 @@
 package com.gmail.vishchak.denis.service;
 
 import com.gmail.vishchak.denis.model.Account;
-import com.gmail.vishchak.denis.model.CurrentUser;
+import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +56,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Account> findAccountsByUser(CurrentUser user) {
+    public List<Account> findAccountsByUser(CustomUser user) {
         return accountRepository.findByUser(user);
     }
 }

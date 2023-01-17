@@ -1,6 +1,6 @@
 package com.gmail.vishchak.denis.views.list.shared;
 
-import com.gmail.vishchak.denis.model.CurrentUser;
+import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.security.SecurityService;
 import com.gmail.vishchak.denis.views.list.chart.DashboardView;
 import com.gmail.vishchak.denis.views.list.goal.GoalView;
@@ -26,7 +26,7 @@ import com.vaadin.flow.router.RouterLink;
 public class MainLayout extends AppLayout {
     private static final String GIT_URL = "https://github.com/vishchak/home-bookkeeping#readme";
     private final SecurityService securityService;
-    private final CurrentUser user;
+    private final CustomUser user;
 
     public MainLayout(SecurityService securityService) {
         this.securityService = securityService;

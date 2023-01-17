@@ -70,7 +70,7 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     @Transactional(readOnly = true)
-    public Long getPageCount(CurrentUser user, int itemsPerPage) {
+    public Long getPageCount(CustomUser user, int itemsPerPage) {
         Long totalItems = goalRepository.countGoalsByUser(user);
 
         return totalItems % itemsPerPage == 0 ? totalItems / itemsPerPage : totalItems / itemsPerPage + 1;

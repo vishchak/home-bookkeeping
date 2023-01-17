@@ -1,8 +1,8 @@
 package com.gmail.vishchak.denis.security;
 
-import com.gmail.vishchak.denis.model.CurrentUser;
+import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.security.oath2.CustomOAuth2User;
-import com.gmail.vishchak.denis.service.CurrentUserServiceImpl;
+import com.gmail.vishchak.denis.service.CustomUserServiceImpl;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletRequest;
 import org.springframework.context.annotation.Bean;
@@ -17,10 +17,10 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SecurityService {
-    private final CurrentUserServiceImpl currentUserService;
+    private final CustomUserServiceImpl userService;
 
-    public SecurityService(CurrentUserServiceImpl currentUserService) {
-        this.currentUserService = currentUserService;
+    public SecurityService(CustomUserServiceImpl userService) {
+        this.userService = userService;
     }
 
     @Bean
@@ -28,12 +28,12 @@ public class SecurityService {
         return new BCryptPasswordEncoder();
     }
 
-    public CurrentUser getAuthenticatedUser() {
+    public CustomUser getAuthenticatedUser() {
         SecurityContext context = SecurityContextHolder.getContext();
         Object principal = context.getAuthentication().getPrincipal();
 
         if (principal instanceof UserDetails || principal instanceof CustomOAuth2User) {
-            return currentUserService.findUserByLoginOrEmail(context.getAuthentication().getName());
+            return userService.findUserByLoginOrEmail(context.getAuthentication().getName());
         }
         // Anonymous or no authentication.
         return null;

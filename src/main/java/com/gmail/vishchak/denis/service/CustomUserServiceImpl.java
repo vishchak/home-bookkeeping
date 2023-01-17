@@ -1,51 +1,51 @@
 package com.gmail.vishchak.denis.service;
 
-import com.gmail.vishchak.denis.model.CurrentUser;
+import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.repository.CurrentUserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class CurrentUserServiceImpl implements CurrentUserService {
-    private final CurrentUserRepository currentUserRepository;
+public class CustomUserServiceImpl implements CustomUserService {
+    private final CurrentUserRepository userRepository;
 
-    public CurrentUserServiceImpl(CurrentUserRepository currentUserRepository) {
-        this.currentUserRepository = currentUserRepository;
+    public CustomUserServiceImpl(CurrentUserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean existsByLogin(String login) {
-        return currentUserRepository.existsByLogin(login);
+        return userRepository.existsByLogin(login);
     }
 
     @Override
     @Transactional(readOnly = true)
     public boolean existsByEmail(String email) {
-        return currentUserRepository.existsByEmail(email);
+        return userRepository.existsByEmail(email);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public CurrentUser findUserByLoginOrEmail(String login) {
-        return currentUserRepository.findByLoginOrEmail(login);
+    public CustomUser findUserByLoginOrEmail(String login) {
+        return userRepository.findByLoginOrEmail(login);
     }
 
 
     @Override
     @Transactional
-    public void registerUser(CurrentUser user) {
+    public void registerUser(CustomUser user) {
         if (user.getLogin() != null) {
             if (!user.getLogin().isEmpty() && !user.getLogin().isBlank()) {
                 if (!existsByLogin(user.getLogin())) {
-                    currentUserRepository.save(user);
+                    userRepository.save(user);
                 }
             }
 
         } else if (user.getEmail() != null) {
             if (!user.getEmail().isEmpty() && !user.getEmail().isBlank()) {
                 if (!existsByEmail(user.getEmail())) {
-                    currentUserRepository.save(user);
+                    userRepository.save(user);
                 }
             }
         }
@@ -55,7 +55,7 @@ public class CurrentUserServiceImpl implements CurrentUserService {
     @Transactional
     public void deleteUser(String login) {
         if (existsByLogin(login)) {
-            currentUserRepository.delete(findUserByLoginOrEmail(login));
+            userRepository.delete(findUserByLoginOrEmail(login));
         }
     }
 }

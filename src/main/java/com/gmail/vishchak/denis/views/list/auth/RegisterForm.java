@@ -1,8 +1,8 @@
 package com.gmail.vishchak.denis.views.list.auth;
 
 
-import com.gmail.vishchak.denis.model.CurrentUser;
-import com.gmail.vishchak.denis.service.CurrentUserServiceImpl;
+import com.gmail.vishchak.denis.model.CustomUser;
+import com.gmail.vishchak.denis.service.CustomUserServiceImpl;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.formlayout.FormLayout;
@@ -14,13 +14,13 @@ import com.vaadin.flow.component.textfield.TextField;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 public class RegisterForm extends FormLayout {
-    private final CurrentUserServiceImpl userService;
+    private final CustomUserServiceImpl userService;
     private final PasswordEncoder encoder;
     private final TextField username = new TextField("UserName");
     private final PasswordField password = new PasswordField("Password");
     private final PasswordField confirmation = new PasswordField("Confirm password");
 
-    public RegisterForm(CurrentUserServiceImpl currentUserService, PasswordEncoder encoder, Runnable runnable) {
+    public RegisterForm(CustomUserServiceImpl currentUserService, PasswordEncoder encoder, Runnable runnable) {
         this.userService = currentUserService;
         this.encoder = encoder;
 
@@ -44,7 +44,7 @@ public class RegisterForm extends FormLayout {
         } else if (!password.equals(confirmation)) {
             Notification.show("Passwords do not match");
         } else {
-            userService.registerUser(new CurrentUser(username, encoder.encode(password), null, null));
+            userService.registerUser(new CustomUser(username, encoder.encode(password), null, null));
             Notification.show("Successfully registered");
             runnable.run();
             setVisible(false);

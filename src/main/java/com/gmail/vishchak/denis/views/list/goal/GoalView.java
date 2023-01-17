@@ -1,7 +1,7 @@
 package com.gmail.vishchak.denis.views.list.goal;
 
 import com.gmail.vishchak.denis.model.Account;
-import com.gmail.vishchak.denis.model.CurrentUser;
+import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.model.Goal;
 import com.gmail.vishchak.denis.model.enums.GoalProgress;
 import com.gmail.vishchak.denis.security.SecurityService;
@@ -57,7 +57,7 @@ public class GoalView extends VerticalLayout {
 
     private final Dialog addFundsDialog = new Dialog();
 
-    private final CurrentUser user;
+    private final CustomUser user;
 
     private long totalAmountOfPages;
 

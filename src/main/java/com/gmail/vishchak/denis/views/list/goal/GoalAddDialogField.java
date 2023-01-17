@@ -36,7 +36,7 @@ public class GoalAddDialogField extends Div implements HasUrlParameter<Long> {
     private final NumberField goalAmount = amountField("Amount");
     private final String format = "dd-MM-yyyy";
     private final DatePicker goalFinishDate = dateField(format, "Finish date");
-    private final CurrentUser user;
+    private final CustomUser user;
 
     public GoalAddDialogField(GoalServiceImpl goalService, SecurityService securityService) {
         this.goalService = goalService;

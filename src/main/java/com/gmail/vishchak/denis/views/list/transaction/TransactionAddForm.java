@@ -41,7 +41,7 @@ public class TransactionAddForm extends Composite<VerticalLayout> implements Has
     private final ComboBox<Category> category = new ComboBox<>("Category");
     private final ComboBox<Subcategory> subcategory = new ComboBox<>("Subcategory");
     private final ComboBox<Account> accountComboBox = new ComboBox<>("Account");
-    private final CurrentUser user;
+    private final CustomUser user;
 
     public TransactionAddForm(AccountServiceImpl accountService, TransactionServiceImpl transactionService, CategoryServiceImpl categoryService, SubcategoryServiceImpl subcategoryService, SecurityService securityService) {
         this.accountService = accountService;
