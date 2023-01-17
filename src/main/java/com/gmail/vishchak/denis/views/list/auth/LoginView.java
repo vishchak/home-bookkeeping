@@ -1,40 +1,37 @@
 package com.gmail.vishchak.denis.views.list.auth;
 
+import com.gmail.vishchak.denis.service.CurrentUserServiceImpl;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.login.LoginForm;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterListener;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Route("login")
-@PageTitle("Login | Bankroll Froggo")
+@PageTitle("Login | FROG-STOCK")
 public class LoginView extends VerticalLayout implements BeforeEnterListener {
-    private static final String LOGO_URL = "/images/bankroll-froggo.png";
-    private final LoginForm login = new LoginForm();
+    private static final String LOGO_URL = "/images/frog-stock.png";
+    private final LoginForm loginForm = new LoginForm();
     private final LoginViaServicesForm loginViaServicesForm = new LoginViaServicesForm();
+    private final RegisterForm registerForm;
 
-    public LoginView() {
+    public LoginView(CurrentUserServiceImpl currentUserService, PasswordEncoder encoder) {
+        this.registerForm = new RegisterForm(currentUserService, encoder, () -> loginForm.setVisible(true));
+
         setSizeFull();
         addClassName("login-view");
 
-        login.addClassName("login-form");
-        login.setForgotPasswordButtonVisible(false);
-        login.setAction("login");
-
-        Image logo = new Image(LOGO_URL, "Bankroll Froggo logo");
-        logo.addClassName("login-logo");
-
-        HorizontalLayout logoLayout = new HorizontalLayout(new H1("Bankroll Froggo"), logo);
-        logoLayout.addClassName("login-logo-layout");
+        configureLoginView();
 
         add(
-                logoLayout,
+                getLogoLayout(),
                 addContent()
         );
     }
@@ -45,18 +42,38 @@ public class LoginView extends VerticalLayout implements BeforeEnterListener {
                 .getQueryParameters()
                 .getParameters()
                 .containsKey("error")) {
-            login.setError(true);
+            loginForm.setError(true);
         }
     }
 
+    private void configureLoginView() {
+        registerForm.setVisible(false);
+
+        loginForm.addClassName("login-view-login-form");
+        loginForm.setAction("login");
+        loginForm.setForgotPasswordButtonVisible(false);
+    }
+
+    private Component getLogoLayout() {
+        Image logo = new Image(LOGO_URL, "FROG-STOCK logo");
+        logo.addClassName("login-view-logo");
+
+        HorizontalLayout logoLayout = new HorizontalLayout(new H1("FROG-STOCK"), logo);
+        logoLayout.addClassName("login-view-logo-layout");
+
+        return logoLayout;
+    }
+
     private Component addContent() {
-        HorizontalLayout content = new HorizontalLayout(loginViaServicesForm, login);
+        Button registerOfferButton = new Button("dont have an account? Register", e -> {
+            loginForm.setVisible(!loginForm.isVisible());
+            registerForm.setVisible(!loginForm.isVisible());
+        });
+        registerOfferButton.addClassNames("button--primary", "wide-button");
 
-        content.addClassName("login-content");
+        VerticalLayout loginRegisterLayout = new VerticalLayout(loginViaServicesForm, registerOfferButton);
+        loginRegisterLayout.addClassName("login-view-register");
 
-        content.setAlignItems(Alignment.CENTER);
-        content.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-
-        return content;
+        return new HorizontalLayout(loginRegisterLayout, loginForm, registerForm);
     }
 }

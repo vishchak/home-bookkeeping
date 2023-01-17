@@ -12,6 +12,7 @@ import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
@@ -23,6 +24,7 @@ import com.vaadin.flow.router.RouterLink;
 
 
 public class MainLayout extends AppLayout {
+    private static final String GIT_URL = "https://github.com/vishchak/home-bookkeeping#readme";
     private final SecurityService securityService;
     private final CurrentUser user;
 
@@ -35,7 +37,7 @@ public class MainLayout extends AppLayout {
     }
 
     private void createHeader() {
-        H1 logo = new H1("MoneyLonger");
+        H1 logo = new H1("FROG-STOCK");
         logo.addClassNames("text-l", "m-m");
 
 
@@ -75,13 +77,14 @@ public class MainLayout extends AppLayout {
         menuBar.addClassName("user-menu-bar");
 
         Button logout = new Button("Log out", e -> securityService.logout());
-        logout.addClassName("logout-button");
+        logout.addClassName("button");
 
         MenuItem menuItem = menuBar.addItem(avatar);
         SubMenu subMenu = menuItem.getSubMenu();
         subMenu.addItem(user.getLogin() == null ? user.getEmail() : user.getLogin());
-        subMenu.addItem("about//add me");
+        subMenu.addItem(new Anchor(GIT_URL, "About"));
         subMenu.addItem(logout);
+
         return menuBar;
     }
 }

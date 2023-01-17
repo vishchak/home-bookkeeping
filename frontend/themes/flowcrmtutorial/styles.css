@@ -14,6 +14,9 @@ body {
     font-size: var(--font-size);
 }
 
+/*
+ buttons styling
+ */
 vaadin-button,
 .button {
     --button: hsl(0, 0%, 12%);
@@ -77,46 +80,36 @@ vaadin-button:visited {
     background: var(--button-visited);
 }
 
+/*
+links styling
+ */
 a[highlight] {
     font-weight: bold;
     text-decoration: underline;
-    color: #85bb65;
+    /*color: #85bb65;*/
 }
 
 a {
     color: var(--colour-black);
 }
 
-.gird-color {
-    background-color: var(--color-beige);
-}
-
-.login-logo {
-    padding: 10px;
-    width: 150px;
-}
-
+/*
+ login page styling
+ */
 .login-view {
     background-color: var(--colour-white);
     align-items: center;
     justify-content: center;
 }
 
-.login-logo-layout {
-    background-color: var(--color-beige);
-    justify-content: center;
-    width: 47em;
-}
+/*.login-logo-layout {*/
+/*    background-color: var(--color-beige);*/
+/*    justify-content: center;*/
+/*}*/
 
-.login-via-services {
-    width: 23.5em;
-    display: flex;
-    justify-content: center;
-    background-color: var(--color-beige);
-}
-
-.wide-button {
-    width: 20em;
+.login-view-logo {
+    padding: 10px;
+    width: 150px;
 }
 
 
