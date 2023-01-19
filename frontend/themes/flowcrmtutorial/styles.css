@@ -3,9 +3,9 @@
 :root {
     --colour-black: #1e1e1e;
     --colour-white: #ffffff;
+    --colour-beige: #F0F0D9;
     --font-family: Lato, Roboto, Oxygen, Ubuntu, Cantarell, Open Sans, Helvetica Neue, sans-serif;
     --font-size: 100%;
-    --color-beige: #F0F0D9;
 }
 
 body {
@@ -17,39 +17,29 @@ body {
 /*
  buttons styling
  */
-vaadin-button,
-.button {
-    --button: hsl(0, 0%, 12%);
-    --button-hover: hsl(0, 0%, 20%);
-    --button-active: hsl(0, 0%, 30%);
-    --button-visited: hsl(0, 0%, 20%);
-    --button-colour: var(--colour-white);
+vaadin-button {
+    --button: hsl(77, 80%, 86%);
+    --button-hover: hsl(167, 80%, 86%);
+    --button-active: hsl(257, 80%, 86%);
+    --button-visited: hsl(346, 80%, 86%);
+    --button-colour: var(--colour-black);
     --button-border: var(--colour-black);
 }
 
 .button--primary {
-    --button: hsl(346, 100%, 60%);
-    --button-hover: hsl(346, 100%, 70%);
-    --button-active: hsl(346, 100%, 80%);
-    --button-visited: hsl(346, 100%, 70%);
+    --button: hsl(329, 56%, 92%);
+    --button-hover: hsl(260, 56%, 92%);
+    --button-active: hsl(149, 56%, 92%);
+    --button-visited: hsl(237, 56%, 92%);
     --button-colour: var(--colour-black);
     --button-border: var(--colour-black);
 }
 
 .button--secondary {
-    --button: hsl(0, 0%, 79%);
-    --button-hover: hsl(0, 0%, 89%);
-    --button-active: hsl(0, 0%, 69%);
-    --button-visited: hsl(0, 0%, 89%);
-    --button-colour: var(--colour-black);
-    --button-border: var(--colour-black);
-}
-
-.button--tertiary {
-    --button: hsl(0, 100%, 90%);
-    --button-hover: hsl(0, 100%, 94%);
-    --button-active: hsl(0, 100%, 84%);
-    --button-visited: hsl(0, 100%, 94%);
+    --button: hsl(209, 68%, 84%);
+    --button-hover: hsl(299, 68%, 84%);
+    --button-active: hsl(29, 68%, 84%);
+    --button-visited: hsl(119, 68%, 84%);
     --button-colour: var(--colour-black);
     --button-border: var(--colour-black);
 }
@@ -63,7 +53,6 @@ vaadin-button {
     background: var(--button);
     border: solid 1px var(--button-border);
     box-shadow: inset 0 0 0 2px var(--colour-white);
-    margin-right: 1em;
 }
 
 vaadin-button:hover {
@@ -86,32 +75,12 @@ links styling
 a[highlight] {
     font-weight: bold;
     text-decoration: underline;
-    /*color: #85bb65;*/
+    color: #85bb65;
 }
 
 a {
     color: var(--colour-black);
 }
-
-/*
- login page styling
- */
-.login-view {
-    background-color: var(--colour-white);
-    align-items: center;
-    justify-content: center;
-}
-
-/*.login-logo-layout {*/
-/*    background-color: var(--color-beige);*/
-/*    justify-content: center;*/
-/*}*/
-
-.login-view-logo {
-    padding: 10px;
-    width: 150px;
-}
-
 
 
 

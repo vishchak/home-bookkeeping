@@ -5,18 +5,17 @@ import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.service.CustomUserServiceImpl;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-public class RegisterForm extends FormLayout {
+public class RegisterForm extends VerticalLayout {
+    private static final String CONTENT_WIDTH = "login-width";
     private final CustomUserServiceImpl userService;
     private final PasswordEncoder encoder;
-    private final TextField username = new TextField("UserName");
+    private final TextField username = new TextField("Username");
     private final PasswordField password = new PasswordField("Password");
     private final PasswordField confirmation = new PasswordField("Confirm password");
 
@@ -24,14 +23,17 @@ public class RegisterForm extends FormLayout {
         this.userService = currentUserService;
         this.encoder = encoder;
 
-        addClassName("login-view-register-form");
+        username.addClassName(CONTENT_WIDTH);
+        password.addClassName(CONTENT_WIDTH);
+        confirmation.addClassName(CONTENT_WIDTH);
 
-        add(
-                new H2("Register"),
-                username,
-                password,
-                confirmation,
-                getButtonsLayout(runnable));
+        add
+                (
+                        username,
+                        password,
+                        confirmation,
+                        getSingUpButton(runnable)
+                );
     }
 
     private void register(String username, String password, String confirmation, Runnable runnable) {
@@ -51,8 +53,9 @@ public class RegisterForm extends FormLayout {
         }
     }
 
-    private Component getButtonsLayout(Runnable runnable) {
-        Button registerButton = new Button("Confirm", e -> register
+
+    private Component getSingUpButton(Runnable runnable) {
+        Button signUpButton = new Button("Sign up", e -> register
                 (
                         username.getValue(),
                         password.getValue(),
@@ -60,14 +63,8 @@ public class RegisterForm extends FormLayout {
                         runnable
                 )
         );
-        registerButton.addClassNames("button--primary", "register-wide-button");
+        signUpButton.addClassNames("login-width");
 
-        Button cancelButton = new Button("Cancel", e -> {
-            runnable.run();
-            setVisible(false);
-        });
-        cancelButton.addClassNames("button--secondary", "register-wide-button");
-
-        return new HorizontalLayout(cancelButton, registerButton);
+        return signUpButton;
     }
 }
