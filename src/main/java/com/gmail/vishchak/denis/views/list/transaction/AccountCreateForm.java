@@ -1,30 +1,33 @@
 package com.gmail.vishchak.denis.views.list.transaction;
 
-import com.gmail.vishchak.denis.model.*;
+import com.gmail.vishchak.denis.model.Account;
+import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.security.SecurityService;
-import com.gmail.vishchak.denis.service.*;
+import com.gmail.vishchak.denis.service.AccountServiceImpl;
 import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
-import com.vaadin.flow.router.*;
+import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.Route;
 
 import javax.annotation.security.PermitAll;
 
-
 import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.ErrorNotification;
 
-@Route("add-account")
-@PageTitle("Add account | MoneyLonger")
 @PermitAll
+@Route("add-account")
+@PageTitle("Add account | | FROG-STOCK")
+@CssImport("./themes/flowcrmtutorial/components/form/create-account-form.css")
 public class AccountCreateForm extends Composite<VerticalLayout> {
     private final AccountServiceImpl accountService;
     private final TextField accountName = SharedComponents.textFiled("Enter account's name");
@@ -38,43 +41,45 @@ public class AccountCreateForm extends Composite<VerticalLayout> {
         Binder<Account> binder = new BeanValidationBinder<>(Account.class);
         binder.bindInstanceFields(this);
 
+
+        VerticalLayout content = new VerticalLayout
+                (
+                        new H2("Create an account"),
+                        createFormLayout(),
+                        createButtons()
+                );
+        content.addClassName("create-account-dialog-content");
+
         VerticalLayout layout = getContent();
 
-        layout.add(
-                new H2("Create an account"),
-                createFormLayout(),
-                createButtons()
-        );
-
+        layout.addClassName("create-account-dialog-layout");
+        layout.add(content);
         layout.setSizeFull();
-        layout.setAlignItems(FlexComponent.Alignment.CENTER);
-        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
     }
 
-    private HorizontalLayout createButtons() {
-        Button confirmButton = SharedComponents.createConfirmButton("Add");
-        confirmButton.addClickListener(e -> validateAndAdd(accountName.getValue(), accountAmount.getValue()));
+    private Component createButtons() {
+        String buttonWidthClassName = "create-account-dialog-button-width";
+
+        Button confirmButton = new Button("Add", e -> validateAndAdd(accountName.getValue(), accountAmount.getValue()));
+        confirmButton.addClassNames(buttonWidthClassName);
 
         Button cancelButton = new Button("Cancel", e -> UI.getCurrent().navigate(TransactionView.class));
 
-        HorizontalLayout buttonLayout = new HorizontalLayout(cancelButton, confirmButton);
         if (accountService.findAccountsByUser(user).isEmpty()) {
-            buttonLayout.remove(cancelButton);
+            cancelButton.setEnabled(false);
+            cancelButton.addClassNames("button--disabled", buttonWidthClassName);
+        } else {
+            cancelButton.addClassNames("button--primary", buttonWidthClassName);
         }
-        return buttonLayout;
+
+        return new HorizontalLayout(cancelButton, confirmButton);
     }
 
-    private VerticalLayout createFormLayout() {
+    private Component createFormLayout() {
         accountName.setRequired(true);
         accountAmount.setRequiredIndicatorVisible(true);
 
-        VerticalLayout dialogLayout = new VerticalLayout(accountName, accountAmount);
-        dialogLayout.setPadding(false);
-        dialogLayout.setSpacing(false);
-        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
-        dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
-
-        return dialogLayout;
+        return new VerticalLayout(accountName, accountAmount);
     }
 
     private void validateAndAdd(String accountName, Double accountAmount) {

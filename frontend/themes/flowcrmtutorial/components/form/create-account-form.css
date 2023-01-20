@@ -1,0 +1,19 @@
+.create-account-dialog-layout {
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}
+
+.create-account-dialog-layout vaadin-vertical-layout {
+    align-items: center;
+    padding: 0;
+}
+
+.create-account-dialog-content {
+    max-width: fit-content;
+}
+
+.create-account-dialog-button-width {
+    width: 10em;
+    max-width: 100%;
+}

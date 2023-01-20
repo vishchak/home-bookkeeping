@@ -1,6 +1,9 @@
 @import url('line-awesome/dist/line-awesome/css/line-awesome.min.css');
 
 :root {
+    --soft-blue: hsl(180, 100%, 97%);
+    --darek-blue: hsl(209, 68%, 84%);
+    --green-tea-color: hsl(77, 80%, 86%);
     --colour-black: #1e1e1e;
     --colour-white: #ffffff;
     --colour-beige: #F0F0D9;
@@ -18,7 +21,7 @@ body {
  buttons styling
  */
 vaadin-button {
-    --button: hsl(77, 80%, 86%);
+    --button: var(--green-tea-color);
     --button-hover: hsl(167, 80%, 86%);
     --button-active: hsl(257, 80%, 86%);
     --button-visited: hsl(346, 80%, 86%);
@@ -40,6 +43,21 @@ vaadin-button {
     --button-hover: hsl(299, 68%, 84%);
     --button-active: hsl(29, 68%, 84%);
     --button-visited: hsl(119, 68%, 84%);
+    --button-colour: var(--colour-black);
+    --button-border: var(--colour-black);
+}
+
+.button--tertiary {
+    --button: hsl(180, 100%, 97%);
+    --button-hover: hsl(272, 100%, 97%);
+    --button-active: hsl(0, 100%, 97%);
+    --button-visited: hsl(88, 100%, 97%);
+    --button-colour: var(--colour-black);
+    --button-border: var(--colour-black);
+}
+
+.button--disabled {
+    --button: #f2f2ef;
     --button-colour: var(--colour-black);
     --button-border: var(--colour-black);
 }
@@ -68,19 +86,5 @@ vaadin-button:active {
 vaadin-button:visited {
     background: var(--button-visited);
 }
-
-/*
-links styling
- */
-a[highlight] {
-    font-weight: bold;
-    text-decoration: underline;
-    color: #85bb65;
-}
-
-a {
-    color: var(--colour-black);
-}
-
 
 
