@@ -1,14 +1,7 @@
 /*
  login page styling
  */
-@media only screen and (max-width: 400px) {
-    .login-view {
-        width: 90%;
-        height: 90%;
-    }
-}
-
-.login-view{
+.login-view {
     justify-content: center;
     align-items: center;
     margin: auto;
@@ -33,16 +26,7 @@
     width: 150px;
 }
 
-.button--google {
-    --button: hsl(180, 100%, 97%);
-    --button-hover: hsl(272, 100%, 97%);
-    --button-active: hsl(0, 100%, 97%);
-    --button-visited: hsl(88, 100%, 97%);
-    --button-colour: var(--colour-black);
-    --button-border: var(--colour-black);
-}
-
-.login-view vaadin-login-form{
+.login-view vaadin-login-form {
     max-width: 22em;
     margin: 0;
     height: 290px;

@@ -2,14 +2,17 @@ package com.gmail.vishchak.denis.views.list.transaction;
 
 import com.gmail.vishchak.denis.model.*;
 import com.gmail.vishchak.denis.security.SecurityService;
-import com.gmail.vishchak.denis.service.*;
-
+import com.gmail.vishchak.denis.service.AccountServiceImpl;
+import com.gmail.vishchak.denis.service.CategoryServiceImpl;
+import com.gmail.vishchak.denis.service.SubcategoryServiceImpl;
+import com.gmail.vishchak.denis.service.TransactionServiceImpl;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -18,24 +21,22 @@ import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.*;
 
-
 import javax.annotation.security.PermitAll;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 
-import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
+import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.amountField;
+import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.textFiled;
 
-
-@Route("add-transaction")
-@PageTitle("Transaction")
 @PermitAll
+@Route("add-transaction")
+@PageTitle("Transaction | FROG-STOCK")
+@CssImport("./themes/flowcrmtutorial/components/form/add-transaction-form.css")
 public class TransactionAddForm extends Composite<VerticalLayout> implements HasUrlParameter<Long> {
     private final AccountServiceImpl accountService;
     private final TransactionServiceImpl transactionService;
     private final CategoryServiceImpl categoryService;
     private final SubcategoryServiceImpl subcategoryService;
-    private final Binder<Transaction> binder = new BeanValidationBinder<>(Transaction.class);
     private final TextField note = textFiled("Note");
     private final NumberField transactionAmount = amountField("Amount");
     private final ComboBox<Category> category = new ComboBox<>("Category");
@@ -50,58 +51,73 @@ public class TransactionAddForm extends Composite<VerticalLayout> implements Has
         this.subcategoryService = subcategoryService;
         this.user = securityService.getAuthenticatedUser();
 
+        Binder<Transaction> binder = new BeanValidationBinder<>(Transaction.class);
+        binder.bindInstanceFields(this);
+
         labelGenerator();
     }
 
     @Override
     public void setParameter(BeforeEvent beforeEvent,
-                             @OptionalParameter Long id) {
-        if (id == null) {
-            formCreate("Add transaction", null, "add");
-            return;
+                             @OptionalParameter Long transactionId) {
+        if (transactionId == null) {
+            formCreate(null, "Add transaction");
+        } else {
+            formCreate(transactionId, "Edit transaction");
         }
-        formCreate("Update transaction", id, "update");
     }
 
-    private void formCreate(String header, Long id, String buttonText) {
+    private void formCreate(Long transactionId, String header) {
+        if (transactionId != null) {
+            configureUpdateTransaction(transactionId);
+        }
 
-        binder.bindInstanceFields(this);
+        VerticalLayout content = new VerticalLayout
+                (
+                        new H2(header),
+                        transactionAmount,
+                        note,
+                        accountComboBox,
+                        category,
+                        subcategory,
+                        createButtonsLayout(transactionId)
+
+                );
+        content.addClassName("add-transaction-form-content");
 
         VerticalLayout layout = getContent();
 
-        layout.add(
-                new H2(header),
-                createFormLayout(),
-                createButtons(id, buttonText)
-        );
-
+        layout.add(content);
+        layout.addClassName("add-transaction-form-layout");
         layout.setSizeFull();
-        layout.setAlignItems(FlexComponent.Alignment.CENTER);
-        layout.setJustifyContentMode(FlexComponent.JustifyContentMode.CENTER);
-
-        if (id != null) {
-            accountComboBox.setVisible(false);
-            Optional<Transaction> optionalTransaction = transactionService.findById(id);
-            optionalTransaction.ifPresent(transaction -> {
-                category.setValue(transaction.getCategory());
-                subcategory.setValue(transaction.getSubcategory());
-                note.setValue(transaction.getNote());
-                transactionAmount.setValue(transaction.getTransactionAmount());
-            });
-        }
     }
 
-    private HorizontalLayout createButtons(Long id, String buttonText) {
-        Button confirmButton = createConfirmButton(buttonText);
+    private void configureUpdateTransaction(Long transactionId) {
+        transactionService.findById(transactionId).ifPresent
+                (transaction ->
+                        {
+                            category.setValue(transaction.getCategory());
+                            subcategory.setValue(transaction.getSubcategory());
+                            note.setValue(transaction.getNote());
+                            transactionAmount.setValue(transaction.getTransactionAmount());
+                        }
+                );
+        accountComboBox.setVisible(false);
+    }
+
+    private Component createButtonsLayout(Long id) {
+        String buttonWidthClassName = "add-transaction-form-button-width";
+
+        Button confirmButton = new Button("Confirm");
         if (id == null) {
             confirmButton.addClickListener(e -> validateAndAdd());
         } else {
             confirmButton.addClickListener(e -> validateAndUpdate(id));
         }
+        confirmButton.addClassNames(buttonWidthClassName);
 
         Button cancelButton = new Button("Cancel", e -> getUI().ifPresent(ui -> ui.navigate("")));
-        cancelButton.addClickShortcut(Key.ESCAPE);
-        cancelButton.getStyle().set("margin-right", "auto");
+        cancelButton.addClassNames("button--primary", buttonWidthClassName);
 
         return new HorizontalLayout(cancelButton, confirmButton);
     }
@@ -115,17 +131,16 @@ public class TransactionAddForm extends Composite<VerticalLayout> implements Has
 
         category.setItems(categoryService.findAllCategories());
         category.setItemLabelGenerator(Category::getCategoryName);
-        category.addValueChangeListener(event -> {
-            subcategory.setEnabled(!category.isEmpty());
-            List<Subcategory> subcategoryList = subcategoryService.findByCategory(category.getValue());
-            subcategoryList.forEach(s -> {
-                if (s.getSubcategoryName().equalsIgnoreCase("goal")) {
-                    subcategoryList.remove(s);
-                }
-            });
-            subcategory.setItems(subcategoryList);
-            subcategory.setItemLabelGenerator(Subcategory::getSubcategoryName);
-        });
+
+        category.addValueChangeListener
+                (
+                        event -> {
+                            subcategory.setEnabled(!category.isEmpty());
+                            List<Subcategory> subcategoryList = subcategoryService.findByCategory(category.getValue());
+                            subcategory.setItems(subcategoryList);
+                            subcategory.setItemLabelGenerator(Subcategory::getSubcategoryName);
+                        }
+                );
     }
 
 
@@ -142,33 +157,25 @@ public class TransactionAddForm extends Composite<VerticalLayout> implements Has
                 ui.navigate("");
             });
         } catch (NullPointerException | javax.validation.ConstraintViolationException e) {
-            ErrorNotification();
+            Notification.show("Fill all the necessary fields", 3000, Notification.Position.BOTTOM_START);
         }
     }
 
     private void validateAndUpdate(Long id) {
         try {
             getUI().ifPresent(ui -> {
-                transactionService.updateTransaction(id,
-                        transactionAmount.getValue(),
-                        note.getValue(),
-                        category.getValue(),
-                        subcategory.getValue()
-                );
+                transactionService.updateTransaction
+                        (
+                                id,
+                                transactionAmount.getValue(),
+                                note.getValue(),
+                                category.getValue(),
+                                subcategory.getValue()
+                        );
                 ui.navigate("");
             });
         } catch (NullPointerException | javax.validation.ConstraintViolationException e) {
-            ErrorNotification();
+            Notification.show("Fill all the necessary fields", 3000, Notification.Position.BOTTOM_START);
         }
-    }
-
-    private VerticalLayout createFormLayout() {
-        VerticalLayout dialogLayout = new VerticalLayout(transactionAmount, note, accountComboBox, category, subcategory);
-        dialogLayout.setPadding(false);
-        dialogLayout.setSpacing(false);
-        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
-        dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
-
-        return dialogLayout;
     }
 }
