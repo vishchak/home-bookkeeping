@@ -24,5 +24,4 @@ public interface GoalRepository extends PagingAndSortingRepository<Goal, Long> {
 
     @Query("select count(g) from Goal g where g.user = ?1")
     Long countGoalsByUser(CustomUser user);
-
 }

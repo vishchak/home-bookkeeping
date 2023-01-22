@@ -26,4 +26,6 @@ public interface GoalService {
     void addMoney(Long goalId, Double amount, Account currentAccount);
 
     void updateStatus(Long id);
+
+    Iterable<Goal> findAllGoals();
 }

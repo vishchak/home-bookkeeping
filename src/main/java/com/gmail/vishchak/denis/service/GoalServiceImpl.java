@@ -7,10 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class GoalServiceImpl implements GoalService {
@@ -131,10 +128,18 @@ public class GoalServiceImpl implements GoalService {
     public void updateStatus(Long id) {
         Optional<Goal> goal = goalRepository.findById(id);
         goal.ifPresent(g -> {
-            if (!g.getGoalProgress().equals(GoalProgress.COMPLETED)) {
-                g.setGoalProgress(GoalProgress.FAILED);
-                goalRepository.save(g);
+            if ((g.getFinishDate().getTime() - (new Date().getTime())) <= 0) {
+                if (!g.getGoalProgress().equals(GoalProgress.COMPLETED)) {
+                    g.setGoalProgress(GoalProgress.FAILED);
+                    goalRepository.save(g);
+                }
             }
         });
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Goal> findAllGoals() {
+        return (ArrayList<Goal>) goalRepository.findAll();
     }
 }
