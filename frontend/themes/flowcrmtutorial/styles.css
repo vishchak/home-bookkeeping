@@ -63,7 +63,6 @@ vaadin-button {
 }
 
 vaadin-button {
-    padding: .9rem 1.7rem;
     color: var(--button-colour);
     font-weight: 500;
     font-size: 16px;

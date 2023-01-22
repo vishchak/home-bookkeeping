@@ -1,0 +1,24 @@
+.transaction-goal-form-layout {
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}
+
+.transaction-goal-form-content {
+    min-width: 336px;;
+    max-width: fit-content;
+}
+
+.transaction-goal-form-button-width {
+    width: 10em;
+    max-width: 100%;
+}
+
+.transaction-goal-form-layout vaadin-vertical-layout {
+    align-items: center;
+    padding: 0;
+}
+
+.transaction-goal-form-layout vaadin-combo-box {
+    width: 336px;
+}

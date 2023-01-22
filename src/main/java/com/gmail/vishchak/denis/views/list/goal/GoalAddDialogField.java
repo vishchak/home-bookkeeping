@@ -1,20 +1,18 @@
 package com.gmail.vishchak.denis.views.list.goal;
 
-import com.gmail.vishchak.denis.model.*;
+import com.gmail.vishchak.denis.model.CustomUser;
+import com.gmail.vishchak.denis.model.Goal;
 import com.gmail.vishchak.denis.security.SecurityService;
-import com.gmail.vishchak.denis.service.*;
-import com.vaadin.flow.component.Key;
-import com.vaadin.flow.component.button.Button;
+import com.gmail.vishchak.denis.service.GoalServiceImpl;
+import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
+import com.vaadin.flow.component.Composite;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.dependency.CssImport;
+import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.data.binder.BeanValidationBinder;
-import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.*;
 
 import javax.annotation.security.PermitAll;
@@ -25,13 +23,12 @@ import java.util.Optional;
 
 import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 
-@Route("add-goal")
-@PageTitle("Transaction")
 @PermitAll
-public class GoalAddDialogField extends Div implements HasUrlParameter<Long> {
+@Route("add-goal")
+@PageTitle("Goal | FROG-STOCK")
+@CssImport("./themes/flowcrmtutorial/components/form/transaction-goal-form.css")
+public class GoalAddDialogField extends Composite<VerticalLayout> implements HasUrlParameter<Long> {
     private final GoalServiceImpl goalService;
-    private final Dialog dialog = new Dialog();
-    private final Binder<Goal> binder = new BeanValidationBinder<>(Goal.class);
     private final TextField goalNote = textFiled("Note");
     private final NumberField goalAmount = amountField("Amount");
     private final String format = "dd-MM-yyyy";
@@ -42,6 +39,51 @@ public class GoalAddDialogField extends Div implements HasUrlParameter<Long> {
         this.goalService = goalService;
         this.user = securityService.getAuthenticatedUser();
 
+        configureFields();
+    }
+
+    @Override
+    public void setParameter(BeforeEvent beforeEvent,
+                             @OptionalParameter Long goalId) {
+        if (goalId == null) {
+            formCreate(null, "Add goal");
+        } else {
+            formCreate(goalId, "Update goal");
+        }
+    }
+
+    private void formCreate(Long goalId, String header) {
+
+        VerticalLayout content = new VerticalLayout
+                (
+                        new H2(header),
+                        goalNote,
+                        goalAmount,
+                        goalFinishDate,
+                        SharedComponents.createButtonsLayout
+                                (
+                                        goalId,
+                                        "goals",
+                                        this::validateAndAdd,
+                                        (id) -> validateAndUpdate(goalId),
+                                        UI.getCurrent()
+                                )
+                );
+
+        if (goalId != null) {
+            configureUpdateGoal(goalId);
+        }
+
+        content.addClassName("transaction-goal-form-content");
+
+        VerticalLayout layout = getContent();
+
+        layout.add(content);
+        layout.addClassName("transaction-goal-form-layout");
+        layout.setSizeFull();
+    }
+
+    private void configureFields() {
         goalNote.setRequired(true);
 
         goalFinishDate.setRequired(true);
@@ -49,54 +91,20 @@ public class GoalAddDialogField extends Div implements HasUrlParameter<Long> {
         goalFinishDate.setMax(LocalDate.MAX);
     }
 
-    @Override
-    public void setParameter(BeforeEvent beforeEvent,
-                             @OptionalParameter Long id) {
-        if (id == null) {
-            dialogCreate("Add goal", null, "add");
-            return;
-        }
-        dialogCreate("Update goal", id, "update");
-    }
+    private void configureUpdateGoal(Long goalId) {
+        Optional<Goal> optionalGoal = goalService.findById(goalId);
+        optionalGoal.ifPresent(g -> {
+            goalNote.setValue(g.getGoalNote());
+            goalAmount.setValue(g.getGoalAmount());
 
-    private void dialogCreate(String header, Long id, String buttonText) {
-        dialog.setHeaderTitle(header);
-        dialog.setCloseOnOutsideClick(false);
+            LocalDate dialogDate = new Date(g.getFinishDate().getTime()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            if (dialogDate.isBefore(LocalDate.now())) {
+                goalFinishDate.setMin(dialogDate);
+            }
 
-        binder.bindInstanceFields(this);
+            goalFinishDate.setValue(dialogDate);
+        });
 
-        if (id != null) {
-            Optional<Goal> optionalGoal = goalService.findById(id);
-            optionalGoal.ifPresent(g -> {
-                goalNote.setValue(g.getGoalNote());
-                goalAmount.setValue(g.getGoalAmount());
-
-                LocalDate dialogDate = new Date(g.getFinishDate().getTime()).toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-                if (dialogDate.isBefore(LocalDate.now())) {
-                    goalFinishDate.setMin(dialogDate);
-                }
-
-                goalFinishDate.setValue(dialogDate);
-            });
-        }
-
-        VerticalLayout dialogLayout = createDialogLayout();
-        dialog.add(dialogLayout);
-
-        Button confirmButton = createConfirmButton(buttonText);
-        if (id == null) {
-            confirmButton.addClickListener(e -> validateAndAdd());
-        } else {
-            confirmButton.addClickListener(e -> validateAndUpdate(id));
-        }
-
-        Button cancelButton = new Button("Cancel", e -> getUI().ifPresent(ui -> ui.navigate("goals")));
-        cancelButton.addClickShortcut(Key.ESCAPE);
-
-        dialog.getFooter().add(new HorizontalLayout(cancelButton, confirmButton));
-
-        add(dialog);
-        dialog.open();
     }
 
     private void validateAndAdd() {
@@ -125,15 +133,5 @@ public class GoalAddDialogField extends Div implements HasUrlParameter<Long> {
         } catch (NullPointerException | javax.validation.ConstraintViolationException e) {
             ErrorNotification();
         }
-    }
-
-    private VerticalLayout createDialogLayout() {
-        VerticalLayout dialogLayout = new VerticalLayout(goalNote, goalAmount, goalFinishDate);
-        dialogLayout.setPadding(false);
-        dialogLayout.setSpacing(false);
-        dialogLayout.setAlignItems(FlexComponent.Alignment.STRETCH);
-        dialogLayout.getStyle().set("width", "18rem").set("max-width", "100%");
-
-        return dialogLayout;
     }
 }

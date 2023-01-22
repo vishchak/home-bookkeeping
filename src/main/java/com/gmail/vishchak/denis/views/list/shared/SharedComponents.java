@@ -1,6 +1,8 @@
 package com.gmail.vishchak.denis.views.list.shared;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -14,8 +16,26 @@ import com.vaadin.flow.component.textfield.TextField;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.function.Consumer;
 
 public class SharedComponents {
+    public static Component createButtonsLayout(Long id, String navigateLink, Runnable runnable, Consumer<Long> consumer, UI currentUi) {
+        String buttonWidthClassName = "transaction-goal-form-button-width";
+
+        Button confirmButton = new Button("Confirm");
+        if (id == null) {
+            confirmButton.addClickListener(e -> runnable.run());
+        } else {
+            confirmButton.addClickListener(e -> consumer.accept(id));
+        }
+        confirmButton.addClassNames(buttonWidthClassName);
+
+        Button cancelButton = new Button("Cancel", e -> currentUi.getUI().ifPresent(ui -> ui.navigate(navigateLink)));
+        cancelButton.addClassNames("button--primary", buttonWidthClassName);
+
+        return new HorizontalLayout(cancelButton, confirmButton);
+    }
+
     public static DatePicker dateField(String format, String label) {
         DatePicker.DatePickerI18n singleFormatI18n = new DatePicker.DatePickerI18n();
         singleFormatI18n.setDateFormat(format);
@@ -64,21 +84,12 @@ public class SharedComponents {
         dialog.open();
     }
 
-    public static Button createConfirmButton(String buttonText) {
-        Button saveButton = new Button(buttonText);
-        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-
-        return saveButton;
-    }
-
     public static void ErrorNotification() {
         Notification notification = new Notification();
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 
-        HorizontalLayout layout = new HorizontalLayout(new Div(new Text("Fill all the necessary fields!")));
-
         notification.setDuration(3000);
-        notification.add(layout);
+        notification.add(new HorizontalLayout(new Div(new Text("Fill all the necessary fields!"))));
         notification.open();
     }
 }

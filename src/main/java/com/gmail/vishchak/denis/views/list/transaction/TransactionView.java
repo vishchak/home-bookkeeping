@@ -1,7 +1,7 @@
 package com.gmail.vishchak.denis.views.list.transaction;
 
 import com.gmail.vishchak.denis.model.Account;
-import com.gmail.vishchak.denis.model.CurrentUser;
+import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.model.Transaction;
 import com.gmail.vishchak.denis.security.SecurityService;
 import com.gmail.vishchak.denis.service.AccountServiceImpl;
@@ -46,7 +46,7 @@ public class TransactionView extends VerticalLayout {
     private final TransactionServiceImpl transactionService;
     private final Grid<Transaction> grid = new Grid<>(Transaction.class);
     private final TextField accountAmountFiled = new TextField();
-    private final CurrentUser user;
+    private final CustomUser user;
     private final MenuBar menuBar = new MenuBar();
     private long totalAmountOfPages;
     private int currentPageNumber = 0;

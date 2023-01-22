@@ -6,14 +6,13 @@ import com.gmail.vishchak.denis.service.AccountServiceImpl;
 import com.gmail.vishchak.denis.service.CategoryServiceImpl;
 import com.gmail.vishchak.denis.service.SubcategoryServiceImpl;
 import com.gmail.vishchak.denis.service.TransactionServiceImpl;
-import com.vaadin.flow.component.Component;
+import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -31,7 +30,7 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.textFi
 @PermitAll
 @Route("add-transaction")
 @PageTitle("Transaction | FROG-STOCK")
-@CssImport("./themes/flowcrmtutorial/components/form/add-transaction-form.css")
+@CssImport("./themes/flowcrmtutorial/components/form/transaction-goal-form.css")
 public class TransactionAddForm extends Composite<VerticalLayout> implements HasUrlParameter<Long> {
     private final AccountServiceImpl accountService;
     private final TransactionServiceImpl transactionService;
@@ -80,15 +79,22 @@ public class TransactionAddForm extends Composite<VerticalLayout> implements Has
                         accountComboBox,
                         category,
                         subcategory,
-                        createButtonsLayout(transactionId)
+                        SharedComponents.createButtonsLayout
+                                (
+                                        transactionId,
+                                        "",
+                                        this::validateAndAdd,
+                                        (id) -> validateAndUpdate(transactionId),
+                                        UI.getCurrent()
+                                )
 
                 );
-        content.addClassName("add-transaction-form-content");
+        content.addClassName("transaction-goal-form-content");
 
         VerticalLayout layout = getContent();
 
         layout.add(content);
-        layout.addClassName("add-transaction-form-layout");
+        layout.addClassName("transaction-goal-form-layout");
         layout.setSizeFull();
     }
 
@@ -103,23 +109,6 @@ public class TransactionAddForm extends Composite<VerticalLayout> implements Has
                         }
                 );
         accountComboBox.setVisible(false);
-    }
-
-    private Component createButtonsLayout(Long id) {
-        String buttonWidthClassName = "add-transaction-form-button-width";
-
-        Button confirmButton = new Button("Confirm");
-        if (id == null) {
-            confirmButton.addClickListener(e -> validateAndAdd());
-        } else {
-            confirmButton.addClickListener(e -> validateAndUpdate(id));
-        }
-        confirmButton.addClassNames(buttonWidthClassName);
-
-        Button cancelButton = new Button("Cancel", e -> getUI().ifPresent(ui -> ui.navigate("")));
-        cancelButton.addClassNames("button--primary", buttonWidthClassName);
-
-        return new HorizontalLayout(cancelButton, confirmButton);
     }
 
     private void labelGenerator() {
