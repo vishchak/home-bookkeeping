@@ -27,7 +27,7 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 @Route("add-goal")
 @PageTitle("Goal | FROG-STOCK")
 @CssImport("./themes/flowcrmtutorial/components/form/transaction-goal-form.css")
-public class GoalAddDialogField extends Composite<VerticalLayout> implements HasUrlParameter<Long> {
+public class GoalAddForm extends Composite<VerticalLayout> implements HasUrlParameter<Long> {
     private final GoalServiceImpl goalService;
     private final TextField goalNote = textFiled("Note");
     private final NumberField goalAmount = amountField("Amount");
@@ -35,7 +35,7 @@ public class GoalAddDialogField extends Composite<VerticalLayout> implements Has
     private final DatePicker goalFinishDate = dateField(format, "Finish date");
     private final CustomUser user;
 
-    public GoalAddDialogField(GoalServiceImpl goalService, SecurityService securityService) {
+    public GoalAddForm(GoalServiceImpl goalService, SecurityService securityService) {
         this.goalService = goalService;
         this.user = securityService.getAuthenticatedUser();
 
