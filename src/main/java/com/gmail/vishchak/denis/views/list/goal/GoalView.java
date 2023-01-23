@@ -52,6 +52,8 @@ public class GoalView extends VerticalLayout {
     private final TextField filterField = new TextField("Search", e -> updateList());
     private final CheckboxGroup<GoalProgress> checkboxGroup = new CheckboxGroup<>("Progress", e -> updateList(), GoalProgress.values());
     private final FormLayout filterForm = new FormLayout(new VerticalLayout(filterField, checkboxGroup));
+    private final ComboBox<Account> accountComboBox = new ComboBox<>("Withdraw from");
+    private final NumberField addAmount = new NumberField("Amount to be added");
     private final MenuBar menuBar = new MenuBar();
     private final CustomUser user;
     private long totalAmountOfPages;
@@ -150,17 +152,16 @@ public class GoalView extends VerticalLayout {
     }
 
     private void createAddFundsDialog(Long goalId) {
-        ComboBox<Account> accountComboBox = new ComboBox<>("Withdraw from", accountService.findAccountsByUser(user));
-        NumberField addAmount = new NumberField("Amount to be added");
         Dialog addFundsDialog = new Dialog(new VerticalLayout(addAmount, accountComboBox));
 
         goalService.findById(goalId).ifPresent
                 (
                         g -> {
+                            accountComboBox.setItems(accountService.findAccountsByUser(user));
                             accountComboBox.setItemLabelGenerator(Account::getAccountName);
                             accountComboBox.setRequired(true);
 
-                            addFundsDialog.getFooter().add(createDialogButtons(g.getGoalId(), addFundsDialog, accountComboBox, addAmount.getValue()));
+                            addFundsDialog.getFooter().add(createDialogButtons(g.getGoalId(), addFundsDialog));
                             addFundsDialog.setHeaderTitle(g.getGoalNote());
                             addFundsDialog.open();
                         }
@@ -202,12 +203,12 @@ public class GoalView extends VerticalLayout {
         deleteGoalDialog.open();
     }
 
-    private Component createDialogButtons(Long goalId, Dialog dialog, ComboBox<Account> accountComboBox, Double amount) {
+    private Component createDialogButtons(Long goalId, Dialog dialog) {
         String buttonWidth = "goal-view-add-funds-dialog-button-width";
 
         Button confirm = new Button("Confirm",
                 e -> {
-                    goalService.addMoney(goalId, amount, accountComboBox.getValue());
+                    goalService.addMoney(goalId, addAmount.getValue(), accountComboBox.getValue());
                     dialog.close();
                     updateList();
                 }
