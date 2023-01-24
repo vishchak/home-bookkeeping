@@ -1,5 +1,7 @@
 package com.gmail.vishchak.denis.views.list.shared;
 
+import com.gmail.vishchak.denis.model.CustomUser;
+import com.gmail.vishchak.denis.service.GoalServiceImpl;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.UI;
@@ -16,6 +18,7 @@ import com.vaadin.flow.component.textfield.TextField;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 public class SharedComponents {
@@ -34,6 +37,15 @@ public class SharedComponents {
         cancelButton.addClassNames("button--primary", buttonWidthClassName);
 
         return new HorizontalLayout(cancelButton, confirmButton);
+    }
+
+    public static void checkGoalUser(Long goalId, GoalServiceImpl goalService, CustomUser user) {
+        goalService.findById(goalId).ifPresent(g -> {
+            if (!Objects.equals(user.getUserId(), g.getUser().getUserId())) {
+                Notification.show("Access denied!", 3000, Notification.Position.BOTTOM_START);
+                UI.getCurrent().getPage().open("goals", "_self");
+            }
+        });
     }
 
     public static DatePicker dateField(String format, String label) {

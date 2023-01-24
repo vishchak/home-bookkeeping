@@ -23,6 +23,7 @@ import com.vaadin.flow.router.*;
 import javax.annotation.security.PermitAll;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.amountField;
 import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.textFiled;
@@ -62,8 +63,18 @@ public class TransactionAddForm extends Composite<VerticalLayout> implements Has
         if (transactionId == null) {
             formCreate(null, "Add transaction");
         } else {
+            checkUser(transactionId);
             formCreate(transactionId, "Edit transaction");
         }
+    }
+
+    private void checkUser(Long goalId) {
+        transactionService.findById(goalId).ifPresent(t -> {
+            if (!Objects.equals(user.getUserId(), t.getAccount().getUser().getUserId())) {
+                Notification.show("Access denied!", 3000, Notification.Position.BOTTOM_START);
+                UI.getCurrent().getPage().open("goals", "_self");
+            }
+        });
     }
 
     private void formCreate(Long transactionId, String header) {

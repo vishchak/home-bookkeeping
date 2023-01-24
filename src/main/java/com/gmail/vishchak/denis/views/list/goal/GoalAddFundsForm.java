@@ -21,7 +21,6 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import javax.annotation.security.PermitAll;
-import java.util.Objects;
 
 @PermitAll
 @Route("add-funds-goal")
@@ -49,7 +48,7 @@ public class GoalAddFundsForm extends Composite<VerticalLayout> implements HasUr
 
     @Override
     public void setParameter(BeforeEvent beforeEvent, Long goalId) {
-        checkUser(goalId);
+        SharedComponents.checkGoalUser(goalId, goalService, user);
         formCreate(goalId);
     }
 
@@ -59,14 +58,6 @@ public class GoalAddFundsForm extends Composite<VerticalLayout> implements HasUr
         accountComboBox.setRequired(true);
     }
 
-    private void checkUser(Long goalId) {
-        goalService.findById(goalId).ifPresent(g -> {
-            if (!Objects.equals(user.getUserId(), g.getUser().getUserId())) {
-                Notification.show("Access denied!", 3000, Notification.Position.BOTTOM_START);
-                UI.getCurrent().getPage().open("goals", "_self");
-            }
-        });
-    }
 
     private void formCreate(Long goalId) {
         goalService.findById(goalId).ifPresent(g -> {

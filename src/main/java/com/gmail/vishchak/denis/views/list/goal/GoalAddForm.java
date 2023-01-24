@@ -48,6 +48,7 @@ public class GoalAddForm extends Composite<VerticalLayout> implements HasUrlPara
         if (goalId == null) {
             formCreate(null, "Add goal");
         } else {
+            SharedComponents.checkGoalUser(goalId, goalService, user);
             formCreate(goalId, "Update goal");
         }
     }
