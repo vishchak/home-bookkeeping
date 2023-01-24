@@ -103,7 +103,7 @@ public class LoginView extends Composite<VerticalLayout> implements BeforeEnterL
         Button loginViaFacebook = new Button("Log in with Facebook", e -> UI.getCurrent().getPage().open(OAUTH_FACEBOOK_URL, "_self"));
 
         loginViaFacebook.addClassNames("button--secondary", "login-width");
-        loginViaGoogle.addClassNames("button--google", "login-width");
+        loginViaGoogle.addClassNames("button--tertiary", "login-width");
 
         return new VerticalLayout
                 (

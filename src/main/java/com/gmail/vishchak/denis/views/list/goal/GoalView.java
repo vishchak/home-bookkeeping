@@ -1,11 +1,9 @@
 package com.gmail.vishchak.denis.views.list.goal;
 
-import com.gmail.vishchak.denis.model.Account;
 import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.model.Goal;
 import com.gmail.vishchak.denis.model.enums.GoalProgress;
 import com.gmail.vishchak.denis.security.SecurityService;
-import com.gmail.vishchak.denis.service.AccountServiceImpl;
 import com.gmail.vishchak.denis.service.GoalServiceImpl;
 import com.gmail.vishchak.denis.views.list.shared.MainLayout;
 import com.vaadin.flow.component.Component;
@@ -13,11 +11,11 @@ import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.CheckboxGroup;
 import com.vaadin.flow.component.checkbox.CheckboxGroupVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H2;
@@ -26,7 +24,6 @@ import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
-import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.data.value.ValueChangeMode;
@@ -45,24 +42,20 @@ import java.util.stream.Stream;
 @Route(value = "goals", layout = MainLayout.class)
 @CssImport("./themes/flowcrmtutorial/components/goal/goal-view.css")
 public class GoalView extends VerticalLayout {
-    private final static int ITEMS_PER_PAGE = 5;
+    private final static int ITEMS_PER_PAGE = 10;
     private final GoalServiceImpl goalService;
-    private final AccountServiceImpl accountService;
     private final Grid<Goal> grid = new Grid<>(Goal.class);
     private final TextField filterField = new TextField("Search", e -> updateList());
     private final CheckboxGroup<GoalProgress> checkboxGroup = new CheckboxGroup<>("Progress", e -> updateList(), GoalProgress.values());
     private final FormLayout filterForm = new FormLayout(new VerticalLayout(filterField, checkboxGroup));
-    private final ComboBox<Account> accountComboBox = new ComboBox<>("Withdraw from");
-    private final NumberField addAmount = new NumberField("Amount to be added");
     private final MenuBar menuBar = new MenuBar();
     private final CustomUser user;
     private long totalAmountOfPages;
     private int currentPageNumber = 0;
 
-    public GoalView(GoalServiceImpl goalService, AccountServiceImpl accountService, SecurityService securityService) {
+    public GoalView(GoalServiceImpl goalService, SecurityService securityService) {
 
         this.goalService = goalService;
-        this.accountService = accountService;
         this.user = securityService.getAuthenticatedUser();
 
         addClassName("goals-view");
@@ -137,7 +130,15 @@ public class GoalView extends VerticalLayout {
         });
 
         grid.setColumns();
-        grid.addComponentColumn(goal -> new Button(new Icon("lumo", "plus"), e -> createAddFundsDialog(goal.getGoalId()))).setHeader("Add funds").setKey("add").setVisible(false);
+
+        grid.addComponentColumn(goal -> new Button(new Icon("lumo", "plus"), e -> getUI().ifPresent(ui -> ui.navigate("add-funds-goal/" + goal.getGoalId()))))
+                .setHeader("Add")
+                .setKey("add")
+                .setWidth("6em")
+                .setFlexGrow(0)
+                .setTextAlign(ColumnTextAlign.CENTER)
+                .setVisible(false);
+
         grid.addComponentColumn(this::progressBar).setHeader("Progress");
         grid.setItemDetailsRenderer(createPersonDetailsRenderer());
     }
@@ -148,24 +149,10 @@ public class GoalView extends VerticalLayout {
 
         String label = goal.getGoalNote() + " (" + goal.getCurrentAmount() + "/" + goal.getGoalAmount() + ")";
 
-        return new VerticalLayout(new Div(new Text(label)), progressBar);
-    }
+        VerticalLayout progressBarLayout = new VerticalLayout(new Div(new Text(label)), progressBar);
+        progressBarLayout.addClassName("goal-view-progress-bar");
 
-    private void createAddFundsDialog(Long goalId) {
-        Dialog addFundsDialog = new Dialog(new VerticalLayout(addAmount, accountComboBox));
-
-        goalService.findById(goalId).ifPresent
-                (
-                        g -> {
-                            accountComboBox.setItems(accountService.findAccountsByUser(user));
-                            accountComboBox.setItemLabelGenerator(Account::getAccountName);
-                            accountComboBox.setRequired(true);
-
-                            addFundsDialog.getFooter().add(createDialogButtons(g.getGoalId(), addFundsDialog));
-                            addFundsDialog.setHeaderTitle(g.getGoalNote());
-                            addFundsDialog.open();
-                        }
-                );
+        return progressBarLayout;
     }
 
     private void edit() {
@@ -173,12 +160,23 @@ public class GoalView extends VerticalLayout {
         Grid.Column<Goal> edit = grid.getColumnByKey(columnKey);
 
         if (edit == null) {
-            grid.addComponentColumn(goal -> {
-                Button editButton = new Button(new Icon("lumo", "edit"), e -> getUI().ifPresent(ui -> ui.navigate("add-goal/" + goal.getGoalId())));
-                Button deleteButton = new Button(new Icon("vaadin", "trash"), e -> deleteGoal(goal));
+            grid.addComponentColumn
+                            (
+                                    goal -> {
+                                        Button editButton = new Button(new Icon("lumo", "edit"), e -> getUI().ifPresent(ui -> ui.navigate("add-goal/" + goal.getGoalId())));
+                                        Button deleteButton = new Button(new Icon("vaadin", "trash"), e -> deleteGoal(goal));
 
-                return new HorizontalLayout(editButton, deleteButton);
-            }).setKey(columnKey).setHeader("Edit");
+                                        HorizontalLayout buttonsLayout = new HorizontalLayout(editButton, deleteButton);
+                                        buttonsLayout.setJustifyContentMode(JustifyContentMode.END);
+
+                                        return buttonsLayout;
+                                    }
+                            )
+                    .setKey(columnKey).setHeader("Edit")
+                    .setTextAlign(ColumnTextAlign.CENTER)
+                    .setWidth("7em")
+                    .setFlexGrow(0);
+
             return;
         }
         grid.removeColumnByKey(columnKey);
@@ -201,24 +199,6 @@ public class GoalView extends VerticalLayout {
                 );
 
         deleteGoalDialog.open();
-    }
-
-    private Component createDialogButtons(Long goalId, Dialog dialog) {
-        String buttonWidth = "goal-view-add-funds-dialog-button-width";
-
-        Button confirm = new Button("Confirm",
-                e -> {
-                    goalService.addMoney(goalId, addAmount.getValue(), accountComboBox.getValue());
-                    dialog.close();
-                    updateList();
-                }
-        );
-        confirm.addClassName(buttonWidth);
-
-        Button cancel = new Button("Cancel", e -> dialog.close());
-        cancel.addClassNames("button--primary", buttonWidth);
-
-        return new HorizontalLayout(cancel, confirm);
     }
 
     private Component getPageButtons() {

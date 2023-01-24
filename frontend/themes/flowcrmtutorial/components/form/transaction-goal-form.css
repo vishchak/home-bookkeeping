@@ -19,6 +19,7 @@
     padding: 0;
 }
 
-.transaction-goal-form-layout vaadin-combo-box {
+.transaction-goal-form-layout vaadin-combo-box,
+.transaction-goal-form-layout vaadin-number-field {
     width: 336px;
 }
