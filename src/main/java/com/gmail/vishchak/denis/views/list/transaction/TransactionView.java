@@ -15,6 +15,7 @@ import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
@@ -40,19 +41,32 @@ import java.util.List;
 @PermitAll
 public class TransactionView extends VerticalLayout {
     private final static int ITEMS_PER_PAGE = 10;
-    private final AccountServiceImpl accountService;
-    private final CategoryServiceImpl categoryService;
-    private final SubcategoryServiceImpl subcategoryService;
-    private final TransactionServiceImpl transactionService;
-    private final Grid<Transaction> grid = new Grid<>(Transaction.class);
-    private final TextField accountAmountFiled = new TextField();
-    private final CustomUser user;
-    private final MenuBar menuBar = new MenuBar();
-    private long totalAmountOfPages;
-    private int currentPageNumber = 0;
-    private Account currentAccount;
-    private TransactionFilterForm form;
 
+    private final AccountServiceImpl accountService;
+
+    private final CategoryServiceImpl categoryService;
+
+    private final SubcategoryServiceImpl subcategoryService;
+
+    private final TransactionServiceImpl transactionService;
+
+    private final Grid<Transaction> grid = new Grid<>(Transaction.class);
+
+    private final TextField accountAmountFiled = new TextField();
+
+    private final MenuBar menuBar = new MenuBar();
+
+    private final Button menuButton = new Button("Show/Hide Columns");
+
+    private final CustomUser user;
+
+    private long totalAmountOfPages;
+
+    private int currentPageNumber = 0;
+
+    private Account currentAccount;
+
+    private TransactionFilterForm form;
 
     public TransactionView(AccountServiceImpl accountService, CategoryServiceImpl categoryService, SubcategoryServiceImpl subcategoryService, TransactionServiceImpl transactionService, SecurityService securityService) {
         this.accountService = accountService;
@@ -69,7 +83,7 @@ public class TransactionView extends VerticalLayout {
         configureGrid();
         configureForm();
 
-        HorizontalLayout toolBar = new HorizontalLayout(accountAmountFiled, menuBar);
+        HorizontalLayout toolBar = new HorizontalLayout(accountAmountFiled, menuBar, menuButton);
         toolBar.setAlignItems(Alignment.BASELINE);
 
         add(
@@ -149,15 +163,27 @@ public class TransactionView extends VerticalLayout {
     private void configureGrid() {
         grid.addClassNames("transaction-grid", "gird-color");
         grid.setSizeFull();
-
         grid.setColumns();
-        grid.addColumn(transaction -> transaction.getTransactionDate().toString()).setHeader("Date").setSortable(true);
-        grid.addColumn(transaction -> transaction.getTransactionAmount().toString()).setHeader("Amount").setSortable(true);
-        grid.addColumn(transaction -> transaction.getCategory().getCategoryName()).setHeader("Category").setSortable(true);
-        grid.addColumn(transaction -> transaction.getSubcategory().getSubcategoryName()).setHeader("Subcategory").setSortable(true);
-        grid.addColumn("note");
-
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
+
+        Grid.Column<Transaction> dateColumn = grid
+                .addColumn(transaction -> transaction.getTransactionDate().toString()).setHeader("Date").setSortable(true);
+        Grid.Column<Transaction> amountColumn = grid
+                .addColumn(transaction -> transaction.getTransactionAmount().toString()).setHeader("Amount").setSortable(true);
+        Grid.Column<Transaction> categoryColumn = grid
+                .addColumn(transaction -> transaction.getCategory().getCategoryName()).setHeader("Category").setSortable(true);
+        Grid.Column<Transaction> subcategoryColumn = grid
+                .addColumn(transaction -> transaction.getSubcategory().getSubcategoryName()).setHeader("Subcategory");
+        Grid.Column<Transaction> noteColumn = grid
+                .addColumn(Transaction::getNote).setHeader("Note");
+
+        ColumnToggleContextMenu columnToggleContextMenu = new ColumnToggleContextMenu(menuButton);
+
+        columnToggleContextMenu.addColumnToggleItem("Date", dateColumn);
+        columnToggleContextMenu.addColumnToggleItem("Amount", amountColumn);
+        columnToggleContextMenu.addColumnToggleItem("Category", categoryColumn);
+        columnToggleContextMenu.addColumnToggleItem("Subcategory", subcategoryColumn);
+        columnToggleContextMenu.addColumnToggleItem("Note", noteColumn);
     }
 
     private void showButtons() {
@@ -257,5 +283,18 @@ public class TransactionView extends VerticalLayout {
             total += a.getAccountAmount();
         }
         accountAmountFiled.setValue(total.toString());
+    }
+
+    private static class ColumnToggleContextMenu extends ContextMenu {
+        public ColumnToggleContextMenu(Component target) {
+            super(target);
+            setOpenOnClick(true);
+        }
+
+        void addColumnToggleItem(String label, Grid.Column<Transaction> column) {
+            MenuItem menuItem = this.addItem(label, e -> column.setVisible(e.getSource().isChecked()));
+            menuItem.setCheckable(true);
+            menuItem.setChecked(column.isVisible());
+        }
     }
 }
