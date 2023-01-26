@@ -31,10 +31,9 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import javax.annotation.security.PermitAll;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Stream;
 
 @PermitAll
@@ -113,6 +112,8 @@ public class GoalView extends VerticalLayout {
 
         List<Goal> goalList = goalService.findUserGoals(user.getUserId(), filterField.isEmpty() ? null : filterField.getValue(), checkboxGroup.isEmpty() ? Set.of(GoalProgress.values()) : checkboxGroup.getSelectedItems(),
                 currentPageNumber, ITEMS_PER_PAGE);
+        goalList.sort(Comparator.comparing(Goal::getGoalId).reversed());
+
         grid.setItems(goalList.isEmpty() ? Collections.emptyList() : goalList);
     }
 
@@ -131,7 +132,12 @@ public class GoalView extends VerticalLayout {
 
         grid.setColumns();
 
-        grid.addComponentColumn(goal -> new Button(new Icon("lumo", "plus"), e -> getUI().ifPresent(ui -> ui.navigate("add-funds-goal/" + goal.getGoalId()))))
+
+        grid.addComponentColumn(goal -> {
+                    Button addFunds = new Button(new Icon("lumo", "plus"), e -> getUI().ifPresent(ui -> ui.navigate("add-funds-goal/" + goal.getGoalId())));
+                    addFunds.addClassName("button--secondary");
+                    return addFunds;
+                })
                 .setHeader("Add")
                 .setKey("add")
                 .setWidth("6em")
@@ -145,14 +151,11 @@ public class GoalView extends VerticalLayout {
 
 
     private Component progressBar(Goal goal) {
-        ProgressBar progressBar = new ProgressBar(0, goal.getGoalAmount());
+        ProgressBar progressBar = new ProgressBar(0, goal.getGoalAmount(), goal.getCurrentAmount());
 
         String label = goal.getGoalNote() + " (" + goal.getCurrentAmount() + "/" + goal.getGoalAmount() + ")";
 
-        VerticalLayout progressBarLayout = new VerticalLayout(new Div(new Text(label)), progressBar);
-        progressBarLayout.addClassName("goal-view-progress-bar");
-
-        return progressBarLayout;
+        return new VerticalLayout(new Div(new Text(label)), progressBar);
     }
 
     private void edit() {
@@ -165,6 +168,9 @@ public class GoalView extends VerticalLayout {
                                     goal -> {
                                         Button editButton = new Button(new Icon("lumo", "edit"), e -> getUI().ifPresent(ui -> ui.navigate("add-goal/" + goal.getGoalId())));
                                         Button deleteButton = new Button(new Icon("vaadin", "trash"), e -> deleteGoal(goal));
+
+                                        editButton.addClassNames("button--tertiary");
+                                        deleteButton.addClassNames("button--primary");
 
                                         HorizontalLayout buttonsLayout = new HorizontalLayout(editButton, deleteButton);
                                         buttonsLayout.setJustifyContentMode(JustifyContentMode.END);
@@ -241,6 +247,7 @@ public class GoalView extends VerticalLayout {
     }
 
     private static class GoalDetailsFormLayout extends FormLayout {
+        private final DateFormat dateFormat = new SimpleDateFormat("dd MMMM yyyy");
         private final TextField startDateField = new TextField("Started on");
         private final TextField finishDate = new TextField("Finishes on");
         private final TextField daysLeft = new TextField("Days left");
@@ -254,8 +261,8 @@ public class GoalView extends VerticalLayout {
         }
 
         public void setGoal(Goal goal) {
-            startDateField.setValue(goal.getStartDate().toString());
-            finishDate.setValue(goal.getFinishDate().toString());
+            startDateField.setValue(dateFormat.format(goal.getStartDate().getTime()));
+            finishDate.setValue(dateFormat.format(goal.getFinishDate().getTime()));
             daysLeft.setValue(daysLeft(goal));
         }
     }

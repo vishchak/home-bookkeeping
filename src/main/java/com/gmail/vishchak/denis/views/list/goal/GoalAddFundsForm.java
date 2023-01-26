@@ -100,7 +100,7 @@ public class GoalAddFundsForm extends Composite<VerticalLayout> implements HasUr
 
                         goalService.addMoney(goalId, addAmount.getValue(), accountComboBox.getValue());
                         Notification.show("Amount's been added", 3000, Notification.Position.BOTTOM_START);
-                        UI.getCurrent().navigate("");
+                        UI.getCurrent().navigate("goals");
                     }
             );
         } catch (NullPointerException | javax.validation.ConstraintViolationException e) {
