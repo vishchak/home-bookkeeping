@@ -1,116 +1,154 @@
 package com.gmail.vishchak.denis.views.list.transaction;
 
 import com.gmail.vishchak.denis.model.Account;
+import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.model.Transaction;
-import com.gmail.vishchak.denis.service.*;
+import com.gmail.vishchak.denis.security.SecurityService;
+import com.gmail.vishchak.denis.service.AccountServiceImpl;
+import com.gmail.vishchak.denis.service.CategoryServiceImpl;
+import com.gmail.vishchak.denis.service.SubcategoryServiceImpl;
+import com.gmail.vishchak.denis.service.TransactionServiceImpl;
 import com.gmail.vishchak.denis.views.list.shared.MainLayout;
 import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
+import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
+import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import javax.annotation.security.PermitAll;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
-import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Transactions | MoneyLonger")
+@PermitAll
 public class TransactionView extends VerticalLayout {
-    private final int ITEMS_PER_PAGE = 10;
+    private final static int ITEMS_PER_PAGE = 10;
     private final AccountServiceImpl accountService;
     private final CategoryServiceImpl categoryService;
     private final SubcategoryServiceImpl subcategoryService;
     private final TransactionServiceImpl transactionService;
     private final Grid<Transaction> grid = new Grid<>(Transaction.class);
-    private final ComboBox<Account> accountComboBox = new ComboBox<>("Account");
-    private final TextField accountAmountFiled = textFiled("");
+    private final TextField accountAmountFiled = new TextField();
+    private final CustomUser user;
+    private final MenuBar menuBar = new MenuBar();
     private long totalAmountOfPages;
     private int currentPageNumber = 0;
+    private Account currentAccount;
     private TransactionFilterForm form;
 
-    public TransactionView(AccountServiceImpl accountService,
-                           CategoryServiceImpl categoryService,
-                           SubcategoryServiceImpl subcategoryService,
-                           TransactionServiceImpl transactionService) {
+
+    public TransactionView(AccountServiceImpl accountService, CategoryServiceImpl categoryService, SubcategoryServiceImpl subcategoryService, TransactionServiceImpl transactionService, SecurityService securityService) {
         this.accountService = accountService;
         this.categoryService = categoryService;
         this.subcategoryService = subcategoryService;
         this.transactionService = transactionService;
+        this.user = securityService.getAuthenticatedUser();
 
         addClassName("transaction-view");
         setSizeFull();
 
+        configureMenuBar();
         configureAmountField();
-        configureToolBar();
         configureGrid();
         configureForm();
 
+        HorizontalLayout toolBar = new HorizontalLayout(accountAmountFiled, menuBar);
+        toolBar.setAlignItems(Alignment.BASELINE);
+
         add(
-                getToolbar(),
+                toolBar,
                 addContent(),
                 getPageButtons()
         );
 
         updateList();
+
+        if (user.getAccounts().isEmpty()) {
+            UI.getCurrent().getPage().open("add-account", "_self");
+        }
     }
 
-    private void configureToolBar() {
-        accountComboBox.addValueChangeListener(e -> {
-            updateAccountAmountField();
+    private void configureMenuBar() {
+        MenuItem accountMenu = menuBar.addItem("Account");
+        SubMenu accountSubMenu = accountMenu.getSubMenu();
+        accountSubMenu.addItem("Add account", e -> UI.getCurrent().navigate(AccountCreateForm.class));
+        MenuItem chooseAccountMenu = accountSubMenu.addItem("Choose account");
+        SubMenu accountVar = chooseAccountMenu.getSubMenu();
+
+        accountVar.addItem("All accounts", e -> {
+            currentAccount = null;
             updateList();
         });
+
+        accountService.findAccountsByUser(user).forEach(account -> accountVar.addItem(account.getAccountName(), e -> {
+            currentAccount = account;
+            updateList();
+        }));
+
+        MenuItem transactionMenu = menuBar.addItem("Transaction");
+        SubMenu transactionSubMenu = transactionMenu.getSubMenu();
+        transactionSubMenu.addItem("Add transaction", e -> getUI().ifPresent(ui -> ui.navigate("add-transaction")));
+        transactionSubMenu.addItem("Filter transactions", e -> form.setVisible(!form.isVisible()));
+
+        ComponentEventListener<ClickEvent<MenuItem>> listener = e -> {
+            if (grid.getColumns().size() > 5) {
+                grid.removeColumnByKey("buttons");
+                return;
+            }
+            showButtons();
+        };
+
+        menuBar.addItem("Edit", listener);
     }
 
     public void updateList() {
         ZoneId defaultZoneId = form.getDefaultZoneId();
-        //swap on current user
-        List<Account> accountList = accountService.findAccountsByUserId(1L);
 
-        if (!accountComboBox.isEmpty()) {
-            totalAmountOfPages = transactionService.getPageCount(accountComboBox.getValue(), ITEMS_PER_PAGE);
+        totalAmountOfPages = transactionService.getPageCount(user, currentAccount, ITEMS_PER_PAGE);
 
-            if (form.isVisible()) {
-                grid.setItems(
-                        transactionService.findAccountTransactions(accountComboBox.getValue(),
-                                form.getNoteField().getValue(),
-                                form.getFromDateField().isEmpty() ? null : Date.from(form.getFromDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
-                                form.getToDateField().isEmpty() ? null : Date.from(form.getToDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
-                                form.getAmountField().getValue(),
-                                form.getCategory().isEmpty() ? null : form.getCategory().getValue(),
-                                form.getSubcategory().isEmpty() ? null : form.getSubcategory().getValue(),
-                                currentPageNumber, ITEMS_PER_PAGE)
-                );
-                return;
-            }
+        if (form.isVisible()) {
             grid.setItems(
-                    transactionService.findAllTransactionByAccount(accountComboBox.getValue(),
+                    transactionService.findSpecificUserTransactions(user,
+                            currentAccount,
+                            form.getNoteField().getValue(),
+                            form.getFromDateField().isEmpty() ? null : Date.from(form.getFromDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
+                            form.getToDateField().isEmpty() ? null : Date.from(form.getToDateField().getValue().atStartOfDay(defaultZoneId).toInstant()),
+                            form.getAmountField().getValue(),
+                            form.getCategory().isEmpty() ? null : form.getCategory().getValue(),
+                            form.getSubcategory().isEmpty() ? null : form.getSubcategory().getValue(),
                             currentPageNumber, ITEMS_PER_PAGE)
             );
-
-        } else if (!accountList.isEmpty()) {
-            accountComboBox.setValue(accountList.get(0));
+            return;
         }
+        if (currentAccount == null) {
+            grid.setItems(transactionService.findAllUSerTransactions(user, currentPageNumber, ITEMS_PER_PAGE));
+        } else {
+            grid.setItems(transactionService.findAllAccountTransactions(currentAccount, currentPageNumber, ITEMS_PER_PAGE));
+        }
+
+        updateAccountAmountField();
     }
 
     private void configureGrid() {
-        grid.addClassNames("transaction-grid");
+        grid.addClassNames("transaction-grid", "gird-color");
         grid.setSizeFull();
-        grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
 
         grid.setColumns();
         grid.addColumn(transaction -> transaction.getTransactionDate().toString()).setHeader("Date").setSortable(true);
@@ -120,14 +158,6 @@ public class TransactionView extends VerticalLayout {
         grid.addColumn("note");
 
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
-
-        grid.asSingleSelect().addValueChangeListener(e -> {
-            if (grid.getColumns().size() > 5) {
-                grid.removeColumnByKey("buttons");
-                return;
-            }
-            showButtons();
-        });
     }
 
     private void showButtons() {
@@ -185,34 +215,6 @@ public class TransactionView extends VerticalLayout {
         return content;
     }
 
-    private Component getToolbar() {
-
-        VerticalLayout verticalLayout = new VerticalLayout(getAccountField(accountComboBox, accountService), accountAmountFiled);
-        verticalLayout.setAlignItems(Alignment.AUTO);
-        verticalLayout.setSizeUndefined();
-
-        HorizontalLayout horizontalLayout = new HorizontalLayout(
-                verticalLayout,
-                getAddComponentButton("Add transaction", "add-transaction"),
-                getFilterButton()
-        );
-
-        horizontalLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
-        horizontalLayout.setWidthFull();
-
-        return horizontalLayout;
-    }
-
-    private Component getFilterButton() {
-        Button filterButton = new Button("Filter transaction");
-        filterButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        filterButton.setIcon(new Icon("lumo", "search"));
-
-        filterButton.addClickListener(e -> form.setVisible(!form.isVisible()));
-
-        return filterButton;
-    }
-
     private Component getPageButtons() {
         setClassName("page-buttons");
 
@@ -243,6 +245,17 @@ public class TransactionView extends VerticalLayout {
     }
 
     private void updateAccountAmountField() {
-        accountAmountFiled.setValue(accountComboBox.getValue().getAccountAmount().toString());
+        if (currentAccount != null) {
+            accountAmountFiled.setValue(currentAccount.getAccountAmount().toString());
+            return;
+        }
+
+        Double total = 0D;
+        List<Account> accountList = accountService.findAccountsByUser(user);
+        for (Account a :
+                accountList) {
+            total += a.getAccountAmount();
+        }
+        accountAmountFiled.setValue(total.toString());
     }
 }

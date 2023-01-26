@@ -78,18 +78,23 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Transaction> findAccountTransactions(Account account, String note, Date from, Date to, Double amount, Category category, Subcategory subcategory,
-                                                     int currentPageNUmber, int itemsPerPage) {
-        return transactionRepository.findTransactionsByAccount(account.getAccountId(), note, from, to, amount, category, subcategory,
+    public List<Transaction> findSpecificUserTransactions(CustomUser user, Account account, String note, Date from, Date to, Double amount, Category category, Subcategory subcategory, int currentPageNUmber, int itemsPerPage) {
+        return transactionRepository.findTransactionsByAccountUser(user, account, note, from, to, amount, category, subcategory,
                 PageRequest.of(currentPageNUmber, itemsPerPage));
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Long getPageCount(Account account, int itemsPerPage) {
-        Long totalItems = transactionRepository.countTransactionByAccount(account);
+    public Long getPageCount(CustomUser user, Account account, int itemsPerPage) {
+        Long totalItems = transactionRepository.countTransaction(user, account, null);
 
         return totalItems % itemsPerPage == 0 ? totalItems / itemsPerPage : totalItems / itemsPerPage + 1;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long getTransactionCountByCategory(CustomUser user, Category category) {
+        return transactionRepository.countTransaction(user, null, category);
     }
 
     @Override
@@ -100,16 +105,20 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Transaction> findAllTransactionByAccount(Account account,
-                                                         int currentPageNUmber, int itemsPerPage) {
-        return transactionRepository.findAllTransactionsByAccount(account,
-                PageRequest.of(currentPageNUmber, itemsPerPage));
+    public List<Transaction> findChartTransactions(CustomUser user, Date from, Date to, Category category) {
+        return transactionRepository.findChartTransactions(user, from, to, category);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Transaction> findChartTransactions(CurrentUser user, Date from, Date to, Category category) {
-        return transactionRepository.findChartTransactions(user, from, to, category);
+    public List<Transaction> findAllUSerTransactions(CustomUser user, int currentPageNUmber, int itemsPerPage) {
+        return transactionRepository.findTransactionsByAccountUser(user, PageRequest.of(currentPageNUmber, itemsPerPage));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Transaction> findAllAccountTransactions(Account account, int currentPageNUmber, int itemsPerPage) {
+        return transactionRepository.findAllTransactionsByAccount(account, PageRequest.of(currentPageNUmber, itemsPerPage));
     }
 
     private boolean ifExpense(Category category, Subcategory subcategory) {

@@ -71,7 +71,6 @@ public class TransactionFilterForm extends FormLayout {
         close.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
         close.addClickShortcut(Key.ESCAPE);
 
-        close.setEnabled(false);
         return close;
     }
 

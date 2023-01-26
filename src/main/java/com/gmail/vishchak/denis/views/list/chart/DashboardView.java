@@ -1,8 +1,9 @@
 package com.gmail.vishchak.denis.views.list.chart;
 
 import com.gmail.vishchak.denis.model.Category;
-import com.gmail.vishchak.denis.model.CurrentUser;
+import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.model.Transaction;
+import com.gmail.vishchak.denis.security.SecurityService;
 import com.gmail.vishchak.denis.service.*;
 import com.gmail.vishchak.denis.views.list.shared.MainLayout;
 import com.vaadin.flow.component.Component;
@@ -13,6 +14,7 @@ import com.vaadin.flow.component.charts.model.DataSeriesItem;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.tabs.Tab;
@@ -21,6 +23,7 @@ import com.vaadin.flow.component.tabs.TabsVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import javax.annotation.security.PermitAll;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
@@ -30,8 +33,8 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.dateFi
 
 @Route(value = "dashboard", layout = MainLayout.class)
 @PageTitle("Dashboard | MoneyLonger")
+@PermitAll
 public class DashboardView extends VerticalLayout {
-    private final CurrentUserServiceImpl userService;
     private final CategoryServiceImpl categoryService;
     private final TransactionServiceImpl transactionService;
     private final Tab expense = new Tab("Expense chart");
@@ -43,16 +46,12 @@ public class DashboardView extends VerticalLayout {
     private final ZoneId defaultZoneId = ZoneId.systemDefault();
     private final DatePicker fromDateField = dateField(format, "Start date");
     private final DatePicker toDateField = dateField(format, "Finish date");
-    private final CurrentUser user;
+    private final CustomUser user;
 
-    public DashboardView(CurrentUserServiceImpl userService, AccountServiceImpl accountService,
-                         CategoryServiceImpl categoryService,
-                         TransactionServiceImpl transactionService) {
-        this.userService = userService;
+    public DashboardView(CategoryServiceImpl categoryService, TransactionServiceImpl transactionService, SecurityService securityService) {
         this.categoryService = categoryService;
         this.transactionService = transactionService;
-//swap for currentUser
-        this.user = userService.findUserByEmailOrLogin("test user");
+        this.user = securityService.getAuthenticatedUser();
 
         addClassName("dashboard-view");
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
@@ -150,7 +149,7 @@ public class DashboardView extends VerticalLayout {
                 }));
 
         for (Map.Entry<String, Double> pair : subcategoryAmount.entrySet()) {
-            dataSeries.add(new DataSeriesItem(pair.getKey(), pair.getValue()));
+            dataSeries.add(new DataSeriesItem(pair.getKey() + System.lineSeparator() + pair.getValue(), pair.getValue()));
         }
 
         chart.getConfiguration().setSeries(dataSeries);
@@ -161,13 +160,31 @@ public class DashboardView extends VerticalLayout {
     private Component createTabs() {
         Tabs tabs = new Tabs();
         tabs.addSelectedChangeListener(selectedChangeEvent -> setContent(selectedChangeEvent.getSelectedTab()));
+
+        Optional<Category> expenseC = categoryService.findCategoryById(1L);
+        Optional<Category> incomeC = categoryService.findCategoryById(2L);
+        Optional<Category> otherC = categoryService.findCategoryById(3L);
+
+        if (expenseC.isPresent() && incomeC.isPresent() && otherC.isPresent()) {
+            income.add(new Span(createBadge(transactionService.getTransactionCountByCategory(user, incomeC.get()))));
+            expense.add(new Span(createBadge(transactionService.getTransactionCountByCategory(user, expenseC.get()))));
+            other.add(new Span(createBadge(transactionService.getTransactionCountByCategory(user, otherC.get()))));
+        }
+
         tabs.add(netIncome, income, expense, other);
         tabs.addThemeVariants(TabsVariant.LUMO_EQUAL_WIDTH_TABS);
-        tabs.setSelectedTab(expense);
+        tabs.setSelectedTab(netIncome);
 
         content.setSpacing(false);
 
         return new Div(tabs, content);
+    }
+
+    private Span createBadge(Long value) {
+        Span badge = new Span(String.valueOf(value));
+        badge.getElement().getThemeList().add("badge small contrast");
+        badge.getStyle().set("margin-inline-start", "var(--lumo-space-xs)");
+        return badge;
     }
 
     private void setContent(Tab tab) {

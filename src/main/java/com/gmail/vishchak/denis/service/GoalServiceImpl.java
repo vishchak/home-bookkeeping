@@ -7,10 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 public class GoalServiceImpl implements GoalService {
@@ -70,7 +67,7 @@ public class GoalServiceImpl implements GoalService {
 
     @Override
     @Transactional(readOnly = true)
-    public Long getPageCount(CurrentUser user, int itemsPerPage) {
+    public Long getPageCount(CustomUser user, int itemsPerPage) {
         Long totalItems = goalRepository.countGoalsByUser(user);
 
         return totalItems % itemsPerPage == 0 ? totalItems / itemsPerPage : totalItems / itemsPerPage + 1;
@@ -103,7 +100,7 @@ public class GoalServiceImpl implements GoalService {
                 return;
             }
             Optional<Category> category = categoryService.findCategoryById(3L);
-            Optional<Subcategory> subcategory = subcategoryService.findSubcategoryById(15L);
+            Optional<Subcategory> subcategory = subcategoryService.findSubcategoryById(16L);
 
             if ((g.getCurrentAmount() + amount) > g.getGoalAmount()) {
                 double maxAmount = g.getGoalAmount() - g.getCurrentAmount();
@@ -122,7 +119,7 @@ public class GoalServiceImpl implements GoalService {
         goalRepository.save(g);
 
         if (category.isPresent() && subcategory.isPresent()) {
-            transactionService.addTransaction(new Transaction(amount, "Goal " + g.getGoalNote(), new Date(), currentAccount, category.get(), subcategory.get()));
+            transactionService.addTransaction(new Transaction(amount, g.getGoalNote(), new Date(), currentAccount, category.get(), subcategory.get()));
         }
     }
 
@@ -131,10 +128,18 @@ public class GoalServiceImpl implements GoalService {
     public void updateStatus(Long id) {
         Optional<Goal> goal = goalRepository.findById(id);
         goal.ifPresent(g -> {
-            if (!g.getGoalProgress().equals(GoalProgress.COMPLETED)) {
-                g.setGoalProgress(GoalProgress.FAILED);
-                goalRepository.save(g);
+            if ((g.getFinishDate().getTime() - (new Date().getTime())) <= 0) {
+                if (!g.getGoalProgress().equals(GoalProgress.COMPLETED)) {
+                    g.setGoalProgress(GoalProgress.FAILED);
+                    goalRepository.save(g);
+                }
             }
         });
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Goal> findAllGoals() {
+        return (ArrayList<Goal>) goalRepository.findAll();
     }
 }

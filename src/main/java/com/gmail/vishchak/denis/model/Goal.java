@@ -40,12 +40,12 @@ public class Goal {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private CurrentUser user;
+    private CustomUser user;
 
     @Enumerated(EnumType.STRING)
     private GoalProgress goalProgress;
 
-    public Goal(String goalNote, Double goalAmount, Date finishDate, CurrentUser user) {
+    public Goal(String goalNote, Double goalAmount, Date finishDate, CustomUser user) {
         this.goalNote = goalNote;
         this.goalAmount = goalAmount;
         this.startDate = new Date();

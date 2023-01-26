@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
@@ -19,21 +20,22 @@ public class Account {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Long accountId;
-
+    @NotNull
     @Column(name = "name")
     private String accountName;
 
+    @NotNull
     @Column(name = "amount", nullable = false)
     private Double accountAmount;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private CurrentUser user;
+    private CustomUser user;
 
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL)
     private List<Transaction> transactions;
 
-    public Account(String accountName, Double accountAmount, CurrentUser user) {
+    public Account(String accountName, Double accountAmount, CustomUser user) {
         this.accountName = accountName;
         this.accountAmount = accountAmount;
         this.user = user;

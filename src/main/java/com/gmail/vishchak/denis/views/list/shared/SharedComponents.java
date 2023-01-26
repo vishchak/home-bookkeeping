@@ -1,16 +1,15 @@
 package com.gmail.vishchak.denis.views.list.shared;
 
-import com.gmail.vishchak.denis.model.Account;
-import com.gmail.vishchak.denis.service.AccountServiceImpl;
+import com.gmail.vishchak.denis.model.CustomUser;
+import com.gmail.vishchak.denis.service.GoalServiceImpl;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
-import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -19,9 +18,36 @@ import com.vaadin.flow.component.textfield.TextField;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.List;
+import java.util.Objects;
+import java.util.function.Consumer;
 
 public class SharedComponents {
+    public static Component createButtonsLayout(Long id, String navigateLink, Runnable runnable, Consumer<Long> consumer, UI currentUi) {
+        String buttonWidthClassName = "transaction-goal-form-button-width";
+
+        Button confirmButton = new Button("Confirm");
+        if (id == null) {
+            confirmButton.addClickListener(e -> runnable.run());
+        } else {
+            confirmButton.addClickListener(e -> consumer.accept(id));
+        }
+        confirmButton.addClassNames(buttonWidthClassName);
+
+        Button cancelButton = new Button("Cancel", e -> currentUi.getUI().ifPresent(ui -> ui.navigate(navigateLink)));
+        cancelButton.addClassNames("button--primary", buttonWidthClassName);
+
+        return new HorizontalLayout(cancelButton, confirmButton);
+    }
+
+    public static void checkGoalUser(Long goalId, GoalServiceImpl goalService, CustomUser user) {
+        goalService.findById(goalId).ifPresent(g -> {
+            if (!Objects.equals(user.getUserId(), g.getUser().getUserId())) {
+                Notification.show("Access denied!", 3000, Notification.Position.BOTTOM_START);
+                UI.getCurrent().getPage().open("goals", "_self");
+            }
+        });
+    }
+
     public static DatePicker dateField(String format, String label) {
         DatePicker.DatePickerI18n singleFormatI18n = new DatePicker.DatePickerI18n();
         singleFormatI18n.setDateFormat(format);
@@ -70,43 +96,12 @@ public class SharedComponents {
         dialog.open();
     }
 
-    //replace with currentUser id after security
-    public static Component getAccountField(ComboBox<Account> accountComboBox, AccountServiceImpl accountService) {
-        List<Account> accounts = accountService.findAccountsByUserId(1L);
-
-        accountComboBox.setItems(accounts);
-        accountComboBox.setItemLabelGenerator(Account::getAccountName);
-        accountComboBox.setHelperText("Choose account");
-
-
-        return accountComboBox;
-    }
-
-    public static Button getAddComponentButton(String buttonName, String url) {
-        Button addTransactionButton = new Button(buttonName);
-        addTransactionButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        addTransactionButton.setIcon(new Icon("lumo", "plus"));
-
-        addTransactionButton.addClickListener(e -> addTransactionButton.getUI().ifPresent(ui ->
-                ui.navigate(url)));
-        return addTransactionButton;
-    }
-
-    public static Button createConfirmButton(String buttonText) {
-        Button saveButton = new Button(buttonText);
-        saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-
-        return saveButton;
-    }
-
     public static void ErrorNotification() {
         Notification notification = new Notification();
         notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
 
-        HorizontalLayout layout = new HorizontalLayout(new Div(new Text("Fill all the necessary fields!")));
-
         notification.setDuration(3000);
-        notification.add(layout);
+        notification.add(new HorizontalLayout(new Div(new Text("Fill all the necessary fields!"))));
         notification.open();
     }
 }
