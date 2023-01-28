@@ -22,18 +22,16 @@ import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import javax.annotation.security.PermitAll;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 @Route(value = "", layout = MainLayout.class)
@@ -51,8 +49,6 @@ public class TransactionView extends VerticalLayout {
     private final TransactionServiceImpl transactionService;
 
     private final Grid<Transaction> grid = new Grid<>(Transaction.class);
-
-    private final TextField accountAmountFiled = new TextField();
 
     private final MenuBar menuBar = new MenuBar();
 
@@ -79,11 +75,10 @@ public class TransactionView extends VerticalLayout {
         setSizeFull();
 
         configureMenuBar();
-        configureAmountField();
         configureGrid();
         configureForm();
 
-        HorizontalLayout toolBar = new HorizontalLayout(accountAmountFiled, menuBar, menuButton);
+        HorizontalLayout toolBar = new HorizontalLayout(menuBar, menuButton);
         toolBar.setAlignItems(Alignment.BASELINE);
 
         add(
@@ -100,8 +95,11 @@ public class TransactionView extends VerticalLayout {
     }
 
     private void configureMenuBar() {
+        menuBar.removeAll();
+
         MenuItem accountMenu = menuBar.addItem("Account");
         SubMenu accountSubMenu = accountMenu.getSubMenu();
+        accountSubMenu.addItem(accountAmount());
         accountSubMenu.addItem("Add account", e -> UI.getCurrent().navigate(AccountCreateForm.class));
         MenuItem chooseAccountMenu = accountSubMenu.addItem("Choose account");
         SubMenu accountVar = chooseAccountMenu.getSubMenu();
@@ -132,6 +130,18 @@ public class TransactionView extends VerticalLayout {
         menuBar.addItem("Edit", listener);
     }
 
+    private String accountAmount() {
+        if (currentAccount != null) {
+            return currentAccount.getAccountName() + ' ' + currentAccount.getAccountAmount().toString() + '$';
+        }
+
+        AtomicReference<Double> total = new AtomicReference<>(0D);
+        accountService.findAccountsByUser(user).forEach(account -> total.updateAndGet(v -> v + account.getAccountAmount()));
+
+        return "Total " + total + '$';
+    }
+
+
     public void updateList() {
         ZoneId defaultZoneId = form.getDefaultZoneId();
 
@@ -157,7 +167,8 @@ public class TransactionView extends VerticalLayout {
             grid.setItems(transactionService.findAllAccountTransactions(currentAccount, currentPageNumber, ITEMS_PER_PAGE));
         }
 
-        updateAccountAmountField();
+
+        configureMenuBar();
     }
 
     private void configureGrid() {
@@ -261,28 +272,6 @@ public class TransactionView extends VerticalLayout {
         });
 
         return new Div(previousButton, nextButton);
-    }
-
-    private void configureAmountField() {
-        accountAmountFiled.setReadOnly(true);
-        accountAmountFiled.setSizeUndefined();
-        accountAmountFiled.setLabel("Account balance");
-        accountAmountFiled.setPrefixComponent(VaadinIcon.DOLLAR.create());
-    }
-
-    private void updateAccountAmountField() {
-        if (currentAccount != null) {
-            accountAmountFiled.setValue(currentAccount.getAccountAmount().toString());
-            return;
-        }
-
-        Double total = 0D;
-        List<Account> accountList = accountService.findAccountsByUser(user);
-        for (Account a :
-                accountList) {
-            total += a.getAccountAmount();
-        }
-        accountAmountFiled.setValue(total.toString());
     }
 
     private static class ColumnToggleContextMenu extends ContextMenu {
