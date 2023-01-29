@@ -18,6 +18,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
@@ -33,53 +34,37 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicReference;
 
-
-@Route(value = "", layout = MainLayout.class)
-@PageTitle("Transactions | MoneyLonger")
 @PermitAll
+@Route(value = "", layout = MainLayout.class)
+@PageTitle("Transactions | FROG-STOCK")
+@CssImport("./themes/flowcrmtutorial/components/transaction-view/transaction-view.css")
 public class TransactionView extends VerticalLayout {
     private final static int ITEMS_PER_PAGE = 10;
-
     private final AccountServiceImpl accountService;
-
-    private final CategoryServiceImpl categoryService;
-
-    private final SubcategoryServiceImpl subcategoryService;
-
     private final TransactionServiceImpl transactionService;
-
     private final Grid<Transaction> grid = new Grid<>(Transaction.class);
-
     private final MenuBar menuBar = new MenuBar();
-
     private final Button menuButton = new Button("Show/Hide Columns");
-
+    private final TransactionFilterForm form;
     private final CustomUser user;
-
     private long totalAmountOfPages;
-
     private int currentPageNumber = 0;
-
     private Account currentAccount;
 
-    private TransactionFilterForm form;
 
     public TransactionView(AccountServiceImpl accountService, CategoryServiceImpl categoryService, SubcategoryServiceImpl subcategoryService, TransactionServiceImpl transactionService, SecurityService securityService) {
         this.accountService = accountService;
-        this.categoryService = categoryService;
-        this.subcategoryService = subcategoryService;
         this.transactionService = transactionService;
         this.user = securityService.getAuthenticatedUser();
+        this.form = new TransactionFilterForm(categoryService.findAllCategories(), subcategoryService.findAllSubcategories(), this::updateList);
 
         addClassName("transaction-view");
         setSizeFull();
 
         configureMenuBar();
         configureGrid();
-        configureForm();
 
         HorizontalLayout toolBar = new HorizontalLayout(menuBar, menuButton);
-        toolBar.setAlignItems(Alignment.BASELINE);
 
         add(
                 toolBar,
@@ -143,7 +128,7 @@ public class TransactionView extends VerticalLayout {
 
 
     public void updateList() {
-        ZoneId defaultZoneId = form.getDefaultZoneId();
+        ZoneId defaultZoneId = ZoneId.systemDefault();
 
         totalAmountOfPages = transactionService.getPageCount(user, currentAccount, ITEMS_PER_PAGE);
 
@@ -224,24 +209,6 @@ public class TransactionView extends VerticalLayout {
         SharedComponents.configureDialog(dialog, deleteButton);
     }
 
-    private void configureForm() {
-        form = new TransactionFilterForm(
-                categoryService.findAllCategories(), subcategoryService.findAllSubcategories(), accountService);
-        form.setWidth("25 em");
-
-        form.getAmountField().addValueChangeListener(e -> updateList());
-        form.getFromDateField().addValueChangeListener(e -> updateList());
-        form.getToDateField().addValueChangeListener(e -> updateList());
-        form.getNoteField().addValueChangeListener(e -> updateList());
-        form.getCategory().addValueChangeListener(e -> updateList());
-        form.getSubcategory().addValueChangeListener(e -> updateList());
-
-        form.getClear().addClickListener(e -> form.clearForm());
-        form.getClose().addClickListener(e -> form.setVisible(false));
-
-        form.setVisible(false);
-    }
-
     private Component addContent() {
         HorizontalLayout content = new HorizontalLayout(grid, form);
         content.addClassName("content");
@@ -253,9 +220,7 @@ public class TransactionView extends VerticalLayout {
     }
 
     private Component getPageButtons() {
-        setClassName("page-buttons");
-
-        Button nextButton = new Button("Next page", e -> {
+        Button nextButton = new Button(new Icon("lumo", "angle-right"), e -> {
             if (currentPageNumber >= --totalAmountOfPages) {
                 return;
             }
@@ -263,7 +228,7 @@ public class TransactionView extends VerticalLayout {
             updateList();
         });
 
-        Button previousButton = new Button("Previous page", e -> {
+        Button previousButton = new Button(new Icon("lumo", "angle-left"), e -> {
             if (currentPageNumber <= 0) {
                 return;
             }
