@@ -3,12 +3,13 @@ package com.gmail.vishchak.denis.views.list.transaction;
 import com.gmail.vishchak.denis.model.Category;
 import com.gmail.vishchak.denis.model.Subcategory;
 import com.vaadin.flow.component.AbstractSinglePropertyField;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.formlayout.FormLayout;
-import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -41,23 +42,35 @@ public class TransactionFilterForm extends FormLayout {
 
         amountField.setValueChangeMode(ValueChangeMode.LAZY);
         noteField.setValueChangeMode(ValueChangeMode.LAZY);
+        noteField.setWidth(amountField.getWidth());
 
         Stream.of(new AbstractSinglePropertyField[]{amountField, toDateField, fromDateField, noteField, category, subcategory}).forEach(f -> f.addValueChangeListener(e -> run.run()));
 
         VerticalLayout formLayout = new VerticalLayout(
-                new Div(fromDateField, toDateField),
+                fromDateField,
+                toDateField,
                 amountField,
                 category,
                 subcategory,
                 noteField,
-                new Div
-                        (
-                                new Button("clear", e -> Stream.of(new AbstractSinglePropertyField[]{amountField, toDateField, fromDateField, noteField, category, subcategory}).forEach(f -> f.setValue(f.getEmptyValue()))),
-                                new Button("close", e -> this.setVisible(false))
-                        )
+                buttonLayot()
         );
         formLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
 
         add(formLayout);
+    }
+
+    private Component buttonLayot() {
+        Button clear = new Button("clear", e -> Stream.of(new AbstractSinglePropertyField[]{amountField, toDateField, fromDateField, noteField, category, subcategory}).forEach(f -> f.setValue(f.getEmptyValue())));
+        Button close = new Button("close", e -> this.setVisible(false));
+
+        clear.addClassName("button--primary");
+        close.addClassName("button--tertiary");
+
+        return new HorizontalLayout
+                (
+                        clear,
+                        close
+                );
     }
 }

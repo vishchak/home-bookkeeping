@@ -1,10 +1,11 @@
-package com.gmail.vishchak.denis.views.list.transaction;
+package com.gmail.vishchak.denis.views.list.account;
 
 import com.gmail.vishchak.denis.model.Account;
 import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.security.SecurityService;
 import com.gmail.vishchak.denis.service.AccountServiceImpl;
 import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
+import com.gmail.vishchak.denis.views.list.transaction.TransactionView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;

@@ -8,6 +8,7 @@ import com.gmail.vishchak.denis.service.AccountServiceImpl;
 import com.gmail.vishchak.denis.service.CategoryServiceImpl;
 import com.gmail.vishchak.denis.service.SubcategoryServiceImpl;
 import com.gmail.vishchak.denis.service.TransactionServiceImpl;
+import com.gmail.vishchak.denis.views.list.account.AccountCreateForm;
 import com.gmail.vishchak.denis.views.list.shared.MainLayout;
 import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
 import com.vaadin.flow.component.ClickEvent;
@@ -44,7 +45,7 @@ public class TransactionView extends VerticalLayout {
     private final TransactionServiceImpl transactionService;
     private final Grid<Transaction> grid = new Grid<>(Transaction.class);
     private final MenuBar menuBar = new MenuBar();
-    private final Button menuButton = new Button("Show/Hide Columns");
+    private final Button menuButton = new Button(new Icon("lumo", "unordered-list"));
     private final TransactionFilterForm form;
     private final CustomUser user;
     private long totalAmountOfPages;
@@ -64,7 +65,10 @@ public class TransactionView extends VerticalLayout {
         configureMenuBar();
         configureGrid();
 
+        menuButton.addClassNames("menu-button", "button--secondary");
         HorizontalLayout toolBar = new HorizontalLayout(menuBar, menuButton);
+        toolBar.addClassName("transaction-view-toolbar");
+        toolBar.setWidth(grid.getWidth());
 
         add(
                 toolBar,
@@ -152,7 +156,6 @@ public class TransactionView extends VerticalLayout {
             grid.setItems(transactionService.findAllAccountTransactions(currentAccount, currentPageNumber, ITEMS_PER_PAGE));
         }
 
-
         configureMenuBar();
     }
 
@@ -184,27 +187,30 @@ public class TransactionView extends VerticalLayout {
 
     private void showButtons() {
         grid.addComponentColumn(transaction -> {
-            Button editButton = new Button("Edit");
-            editButton.setIcon(new Icon("lumo", "edit"));
-            editButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("add-transaction/" + transaction.getTransactionId())));
+                    Button editButton = new Button(new Icon("lumo", "edit"), e -> getUI().ifPresent(ui -> ui.navigate("add-transaction/" + transaction.getTransactionId())));
+                    Button deleteButton = new Button(new Icon("vaadin", "trash"), e -> deleteTransaction(transaction));
 
-            Button deleteButton = new Button("Delete");
-            deleteButton.addClickListener(e -> deleteTransaction(transaction));
+                    editButton.addClassNames("button--tertiary");
+                    deleteButton.addClassNames("button--primary");
 
-            return new HorizontalLayout(editButton, deleteButton);
-        }).setKey("buttons").setHeader("Edit");
+                    return new HorizontalLayout(editButton, deleteButton);
+                }).setKey("buttons")
+                .setHeader("Edit");
     }
 
     private void deleteTransaction(Transaction transaction) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Are you sure you want to delete this transaction permanently?");
 
-        Button deleteButton = new Button("Delete");
-        deleteButton.addClickListener((e) -> {
-            transactionService.deleteTransaction(transaction.getTransactionId());
-            updateList();
-            dialog.close();
-        });
+        Button deleteButton = new Button
+                (
+                        "Delete",
+                        e -> {
+                            transactionService.deleteTransaction(transaction.getTransactionId());
+                            updateList();
+                            dialog.close();
+                        }
+                );
 
         SharedComponents.configureDialog(dialog, deleteButton);
     }
