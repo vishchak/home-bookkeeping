@@ -99,8 +99,8 @@ public class GoalServiceImpl implements GoalService {
             if (amount == null || amount <= 0) {
                 return;
             }
-            Optional<Category> category = categoryService.findCategoryById(3L);
-            Optional<Subcategory> subcategory = subcategoryService.findSubcategoryById(16L);
+            Optional<Category> category = categoryService.findCategoryById(1L);
+            Optional<Subcategory> subcategory = subcategoryService.findSubcategoryById(25L);
 
             if ((g.getCurrentAmount() + amount) > g.getGoalAmount()) {
                 double maxAmount = g.getGoalAmount() - g.getCurrentAmount();

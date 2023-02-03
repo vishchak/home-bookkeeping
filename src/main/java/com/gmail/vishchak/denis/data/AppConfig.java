@@ -1,4 +1,4 @@
-package com.gmail.vishchak.denis.testdata;
+package com.gmail.vishchak.denis.data;
 
 import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.service.CustomUserServiceImpl;

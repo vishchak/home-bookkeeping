@@ -21,6 +21,12 @@ public class TransactionServiceImpl implements TransactionService {
         this.accountService = accountService;
     }
 
+    private static boolean ifExpense(Category category, Subcategory subcategory) {
+        return (category.getCategoryName().equalsIgnoreCase("expense") ||
+                (subcategory.getSubcategoryName().equalsIgnoreCase("debt repayment") ||
+                        subcategory.getSubcategoryName().equalsIgnoreCase("loan")));
+    }
+
     @Override
     @Transactional
     public void deleteTransaction(Long id) {
@@ -128,12 +134,5 @@ public class TransactionServiceImpl implements TransactionService {
         allTransactionsByAccount.sort(Comparator.comparing(Transaction::getTransactionId).reversed());
 
         return allTransactionsByAccount;
-    }
-
-    private boolean ifExpense(Category category, Subcategory subcategory) {
-        return (category.getCategoryName().equalsIgnoreCase("expense") ||
-                (subcategory.getSubcategoryName().equalsIgnoreCase("Repayment") ||
-                        subcategory.getSubcategoryName().equalsIgnoreCase("Debt") ||
-                        subcategory.getSubcategoryName().equalsIgnoreCase("Goal")));
     }
 }

@@ -31,8 +31,7 @@ public class GoalAddForm extends Composite<VerticalLayout> implements HasUrlPara
     private final GoalServiceImpl goalService;
     private final TextField goalNote = textFiled("Note");
     private final NumberField goalAmount = amountField("Amount");
-    private final String format = "dd-MM-yyyy";
-    private final DatePicker goalFinishDate = dateField(format, "Finish date");
+    private final DatePicker goalFinishDate = dateField("dd-MM-yyyy", "Finish date");
     private final CustomUser user;
 
     public GoalAddForm(GoalServiceImpl goalService, SecurityService securityService) {
