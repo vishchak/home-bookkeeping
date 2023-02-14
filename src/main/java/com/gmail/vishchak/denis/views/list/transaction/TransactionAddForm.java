@@ -25,8 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.amountField;
-import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.textFiled;
+import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 
 @PermitAll
 @Route("add-transaction")
@@ -38,7 +37,7 @@ public class TransactionAddForm extends Composite<VerticalLayout> implements Has
     private final CategoryServiceImpl categoryService;
     private final SubcategoryServiceImpl subcategoryService;
     private final TextField note = textFiled("Note");
-    private final NumberField transactionAmount = amountField("Amount");
+    private final NumberField transactionAmount = new NumberField("Amount");
     private final ComboBox<Category> category = new ComboBox<>("Category");
     private final ComboBox<Subcategory> subcategory = new ComboBox<>("Subcategory");
     private final ComboBox<Account> accountComboBox = new ComboBox<>("Account");
@@ -157,7 +156,7 @@ public class TransactionAddForm extends Composite<VerticalLayout> implements Has
                 ui.navigate("");
             });
         } catch (NullPointerException | javax.validation.ConstraintViolationException e) {
-            Notification.show("Fill all the necessary fields", 3000, Notification.Position.BOTTOM_START);
+            ErrorNotification();
         }
     }
 
@@ -175,7 +174,7 @@ public class TransactionAddForm extends Composite<VerticalLayout> implements Has
                 ui.navigate("");
             });
         } catch (NullPointerException | javax.validation.ConstraintViolationException e) {
-            Notification.show("Fill all the necessary fields", 3000, Notification.Position.BOTTOM_START);
+            ErrorNotification();
         }
     }
 }

@@ -10,7 +10,6 @@ import com.gmail.vishchak.denis.service.SubcategoryServiceImpl;
 import com.gmail.vishchak.denis.service.TransactionServiceImpl;
 import com.gmail.vishchak.denis.views.list.account.AccountCreateForm;
 import com.gmail.vishchak.denis.views.list.shared.MainLayout;
-import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -211,8 +210,13 @@ public class TransactionView extends VerticalLayout {
                             dialog.close();
                         }
                 );
+        deleteButton.addClassNames("button--primary");
 
-        SharedComponents.configureDialog(dialog, deleteButton);
+        Button cancelButton = new Button("Cancel", (e) -> dialog.close());
+        cancelButton.addClassNames("button-tertiary");
+
+        dialog.getFooter().add(cancelButton, deleteButton);
+        dialog.open();
     }
 
     private Component addContent() {

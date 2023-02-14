@@ -30,7 +30,7 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 public class GoalAddForm extends Composite<VerticalLayout> implements HasUrlParameter<Long> {
     private final GoalServiceImpl goalService;
     private final TextField goalNote = textFiled("Note");
-    private final NumberField goalAmount = amountField("Amount");
+    private final NumberField goalAmount =new NumberField("Amount");
     private final DatePicker goalFinishDate = dateField("dd-MM-yyyy", "Finish date");
     private final CustomUser user;
 
