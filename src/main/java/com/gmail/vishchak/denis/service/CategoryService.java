@@ -10,7 +10,7 @@ public interface CategoryService {
 
     List<Category> findAllCategories();
 
-    boolean addCategories(Category... categories);
+    void addCategories(Category... categories);
 
     void deleteCategory(Long id);
 }

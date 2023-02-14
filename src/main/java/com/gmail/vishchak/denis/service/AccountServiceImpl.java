@@ -1,7 +1,7 @@
 package com.gmail.vishchak.denis.service;
 
 import com.gmail.vishchak.denis.model.Account;
-import com.gmail.vishchak.denis.model.CurrentUser;
+import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.repository.AccountRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,24 +19,17 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     @Transactional
-    public boolean addAccount(Account account) {
-        if (account == null) {
-            return false;
+    public void addAccount(Account account) {
+        if (account == null || accountRepository.existsByUserAndAccountName(account.getUser(), account.getAccountName())) {
+            return;
         }
         accountRepository.save(account);
-        return true;
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Account findByAccountName(String name, CurrentUser currentUser) {
-        List<Account> accountList = accountRepository.findByUser(currentUser);
-        for (Account a :
-                accountList) {
-            if (a.getAccountName().equalsIgnoreCase(name))
-                return a;
-        }
-        throw new RuntimeException();
+    public Optional<Account> findByAccountId(Long accountId) {
+        return accountRepository.findById(accountId);
     }
 
     @Override
@@ -47,16 +40,23 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    @Transactional
     public void updateAccount(Long id, String accountName, Double amount) {
         Optional<Account> account = accountRepository.findById(id);
         account.ifPresent(c -> {
             c.setAccountAmount(amount);
-            if (accountName == null || accountName.isEmpty()){
+            if (accountName == null || accountName.isEmpty()) {
                 accountRepository.save(c);
                 return;
             }
-                c.setAccountName(accountName);
+            c.setAccountName(accountName);
             accountRepository.save(c);
         });
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Account> findAccountsByUser(CustomUser user) {
+        return accountRepository.findByUser(user);
     }
 }

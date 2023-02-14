@@ -5,7 +5,6 @@ import com.gmail.vishchak.denis.repository.CategoryRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -25,12 +24,13 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional
-    public boolean addCategories(Category... categories) {
-        if (categories == null) {
-            return false;
+    public void addCategories(Category... categories) {
+        for (Category c:
+             categories) {
+            if(categoryRepository.findByCategoryNameLikeIgnoreCase(c.getCategoryName()).isEmpty()){
+                categoryRepository.save(c);
+            }
         }
-        categoryRepository.saveAll(Arrays.asList(categories));
-        return true;
     }
 
     @Override

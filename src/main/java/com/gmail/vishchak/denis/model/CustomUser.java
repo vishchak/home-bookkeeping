@@ -3,7 +3,7 @@ package com.gmail.vishchak.denis.model;
 
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import lombok.AllArgsConstructor;
+import com.gmail.vishchak.denis.model.enums.UserRole;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -17,7 +17,7 @@ import java.util.List;
 @NoArgsConstructor
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class,
         property = "userId")
-public class CurrentUser {
+public class CustomUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
@@ -31,17 +31,21 @@ public class CurrentUser {
 
     private String email;
 
-    @OneToOne
-    @JoinColumn(name = "image_id")
-    private Image image;
+    private String pictureUrl;
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Account> accounts = new ArrayList<>();
 
-    public CurrentUser(String login, String passwordHash, String email, Image image) {
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Goal> goals = new ArrayList<>();
+
+    public CustomUser(String login, String password, String email, String pictureUrl) {
         this.login = login;
-        this.passwordHash = passwordHash;
+        this.passwordHash = password;
         this.email = email;
-        this.image = image;
+        this.role = UserRole.USER;
+        this.pictureUrl = pictureUrl;
     }
 }

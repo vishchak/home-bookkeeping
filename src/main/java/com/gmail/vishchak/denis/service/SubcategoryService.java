@@ -9,9 +9,11 @@ import java.util.Optional;
 public interface SubcategoryService {
     Optional<Subcategory> findSubcategoryById(Long id);
 
-    List<Subcategory> findAllCategories();
+    List<Subcategory> findAllSubcategories();
 
-    boolean addSubcategories(Subcategory... subcategories);
+    List<Subcategory> findByCategory(Category category);
+
+    void addSubcategories(Subcategory... subcategories);
 
     void deleteSubcategory(Long id);
 }

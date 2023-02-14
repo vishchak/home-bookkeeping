@@ -16,7 +16,8 @@ import java.util.List;
         property = "categoryId")
 public class Category {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long categoryId;
 
     @Column(name = "name")
@@ -25,8 +26,8 @@ public class Category {
     @OneToMany(mappedBy = "category")
     private List<Transaction> transactions;
 
-    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    private List<Subcategory>subcategories;
+    @OneToMany(mappedBy = "category", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private List<Subcategory> subcategories;
 
     public Category(String categoryName) {
         this.categoryName = categoryName;

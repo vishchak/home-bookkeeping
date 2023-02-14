@@ -1,0 +1,33 @@
+/*
+ login page styling
+ */
+.login-view {
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}
+
+.login-view vaadin-vertical-layout {
+    align-items: center;
+    padding: 0;
+}
+
+.login-view-content {
+    max-width: fit-content;
+}
+
+.login-width {
+    width: 19em;
+    max-width: 100%;
+}
+
+.login-view-logo {
+    height: 100%;
+    width: 150px;
+}
+
+.login-view vaadin-login-form {
+    max-width: 22em;
+    margin: 0;
+    height: 290px;
+}
