@@ -6,14 +6,18 @@ import com.gmail.vishchak.denis.views.list.auth.LoginView;
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 
-@EnableWebSecurity
 @Configuration
+@EnableWebSecurity
+@EnableScheduling
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig extends VaadinWebSecurity {
     private final UserDetailsService userDetailsService;
     private final PasswordEncoder passwordEncoder;
@@ -38,15 +42,15 @@ public class SecurityConfig extends VaadinWebSecurity {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                    .antMatchers("/images/**")
-                    .permitAll()
+                .antMatchers("/images/**")
+                .permitAll()
                 .and()
                 .oauth2Login()
-                    .loginPage("/login")
-                    .userInfoEndpoint()
-                    .userService(customOAuth2UserService)
+                .loginPage("/login")
+                .userInfoEndpoint()
+                .userService(customOAuth2UserService)
                 .and()
-                    .successHandler(auth2LoginSuccessHandler);
+                .successHandler(auth2LoginSuccessHandler);
 
         super.configure(http);
         setLoginView(http, LoginView.class);

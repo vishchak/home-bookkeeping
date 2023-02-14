@@ -50,12 +50,4 @@ public class CustomUserServiceImpl implements CustomUserService {
             }
         }
     }
-
-    @Override
-    @Transactional
-    public void deleteUser(String login) {
-        if (existsByLogin(login)) {
-            userRepository.delete(findUserByLoginOrEmail(login));
-        }
-    }
 }

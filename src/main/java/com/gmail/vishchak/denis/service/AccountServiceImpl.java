@@ -27,19 +27,6 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Optional<Account> findByAccountId(Long accountId) {
-        return accountRepository.findById(accountId);
-    }
-
-    @Override
-    @Transactional
-    public void deleteAccount(Long id) {
-        Optional<Account> account = accountRepository.findById(id);
-        account.ifPresent(a -> accountRepository.deleteById(a.getAccountId()));
-    }
-
-    @Override
     @Transactional
     public void updateAccount(Long id, String accountName, Double amount) {
         Optional<Account> account = accountRepository.findById(id);
