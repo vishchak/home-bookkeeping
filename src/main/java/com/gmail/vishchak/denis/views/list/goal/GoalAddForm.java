@@ -26,7 +26,7 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 @PermitAll
 @Route("add-goal")
 @PageTitle("Goal | FROG-STOCK")
-@CssImport("./themes/flowcrmtutorial/components/form/transaction-goal-form.css")
+@CssImport("./themes/frog-stock/components/form/transaction-goal-form.css")
 public class GoalAddForm extends Composite<VerticalLayout> implements HasUrlParameter<Long> {
     private final GoalServiceImpl goalService;
     private final TextField goalNote = textFiled("Note");

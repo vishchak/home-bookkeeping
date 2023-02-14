@@ -28,7 +28,7 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.ErrorN
 @PermitAll
 @Route("add-account")
 @PageTitle("Add account | | FROG-STOCK")
-@CssImport("./themes/flowcrmtutorial/components/form/create-account-form.css")
+@CssImport("./themes/frog-stock/components/form/create-account-form.css")
 public class AccountCreateForm extends Composite<VerticalLayout> {
     private final AccountServiceImpl accountService;
     private final TextField accountName = SharedComponents.textFiled("Enter account's name");

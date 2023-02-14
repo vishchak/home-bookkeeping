@@ -38,7 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @PermitAll
 @Route(value = "", layout = MainLayout.class)
 @PageTitle("Transactions | FROG-STOCK")
-@CssImport("./themes/flowcrmtutorial/components/transaction-view/transaction-view.css")
+@CssImport("./themes/frog-stock/components/transaction-view/transaction-view.css")
 public class TransactionView extends VerticalLayout {
     private final static int ITEMS_PER_PAGE = 10;
     private final AccountServiceImpl accountService;

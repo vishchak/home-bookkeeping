@@ -20,7 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Route("login")
 @PageTitle("Login | FROG-STOCK")
-@CssImport("./themes/flowcrmtutorial/components/login/login-view.css")
+@CssImport("./themes/frog-stock/components/login/login-view.css")
 public class LoginView extends Composite<VerticalLayout> implements BeforeEnterListener {
     private static final String OAUTH_GOOGLE_URL = "/oauth2/authorization/google";
     private static final String OAUTH_FACEBOOK_URL = "/oauth2/authorization/facebook";

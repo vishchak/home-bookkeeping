@@ -31,7 +31,7 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.textFi
 @PermitAll
 @Route("add-transaction")
 @PageTitle("Transaction | FROG-STOCK")
-@CssImport("./themes/flowcrmtutorial/components/form/transaction-goal-form.css")
+@CssImport("./themes/frog-stock/components/form/transaction-goal-form.css")
 public class TransactionAddForm extends Composite<VerticalLayout> implements HasUrlParameter<Long> {
     private final AccountServiceImpl accountService;
     private final TransactionServiceImpl transactionService;
