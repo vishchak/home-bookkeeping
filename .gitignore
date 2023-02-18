@@ -32,3 +32,4 @@ webpack.generated.js
 /README.md
 /package.json
 /.mvn/
+/system.properties
