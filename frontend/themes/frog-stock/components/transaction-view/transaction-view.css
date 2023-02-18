@@ -1,0 +1,25 @@
+.transaction-view-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+}
+
+.menu-button {
+    margin-left: auto;
+}
+
+.transaction-form vaadin-vertical-layout {
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+}
+
+.transaction-form vaadin-number-field,
+.transaction-form vaadin-horizontal-layout {
+    width: 192px;
+}
+
+.transaction-form vaadin-button {
+    width: 96px;
+    max-width: 100%;
+}

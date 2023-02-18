@@ -9,7 +9,8 @@
     padding: 0;
 }
 
-.create-account-dialog-content {
+.create-account-dialog-content, vaadin-number-field{
+    min-width: 336px;
     max-width: fit-content;
 }
 

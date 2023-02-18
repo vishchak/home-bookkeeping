@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +19,12 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionServiceImpl(TransactionRepository transactionRepository, AccountServiceImpl accountService) {
         this.transactionRepository = transactionRepository;
         this.accountService = accountService;
+    }
+
+    private static boolean ifExpense(Category category, Subcategory subcategory) {
+        return (category.getCategoryName().equalsIgnoreCase("expense") ||
+                (subcategory.getSubcategoryName().equalsIgnoreCase("debt repayment") ||
+                        subcategory.getSubcategoryName().equalsIgnoreCase("loan")));
     }
 
     @Override
@@ -79,8 +86,10 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional(readOnly = true)
     public List<Transaction> findSpecificUserTransactions(CustomUser user, Account account, String note, Date from, Date to, Double amount, Category category, Subcategory subcategory, int currentPageNUmber, int itemsPerPage) {
-        return transactionRepository.findTransactionsByAccountUser(user, account, note, from, to, amount, category, subcategory,
-                PageRequest.of(currentPageNUmber, itemsPerPage));
+        List<Transaction> transactionsByAccountUser = transactionRepository.findTransactionsByAccountUser(user, account, note, from, to, amount, category, subcategory, PageRequest.of(currentPageNUmber, itemsPerPage));
+        transactionsByAccountUser.sort(Comparator.comparing(Transaction::getTransactionId).reversed());
+
+        return transactionsByAccountUser;
     }
 
     @Override
@@ -112,19 +121,18 @@ public class TransactionServiceImpl implements TransactionService {
     @Override
     @Transactional(readOnly = true)
     public List<Transaction> findAllUSerTransactions(CustomUser user, int currentPageNUmber, int itemsPerPage) {
-        return transactionRepository.findTransactionsByAccountUser(user, PageRequest.of(currentPageNUmber, itemsPerPage));
+        List<Transaction> transactionsByAccountUser = transactionRepository.findTransactionsByAccountUser(user, PageRequest.of(currentPageNUmber, itemsPerPage));
+        transactionsByAccountUser.sort(Comparator.comparing(Transaction::getTransactionId).reversed());
+
+        return transactionsByAccountUser;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Transaction> findAllAccountTransactions(Account account, int currentPageNUmber, int itemsPerPage) {
-        return transactionRepository.findAllTransactionsByAccount(account, PageRequest.of(currentPageNUmber, itemsPerPage));
-    }
+        List<Transaction> allTransactionsByAccount = transactionRepository.findAllTransactionsByAccount(account, PageRequest.of(currentPageNUmber, itemsPerPage));
+        allTransactionsByAccount.sort(Comparator.comparing(Transaction::getTransactionId).reversed());
 
-    private boolean ifExpense(Category category, Subcategory subcategory) {
-        return (category.getCategoryName().equalsIgnoreCase("expense") ||
-                (subcategory.getSubcategoryName().equalsIgnoreCase("Repayment") ||
-                        subcategory.getSubcategoryName().equalsIgnoreCase("Debt") ||
-                        subcategory.getSubcategoryName().equalsIgnoreCase("Goal")));
+        return allTransactionsByAccount;
     }
 }

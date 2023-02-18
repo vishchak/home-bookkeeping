@@ -1,10 +1,11 @@
-package com.gmail.vishchak.denis.views.list.transaction;
+package com.gmail.vishchak.denis.views.list.account;
 
 import com.gmail.vishchak.denis.model.Account;
 import com.gmail.vishchak.denis.model.CustomUser;
 import com.gmail.vishchak.denis.security.SecurityService;
 import com.gmail.vishchak.denis.service.AccountServiceImpl;
 import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
+import com.gmail.vishchak.denis.views.list.transaction.TransactionView;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.UI;
@@ -27,11 +28,11 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.ErrorN
 @PermitAll
 @Route("add-account")
 @PageTitle("Add account | | FROG-STOCK")
-@CssImport("./themes/flowcrmtutorial/components/form/create-account-form.css")
+@CssImport("./themes/frog-stock/components/form/create-account-form.css")
 public class AccountCreateForm extends Composite<VerticalLayout> {
     private final AccountServiceImpl accountService;
     private final TextField accountName = SharedComponents.textFiled("Enter account's name");
-    private final NumberField accountAmount = SharedComponents.amountField("Enter account's amount");
+    private final NumberField accountAmount = new NumberField("Enter account's amount");
     private final CustomUser user;
 
     public AccountCreateForm(AccountServiceImpl accountService, SecurityService securityService) {

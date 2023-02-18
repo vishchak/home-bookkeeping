@@ -12,5 +12,4 @@ public interface CategoryService {
 
     void addCategories(Category... categories);
 
-    void deleteCategory(Long id);
 }

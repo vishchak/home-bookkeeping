@@ -22,10 +22,12 @@ import com.vaadin.flow.router.Route;
 
 import javax.annotation.security.PermitAll;
 
+import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.ErrorNotification;
+
 @PermitAll
 @Route("add-funds-goal")
 @PageTitle("Goal | FROG-STOCK")
-@CssImport("./themes/flowcrmtutorial/components/form/transaction-goal-form.css")
+@CssImport("./themes/frog-stock/components/form/transaction-goal-form.css")
 public class GoalAddFundsForm extends Composite<VerticalLayout> implements HasUrlParameter<Long> {
 
     private final GoalServiceImpl goalService;
@@ -104,7 +106,7 @@ public class GoalAddFundsForm extends Composite<VerticalLayout> implements HasUr
                     }
             );
         } catch (NullPointerException | javax.validation.ConstraintViolationException e) {
-            Notification.show("Fill all the necessary fields", 3000, Notification.Position.BOTTOM_START);
+            ErrorNotification();
         }
     }
 }

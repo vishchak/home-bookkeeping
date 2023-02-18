@@ -26,13 +26,12 @@ import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.*;
 @PermitAll
 @Route("add-goal")
 @PageTitle("Goal | FROG-STOCK")
-@CssImport("./themes/flowcrmtutorial/components/form/transaction-goal-form.css")
+@CssImport("./themes/frog-stock/components/form/transaction-goal-form.css")
 public class GoalAddForm extends Composite<VerticalLayout> implements HasUrlParameter<Long> {
     private final GoalServiceImpl goalService;
     private final TextField goalNote = textFiled("Note");
-    private final NumberField goalAmount = amountField("Amount");
-    private final String format = "dd-MM-yyyy";
-    private final DatePicker goalFinishDate = dateField(format, "Finish date");
+    private final NumberField goalAmount =new NumberField("Amount");
+    private final DatePicker goalFinishDate = dateField("dd-MM-yyyy", "Finish date");
     private final CustomUser user;
 
     public GoalAddForm(GoalServiceImpl goalService, SecurityService securityService) {

@@ -1,0 +1,9 @@
+/*
+links styling
+ */
+.main-layout-drawer a[highlight] {
+    font-weight: bold;
+    text-decoration: underline;
+}
+
+

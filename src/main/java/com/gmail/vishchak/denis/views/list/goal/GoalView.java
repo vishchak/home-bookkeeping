@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 @PermitAll
 @PageTitle("Goals | FROG-STOCK")
 @Route(value = "goals", layout = MainLayout.class)
-@CssImport("./themes/flowcrmtutorial/components/goal/goal-view.css")
+@CssImport("./themes/frog-stock/components/goal/goal-view.css")
 public class GoalView extends VerticalLayout {
     private final static int ITEMS_PER_PAGE = 10;
     private final GoalServiceImpl goalService;

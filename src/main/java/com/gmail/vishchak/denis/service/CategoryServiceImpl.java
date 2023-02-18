@@ -34,13 +34,6 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    @Transactional
-    public void deleteCategory(Long id) {
-        Optional<Category> category = categoryRepository.findById(id);
-        category.ifPresent(c -> categoryRepository.deleteById(c.getCategoryId()));
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public Optional<Category> findCategoryById(Long id) {
         return categoryRepository.findById(id);

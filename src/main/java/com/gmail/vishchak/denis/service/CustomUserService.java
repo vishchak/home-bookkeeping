@@ -11,5 +11,4 @@ public interface CustomUserService {
 
     void registerUser(CustomUser user);
 
-    void deleteUser(String mailLogin);
 }

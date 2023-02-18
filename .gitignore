@@ -31,3 +31,4 @@ webpack.generated.js
 /tsconfig.json
 /package.json
 /.mvn/
+/system.properties

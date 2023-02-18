@@ -8,69 +8,66 @@ import com.gmail.vishchak.denis.service.AccountServiceImpl;
 import com.gmail.vishchak.denis.service.CategoryServiceImpl;
 import com.gmail.vishchak.denis.service.SubcategoryServiceImpl;
 import com.gmail.vishchak.denis.service.TransactionServiceImpl;
+import com.gmail.vishchak.denis.views.list.account.AccountCreateForm;
 import com.gmail.vishchak.denis.views.list.shared.MainLayout;
-import com.gmail.vishchak.denis.views.list.shared.SharedComponents;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.contextmenu.ContextMenu;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.contextmenu.SubMenu;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import javax.annotation.security.PermitAll;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
-
-@Route(value = "", layout = MainLayout.class)
-@PageTitle("Transactions | MoneyLonger")
 @PermitAll
+@Route(value = "", layout = MainLayout.class)
+@PageTitle("Transactions | FROG-STOCK")
+@CssImport("./themes/frog-stock/components/transaction-view/transaction-view.css")
 public class TransactionView extends VerticalLayout {
     private final static int ITEMS_PER_PAGE = 10;
     private final AccountServiceImpl accountService;
-    private final CategoryServiceImpl categoryService;
-    private final SubcategoryServiceImpl subcategoryService;
     private final TransactionServiceImpl transactionService;
     private final Grid<Transaction> grid = new Grid<>(Transaction.class);
-    private final TextField accountAmountFiled = new TextField();
-    private final CustomUser user;
     private final MenuBar menuBar = new MenuBar();
+    private final Button menuButton = new Button(new Icon("lumo", "unordered-list"));
+    private final TransactionFilterForm form;
+    private final CustomUser user;
     private long totalAmountOfPages;
     private int currentPageNumber = 0;
     private Account currentAccount;
-    private TransactionFilterForm form;
 
 
     public TransactionView(AccountServiceImpl accountService, CategoryServiceImpl categoryService, SubcategoryServiceImpl subcategoryService, TransactionServiceImpl transactionService, SecurityService securityService) {
         this.accountService = accountService;
-        this.categoryService = categoryService;
-        this.subcategoryService = subcategoryService;
         this.transactionService = transactionService;
         this.user = securityService.getAuthenticatedUser();
+        this.form = new TransactionFilterForm(categoryService.findAllCategories(), subcategoryService.findAllSubcategories(), this::updateList);
 
         addClassName("transaction-view");
         setSizeFull();
 
         configureMenuBar();
-        configureAmountField();
         configureGrid();
-        configureForm();
 
-        HorizontalLayout toolBar = new HorizontalLayout(accountAmountFiled, menuBar);
-        toolBar.setAlignItems(Alignment.BASELINE);
+        menuButton.addClassNames("menu-button", "button--secondary");
+        HorizontalLayout toolBar = new HorizontalLayout(menuBar, menuButton);
+        toolBar.addClassName("transaction-view-toolbar");
+        toolBar.setWidth(grid.getWidth());
 
         add(
                 toolBar,
@@ -86,8 +83,11 @@ public class TransactionView extends VerticalLayout {
     }
 
     private void configureMenuBar() {
+        menuBar.removeAll();
+
         MenuItem accountMenu = menuBar.addItem("Account");
         SubMenu accountSubMenu = accountMenu.getSubMenu();
+        accountSubMenu.addItem(accountAmount());
         accountSubMenu.addItem("Add account", e -> UI.getCurrent().navigate(AccountCreateForm.class));
         MenuItem chooseAccountMenu = accountSubMenu.addItem("Choose account");
         SubMenu accountVar = chooseAccountMenu.getSubMenu();
@@ -118,8 +118,20 @@ public class TransactionView extends VerticalLayout {
         menuBar.addItem("Edit", listener);
     }
 
+    private String accountAmount() {
+        if (currentAccount != null) {
+            return currentAccount.getAccountName() + ' ' + currentAccount.getAccountAmount().toString() + '$';
+        }
+
+        AtomicReference<Double> total = new AtomicReference<>(0D);
+        accountService.findAccountsByUser(user).forEach(account -> total.updateAndGet(v -> v + account.getAccountAmount()));
+
+        return "Total " + total + '$';
+    }
+
+
     public void updateList() {
-        ZoneId defaultZoneId = form.getDefaultZoneId();
+        ZoneId defaultZoneId = ZoneId.systemDefault();
 
         totalAmountOfPages = transactionService.getPageCount(user, currentAccount, ITEMS_PER_PAGE);
 
@@ -143,66 +155,68 @@ public class TransactionView extends VerticalLayout {
             grid.setItems(transactionService.findAllAccountTransactions(currentAccount, currentPageNumber, ITEMS_PER_PAGE));
         }
 
-        updateAccountAmountField();
+        configureMenuBar();
     }
 
     private void configureGrid() {
         grid.addClassNames("transaction-grid", "gird-color");
         grid.setSizeFull();
-
         grid.setColumns();
-        grid.addColumn(transaction -> transaction.getTransactionDate().toString()).setHeader("Date").setSortable(true);
-        grid.addColumn(transaction -> transaction.getTransactionAmount().toString()).setHeader("Amount").setSortable(true);
-        grid.addColumn(transaction -> transaction.getCategory().getCategoryName()).setHeader("Category").setSortable(true);
-        grid.addColumn(transaction -> transaction.getSubcategory().getSubcategoryName()).setHeader("Subcategory").setSortable(true);
-        grid.addColumn("note");
-
         grid.getColumns().forEach(col -> col.setAutoWidth(true));
+
+        Grid.Column<Transaction> dateColumn = grid
+                .addColumn(transaction -> transaction.getTransactionDate().toString()).setHeader("Date").setSortable(true);
+        Grid.Column<Transaction> amountColumn = grid
+                .addColumn(transaction -> transaction.getTransactionAmount().toString()).setHeader("Amount").setSortable(true);
+        Grid.Column<Transaction> categoryColumn = grid
+                .addColumn(transaction -> transaction.getCategory().getCategoryName()).setHeader("Category").setSortable(true);
+        Grid.Column<Transaction> subcategoryColumn = grid
+                .addColumn(transaction -> transaction.getSubcategory().getSubcategoryName()).setHeader("Subcategory");
+        Grid.Column<Transaction> noteColumn = grid
+                .addColumn(Transaction::getNote).setHeader("Note");
+
+        ColumnToggleContextMenu columnToggleContextMenu = new ColumnToggleContextMenu(menuButton);
+
+        columnToggleContextMenu.addColumnToggleItem("Date", dateColumn);
+        columnToggleContextMenu.addColumnToggleItem("Amount", amountColumn);
+        columnToggleContextMenu.addColumnToggleItem("Category", categoryColumn);
+        columnToggleContextMenu.addColumnToggleItem("Subcategory", subcategoryColumn);
+        columnToggleContextMenu.addColumnToggleItem("Note", noteColumn);
     }
 
     private void showButtons() {
         grid.addComponentColumn(transaction -> {
-            Button editButton = new Button("Edit");
-            editButton.setIcon(new Icon("lumo", "edit"));
-            editButton.addClickListener(e -> getUI().ifPresent(ui -> ui.navigate("add-transaction/" + transaction.getTransactionId())));
+                    Button editButton = new Button(new Icon("lumo", "edit"), e -> getUI().ifPresent(ui -> ui.navigate("add-transaction/" + transaction.getTransactionId())));
+                    Button deleteButton = new Button(new Icon("vaadin", "trash"), e -> deleteTransaction(transaction));
 
-            Button deleteButton = new Button("Delete");
-            deleteButton.addClickListener(e -> deleteTransaction(transaction));
+                    editButton.addClassNames("button--tertiary");
+                    deleteButton.addClassNames("button--primary");
 
-            return new HorizontalLayout(editButton, deleteButton);
-        }).setKey("buttons").setHeader("Edit");
+                    return new HorizontalLayout(editButton, deleteButton);
+                }).setKey("buttons")
+                .setHeader("Edit");
     }
 
     private void deleteTransaction(Transaction transaction) {
         Dialog dialog = new Dialog();
         dialog.setHeaderTitle("Are you sure you want to delete this transaction permanently?");
 
-        Button deleteButton = new Button("Delete");
-        deleteButton.addClickListener((e) -> {
-            transactionService.deleteTransaction(transaction.getTransactionId());
-            updateList();
-            dialog.close();
-        });
+        Button deleteButton = new Button
+                (
+                        "Delete",
+                        e -> {
+                            transactionService.deleteTransaction(transaction.getTransactionId());
+                            updateList();
+                            dialog.close();
+                        }
+                );
+        deleteButton.addClassNames("button--primary");
 
-        SharedComponents.configureDialog(dialog, deleteButton);
-    }
+        Button cancelButton = new Button("Cancel", (e) -> dialog.close());
+        cancelButton.addClassNames("button-tertiary");
 
-    private void configureForm() {
-        form = new TransactionFilterForm(
-                categoryService.findAllCategories(), subcategoryService.findAllSubcategories(), accountService);
-        form.setWidth("25 em");
-
-        form.getAmountField().addValueChangeListener(e -> updateList());
-        form.getFromDateField().addValueChangeListener(e -> updateList());
-        form.getToDateField().addValueChangeListener(e -> updateList());
-        form.getNoteField().addValueChangeListener(e -> updateList());
-        form.getCategory().addValueChangeListener(e -> updateList());
-        form.getSubcategory().addValueChangeListener(e -> updateList());
-
-        form.getClear().addClickListener(e -> form.clearForm());
-        form.getClose().addClickListener(e -> form.setVisible(false));
-
-        form.setVisible(false);
+        dialog.getFooter().add(cancelButton, deleteButton);
+        dialog.open();
     }
 
     private Component addContent() {
@@ -216,9 +230,7 @@ public class TransactionView extends VerticalLayout {
     }
 
     private Component getPageButtons() {
-        setClassName("page-buttons");
-
-        Button nextButton = new Button("Next page", e -> {
+        Button nextButton = new Button(new Icon("lumo", "angle-right"), e -> {
             if (currentPageNumber >= --totalAmountOfPages) {
                 return;
             }
@@ -226,7 +238,7 @@ public class TransactionView extends VerticalLayout {
             updateList();
         });
 
-        Button previousButton = new Button("Previous page", e -> {
+        Button previousButton = new Button(new Icon("lumo", "angle-left"), e -> {
             if (currentPageNumber <= 0) {
                 return;
             }
@@ -237,25 +249,16 @@ public class TransactionView extends VerticalLayout {
         return new Div(previousButton, nextButton);
     }
 
-    private void configureAmountField() {
-        accountAmountFiled.setReadOnly(true);
-        accountAmountFiled.setSizeUndefined();
-        accountAmountFiled.setLabel("Account balance");
-        accountAmountFiled.setPrefixComponent(VaadinIcon.DOLLAR.create());
-    }
-
-    private void updateAccountAmountField() {
-        if (currentAccount != null) {
-            accountAmountFiled.setValue(currentAccount.getAccountAmount().toString());
-            return;
+    private static class ColumnToggleContextMenu extends ContextMenu {
+        public ColumnToggleContextMenu(Component target) {
+            super(target);
+            setOpenOnClick(true);
         }
 
-        Double total = 0D;
-        List<Account> accountList = accountService.findAccountsByUser(user);
-        for (Account a :
-                accountList) {
-            total += a.getAccountAmount();
+        void addColumnToggleItem(String label, Grid.Column<Transaction> column) {
+            MenuItem menuItem = this.addItem(label, e -> column.setVisible(e.getSource().isChecked()));
+            menuItem.setCheckable(true);
+            menuItem.setChecked(column.isVisible());
         }
-        accountAmountFiled.setValue(total.toString());
     }
 }

@@ -14,6 +14,4 @@ public interface SubcategoryService {
     List<Subcategory> findByCategory(Category category);
 
     void addSubcategories(Subcategory... subcategories);
-
-    void deleteSubcategory(Long id);
 }
