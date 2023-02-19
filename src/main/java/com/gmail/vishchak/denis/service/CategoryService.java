@@ -12,4 +12,5 @@ public interface CategoryService {
 
     void addCategories(Category... categories);
 
+    Optional<Category>findCategoryByName(String categoryName);
 }

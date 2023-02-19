@@ -26,9 +26,9 @@ public class DataGenerator {
         Category other = new Category("Other");
         categoryService.addCategories(expense, income, other);
 
-        Optional<Category> categoryExpense = categoryService.findCategoryById(1L);
-        Optional<Category> categoryIncome = categoryService.findCategoryById(2L);
-        Optional<Category> categoryOther = categoryService.findCategoryById(3L);
+        Optional<Category> categoryExpense = categoryService.findCategoryByName("expense");
+        Optional<Category> categoryIncome = categoryService.findCategoryByName("income");
+        Optional<Category> categoryOther = categoryService.findCategoryByName("other");
 
         if (categoryExpense.isPresent() && categoryIncome.isPresent() && categoryOther.isPresent()) {
             subcategoryService.addSubcategories(
