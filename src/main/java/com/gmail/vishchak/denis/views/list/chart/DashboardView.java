@@ -32,7 +32,7 @@ import java.util.*;
 import static com.gmail.vishchak.denis.views.list.shared.SharedComponents.dateField;
 
 @Route(value = "dashboard", layout = MainLayout.class)
-@PageTitle("Dashboard | MoneyLonger")
+@PageTitle("Dashboard | FROG-STOCK")
 @PermitAll
 public class DashboardView extends VerticalLayout {
     private final CategoryServiceImpl categoryService;
@@ -124,7 +124,7 @@ public class DashboardView extends VerticalLayout {
         return total;
     }
 
-    private Component getChart(Long categoryId) {
+    private Component getChart(String categoryName) {
         Chart chart = new Chart(ChartType.PIE);
 
         DataSeries dataSeries = new DataSeries();
@@ -135,7 +135,7 @@ public class DashboardView extends VerticalLayout {
 
         Map<String, Double> subcategoryAmount = new HashMap<>();
 
-        Optional<Category> category = categoryService.findCategoryById(categoryId);
+        Optional<Category> category = categoryService.findCategoryByName(categoryName);
 
         category.ifPresent(c -> transactionService.findChartTransactions(user, from, to, c)
                 .forEach(transaction -> {
@@ -193,11 +193,11 @@ public class DashboardView extends VerticalLayout {
             return;
         }
         if (tab.equals(expense)) {
-            content.add(new Paragraph((getChart(1L))));
+            content.add(new Paragraph((getChart("expense"))));
         } else if (tab.equals(income)) {
-            content.add(new Paragraph((getChart(2L))));
+            content.add(new Paragraph((getChart("income"))));
         } else if (tab.equals(other)) {
-            content.add(new Paragraph((getChart(3L))));
+            content.add(new Paragraph((getChart("other"))));
         } else if (tab.equals(netIncome)) {
             content.add(new Paragraph(getNetIncomeChart()));
         }
