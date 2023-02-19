@@ -25,9 +25,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void addCategories(Category... categories) {
-        for (Category c:
-             categories) {
-            if(categoryRepository.findByCategoryNameLikeIgnoreCase(c.getCategoryName()).isEmpty()){
+        for (Category c :
+                categories) {
+            if (categoryRepository.findByCategoryNameLikeIgnoreCase(c.getCategoryName()).isEmpty()) {
                 categoryRepository.save(c);
             }
         }
@@ -35,7 +35,15 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     @Transactional(readOnly = true)
+    public Optional<Category> findCategoryByName(String categoryName) {
+        return categoryRepository.findByCategoryNameLikeIgnoreCase(categoryName);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public Optional<Category> findCategoryById(Long id) {
         return categoryRepository.findById(id);
     }
+
+
 }
