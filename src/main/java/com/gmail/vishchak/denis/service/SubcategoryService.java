@@ -7,11 +7,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface SubcategoryService {
-    Optional<Subcategory> findSubcategoryById(Long id);
 
     List<Subcategory> findAllSubcategories();
 
     List<Subcategory> findByCategory(Category category);
 
     void addSubcategories(Subcategory... subcategories);
+
+    Optional<Subcategory>findBySubcategoryName(String subcategoryName);
 }

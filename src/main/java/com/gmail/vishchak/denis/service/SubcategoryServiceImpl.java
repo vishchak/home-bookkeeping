@@ -19,12 +19,6 @@ public class SubcategoryServiceImpl implements SubcategoryService {
 
     @Override
     @Transactional(readOnly = true)
-    public Optional<Subcategory> findSubcategoryById(Long id) {
-        return subcategoryRepository.findById(id);
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public List<Subcategory> findAllSubcategories() {
         return subcategoryRepository.findAll();
     }
@@ -38,6 +32,12 @@ public class SubcategoryServiceImpl implements SubcategoryService {
                 subcategoryRepository.save(s);
             }
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Subcategory> findBySubcategoryName(String subcategoryName) {
+        return subcategoryRepository.findBySubcategoryNameLikeIgnoreCase(subcategoryName);
     }
 
     @Override
