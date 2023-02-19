@@ -161,9 +161,9 @@ public class DashboardView extends VerticalLayout {
         Tabs tabs = new Tabs();
         tabs.addSelectedChangeListener(selectedChangeEvent -> setContent(selectedChangeEvent.getSelectedTab()));
 
-        Optional<Category> expenseC = categoryService.findCategoryById(1L);
-        Optional<Category> incomeC = categoryService.findCategoryById(2L);
-        Optional<Category> otherC = categoryService.findCategoryById(3L);
+        Optional<Category> expenseC = categoryService.findCategoryByName("expense");
+        Optional<Category> incomeC = categoryService.findCategoryByName("income");
+        Optional<Category> otherC = categoryService.findCategoryByName("other");
 
         if (expenseC.isPresent() && incomeC.isPresent() && otherC.isPresent()) {
             income.add(new Span(createBadge(transactionService.getTransactionCountByCategory(user, incomeC.get()))));
